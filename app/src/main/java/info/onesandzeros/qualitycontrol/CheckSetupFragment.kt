@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import dagger.hilt.DefineComponent
 import info.onesandzeros.qualitycontrol.api.ApiService
 import info.onesandzeros.qualitycontrol.api.MyApi
 import info.onesandzeros.qualitycontrol.api.models.Department
