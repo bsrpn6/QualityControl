@@ -1,5 +1,6 @@
 package info.onesandzeros.qualitycontrol
 
+import ChecksAdapter
 import android.os.Bundle
 import android.os.Parcelable
 import android.view.View

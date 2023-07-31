@@ -25,7 +25,7 @@
 
     <!-- Freeform Integer Input -->
     <EditText
-        android:id="@+id/integerInputEditText"
+        android:id="@+id/stringInputEditText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:inputType="text"

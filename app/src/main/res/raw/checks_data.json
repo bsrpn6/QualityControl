@@ -1,34 +1,39 @@
 {
   "checks": [
     {
+      "checkTypeID": 1,
       "checktype": "product_case",
       "type": "barcode",
       "title": "Barcode Check",
       "description": "This is the 1st barcode check.",
-      "value": true
+      "value": "0-00000-00000-0"
     },
     {
+      "checkTypeID": 2,
       "checktype": "product_case",
       "type": "barcode",
       "title": "Barcode Check",
       "description": "This is the 2nd barcode check.",
-      "value": 0
+      "value": "0-00000-00000-0"
     },
     {
+      "checkTypeID": 3,
       "checktype": "product_case",
       "type": "integer",
       "title": "Barcode SKU Digits",
       "description": "Provide the barcode SKU.",
-      "value": 0
+      "value": "00"
     },
     {
+      "checkTypeID": 4,
       "checktype": "product_case",
       "type": "string",
       "title": "Datecode",
       "description": "Enter the product datecode.",
-      "value": "Sample Text"
+      "value": "PO12345678"
     },
     {
+      "checkTypeID": 5,
       "checktype": "product_case",
       "type": "boolean",
       "title": "Datecode Legible",
@@ -36,6 +41,7 @@
       "value": true
     },
     {
+      "checkTypeID": 6,
       "checktype": "product_case",
       "type": "double",
       "title": "Case Weight",
@@ -43,6 +49,7 @@
       "value": 0.0
     },
     {
+      "checkTypeID": 7,
       "checktype": "product_case",
       "type": "integer",
       "title": "Product Count",
@@ -50,20 +57,23 @@
       "value": 0
     },
     {
+      "checkTypeID": 8,
       "checktype": "product_case",
       "type": "boolean",
       "title": "Damage",
       "description": "Is the case damaged?",
-      "value": "Sample Text"
+      "value": false
     },
     {
+      "checkTypeID": 9,
       "checktype": "product_case",
       "type": "boolean",
       "title": "Alignment",
       "description": "Is the case aligned and square?",
-      "value": true
+      "value": false
     },
     {
+      "checkTypeID": 10,
       "checktype": "product_case",
       "type": "boolean",
       "title": "Sealed",
@@ -71,6 +81,7 @@
       "value": true
     },
     {
+      "checkTypeID": 11,
       "checktype": "product_case",
       "type": "string",
       "title": "Additional Comments",
@@ -78,39 +89,44 @@
       "value": ""
     },
     {
+      "checkTypeID": 12,
       "checktype": "product_bottle",
       "type": "barcode",
       "title": "Barcode check",
       "description": "This is a barcode check.",
-      "value": true
+      "value": "0-00000-00000-0"
     },
     {
+      "checkTypeID": 13,
       "checktype": "product_bottle",
       "type": "string",
       "title": "Datecode",
       "description": "Enter the product datecode.",
-      "value": "Sample Text"
+      "value": "PO12345678"
     },
     {
+      "checkTypeID": 14,
       "checktype": "product_bottle",
       "type": "boolean",
       "title": "Datecode Legible",
       "description": "Is the datecode human readable?",
-      "value": true
+      "value": false
     },
     {
+      "checkTypeID": 15,
       "checktype": "product_bottle",
       "type": "boolean",
       "title": "Label",
       "description": "Is the label fully adhered to the bottle?",
-      "value": true
+      "value": false
     },
     {
+      "checkTypeID": 16,
       "checktype": "product_bottle",
       "type": "boolean",
       "title": "Cap",
       "description": "Is the cap fully closed and absent of scuffs?",
-      "value": true
+      "value": false
     }
   ]
 }

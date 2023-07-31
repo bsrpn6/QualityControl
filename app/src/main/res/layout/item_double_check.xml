@@ -36,7 +36,7 @@
 
     <!-- Freeform Integer Input -->
     <EditText
-        android:id="@+id/integerInputEditText"
+        android:id="@+id/doubleInputEditText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:inputType="numberDecimal"

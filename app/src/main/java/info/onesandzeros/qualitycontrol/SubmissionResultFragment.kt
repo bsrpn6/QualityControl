@@ -28,6 +28,12 @@ class SubmissionResultFragment : Fragment(R.layout.fragment_submission_result) {
         val totalFailedChecks = SubmissionResultFragmentArgs.fromBundle(requireArguments()).totalFailedChecks
 
         // Display the total number of failed checks and success message
+        // Display the total number of failed checks and success message
+        if (totalFailedChecks > 0) {
+            binding.logoImageView.setImageResource(R.drawable.ic_failure)
+        } else {
+            binding.logoImageView.setImageResource(R.drawable.ic_complete)
+        }
         binding.totalFailedChecksTextView.text = "Total Failed Checks: $totalFailedChecks"
         binding.successMessageTextView.text = "Checks have been pushed to the database."
 

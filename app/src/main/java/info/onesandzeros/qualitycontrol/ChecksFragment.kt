@@ -1,5 +1,6 @@
 package info.onesandzeros.qualitycontrol
 
+import ChecksAdapter
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -19,6 +20,9 @@ import java.io.InputStream
 
 class ChecksFragment : Fragment(R.layout.fragment_checks) {
     private lateinit var binding: FragmentChecksBinding
+    private lateinit var adapter: ChecksAdapter
+
+    private lateinit var checksMap: Map<String, List<CheckItem>>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -32,7 +36,7 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
         super.onViewCreated(view, savedInstanceState)
 
         // Fetch the list of checks from the JSON file and categorize them by type
-        val checksMap: Map<String, List<CheckItem>> = loadChecksDataFromJson()
+        checksMap = loadChecksDataFromJson()
 
         // Set up the tab layout and view pager
         val tabLayout = binding.tabLayout
@@ -89,7 +93,21 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
     }
 
     private fun calculateTotalFailedChecks(): Int {
-        return 5;
+        var totalFailedChecks = 0
+
+        for ((_, checkItems) in checksMap) {
+            for (checkItem in checkItems) {
+                val value = checkItem.value
+                val result = checkItem.result
+
+                // Check if the user input value does not match the expected value
+                if (result != null && result != value) {
+                    totalFailedChecks++
+                }
+            }
+        }
+
+        return totalFailedChecks
     }
 
     private fun loadChecksDataFromJson(): Map<String, List<CheckItem>> {
@@ -102,13 +120,14 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
 
         for (i in 0 until jsonArray.length()) {
             val item = jsonArray.getJSONObject(i)
+            val checkId = item.optInt("checkId")
             val checkType = item.optString("checktype") // Read the checktype field from JSON
             val type = item.optString("type")
             val title = item.optString("title")
             val description = item.optString("description")
             val value = item.opt("value") // This will be a dynamic type (Boolean, Integer, String, etc.)
 
-            val checkItem = CheckItem(checkType, type, title, description, value)
+            val checkItem = CheckItem(checkId, checkType, type, title, description, value)
 
             // Add the checkItem to the appropriate category in the checksMap
             if (checksMap.containsKey(checkType)) {

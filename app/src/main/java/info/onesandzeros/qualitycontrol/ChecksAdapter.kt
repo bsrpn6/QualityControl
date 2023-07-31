@@ -1,11 +1,11 @@
-package info.onesandzeros.qualitycontrol
-// ChecksAdapter.kt
-
-import androidx.viewbinding.ViewBinding
+import android.graphics.Color
+import android.text.Editable
+import android.text.TextWatcher
+import androidx.recyclerview.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.recyclerview.widget.RecyclerView
-import dagger.internal.DoubleCheck
+import androidx.viewbinding.ViewBinding
+import info.onesandzeros.qualitycontrol.CheckItem
 import info.onesandzeros.qualitycontrol.databinding.ItemBarcodeCheckBinding
 import info.onesandzeros.qualitycontrol.databinding.ItemBooleanCheckBinding
 import info.onesandzeros.qualitycontrol.databinding.ItemDoubleCheckBinding
@@ -24,10 +24,14 @@ class ChecksAdapter(private val checksList: List<CheckItem>) :
     // ViewHolders with ViewBinding for each check type
     class BarcodeCheckViewHolder(private val binding: ItemBarcodeCheckBinding) : CheckViewHolder(binding) {
         override fun bind(check: CheckItem) {
-            // Bind the views for boolean check type using ViewBinding
+            // Bind the views for barcode check type using ViewBinding
             binding.titleTextView.text = check.title
             binding.descriptionTextView.text = check.description
-            // Bind other views for boolean check type as needed
+            // Bind other views for barcode check type as needed
+
+            binding.barcodeValueTextView.text = check.value?.toString() ?: ""
+
+            //TODO - this will be where the Barcode SDK needs to save the value
         }
     }
 
@@ -37,6 +41,23 @@ class ChecksAdapter(private val checksList: List<CheckItem>) :
             binding.titleTextView.text = check.title
             binding.descriptionTextView.text = check.description
             // Bind other views for boolean check type as needed
+
+            // Set the switch state based on the user input value
+            binding.checkSwitch.isChecked = check.value as? Boolean ?: false
+
+            // Add an OnCheckedChangeListener to the switch
+            binding.checkSwitch.setOnCheckedChangeListener { _, isChecked ->
+                // Update the userInputValue property of the CheckItem with the new switch state
+                check.result = isChecked
+
+                // Re-evaluate the comparison and update the background color
+                val updatedUserInputMatchesExpected = check.value == check.result
+                if (updatedUserInputMatchesExpected) {
+                    binding.root.setBackgroundColor(Color.WHITE)
+                } else {
+                    binding.root.setBackgroundColor(Color.parseColor("#FFC0C0"))
+                }
+            }
         }
     }
 
@@ -46,15 +67,62 @@ class ChecksAdapter(private val checksList: List<CheckItem>) :
             binding.titleTextView.text = check.title
             binding.descriptionTextView.text = check.description
             // Bind other views for integer check type as needed
+
+            // Set the text of the EditText based on the user input value
+            binding.integerInputEditText.setText(check.value?.toString() ?: "")
+
+            // Add an OnValueChangeListener to the EditText
+            binding.integerInputEditText.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+                override fun afterTextChanged(s: Editable?) {
+                    // Update the userInputValue property of the CheckItem with the new integer value
+                    val inputValue = s.toString()
+                    check.result = if (inputValue.isNotEmpty()) inputValue.toInt() else null
+
+                    // Re-evaluate the comparison and update the background color
+                    val updatedUserInputMatchesExpected = check.value == check.result
+                    if (updatedUserInputMatchesExpected) {
+                        binding.root.setBackgroundColor(Color.WHITE)
+                    } else {
+                        binding.root.setBackgroundColor(Color.parseColor("#FFC0C0"))
+                    }
+                }
+            })
         }
     }
 
     class DoubleCheckViewHolder(private val binding: ItemDoubleCheckBinding) : CheckViewHolder(binding) {
         override fun bind(check: CheckItem) {
-            // Bind the views for integer check type using ViewBinding
+            // Bind the views for double check type using ViewBinding
             binding.titleTextView.text = check.title
             binding.descriptionTextView.text = check.description
-            // Bind other views for integer check type as needed
+            // Bind other views for double check type as needed
+
+            // Set the text of the EditText based on the user input value
+            binding.doubleInputEditText.setText(check.value?.toString() ?: "")
+
+            // Add an OnValueChangeListener to the EditText
+            binding.doubleInputEditText.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+                override fun afterTextChanged(s: Editable?) {
+                    // Update the userInputValue property of the CheckItem with the new double value
+                    check.result = s.toString().toDoubleOrNull()
+
+                    // Re-evaluate the comparison and update the background color
+                    val updatedUserInputMatchesExpected = check.value == check.result
+                    if (updatedUserInputMatchesExpected) {
+                        binding.root.setBackgroundColor(Color.WHITE)
+                    } else {
+                        binding.root.setBackgroundColor(Color.parseColor("#FFC0C0"))
+                    }
+                }
+            })
         }
     }
 
@@ -64,6 +132,29 @@ class ChecksAdapter(private val checksList: List<CheckItem>) :
             binding.titleTextView.text = check.title
             binding.descriptionTextView.text = check.description
             // Bind other views for string check type as needed
+
+            // Set the text of the EditText based on the user input value
+            binding.stringInputEditText.setText(check.value?.toString() ?: "")
+
+            // Add an OnValueChangeListener to the EditText
+            binding.stringInputEditText.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+                override fun afterTextChanged(s: Editable?) {
+                    // Update the userInputValue property of the CheckItem with the new string value
+                    check.result = s.toString()
+
+                    // Re-evaluate the comparison and update the background color
+                    val updatedUserInputMatchesExpected = check.value == check.result
+                    if (updatedUserInputMatchesExpected) {
+                        binding.root.setBackgroundColor(Color.WHITE)
+                    } else {
+                        binding.root.setBackgroundColor(Color.parseColor("#FFC0C0"))
+                    }
+                }
+            })
         }
     }
 
@@ -143,4 +234,3 @@ class ChecksAdapter(private val checksList: List<CheckItem>) :
         private const val TYPE_UNKNOWN = -1 // Unknown type
     }
 }
-
