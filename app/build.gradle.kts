@@ -1,9 +1,12 @@
+import org.jetbrains.kotlin.config.JvmAnalysisFlags.useIR
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("kotlin-android")
     id("androidx.navigation.safeargs.kotlin")
-    id("org.jetbrains.kotlin.kapt")
+    kotlin("kapt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -22,6 +25,9 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        // Required when setting minSdkVersion to 20 or lower
+        multiDexEnabled = true
     }
 
     buildTypes {
@@ -34,11 +40,10 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
+        sourceCompatibility = JavaVersion.VERSION_1_8
+        targetCompatibility = JavaVersion.VERSION_1_8
     }
     kotlinOptions {
-        jvmTarget = "17"
     }
     buildFeatures {
         compose = true
@@ -50,6 +55,12 @@ android {
 
     buildFeatures {
         viewBinding = true
+    }
+    kapt {
+        correctErrorTypes = true
+    }
+    tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
+        kotlinOptions.jvmTarget = "1.8"
     }
 }
 
@@ -74,8 +85,13 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
 
+    // Java 8
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.2.2")
+
+
     // Hilt Dependency Injection
-    implementation("com.google.dagger:hilt-android:2.38.1")
+    implementation("com.google.dagger:hilt-android:2.44")
+    kapt("com.google.dagger:hilt-android-compiler:2.44")
 
     // Navigation Component dependencies
     implementation("androidx.navigation:navigation-fragment-ktx:2.6.0")
