@@ -1,8 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- res/layout/item_barcode_check.xml -->
+<?xml version="1.0" encoding="utf-8"?><!-- res/layout/item_barcode_check.xml -->
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -13,8 +11,8 @@
         android:id="@+id/titleTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:textAppearanceMedium"
-        android:text="Check Title" />
+        android:text="Check Title"
+        android:textAppearance="?android:textAppearanceMedium" />
 
     <!-- Description TextView -->
     <TextView
@@ -27,8 +25,8 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:gravity="center_vertical">
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
 
         <!-- Barcode-specific views, e.g., TextView to display the barcode value -->
         <TextView
@@ -39,23 +37,33 @@
             android:gravity="top|start"
             android:hint="Barcode Value"
             android:inputType="text" />
-        <TextView
-            android:id="@+id/barcodeGradeTextView"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:gravity="top|start"
-            android:hint="Barcode Grade"
-            android:inputType="text" />
 
-        <!-- Barcode icon (replace the srcCompat with your actual barcode icon) -->
-        <ImageView
-            android:id="@+id/barcodeIconImageView"
+        <!-- Vertical layout for Barcode icon and "Tap To Scan" text -->
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_barcode"
-            android:clickable="true"
-            android:padding="8dp" />
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tapToScanTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="Tap To Scan"
+                android:textColor="@android:color/darker_gray" />
+
+            <ImageView
+                android:id="@+id/barcodeIconImageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:padding="8dp"
+                android:src="@drawable/ic_barcode" />
+
+
         </LinearLayout>
+
+    </LinearLayout>
 
 </LinearLayout>

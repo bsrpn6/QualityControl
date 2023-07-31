@@ -6,7 +6,7 @@
       "type": "barcode",
       "title": "Barcode Check",
       "description": "This is the 1st barcode check.",
-      "value": "0-00000-00000-0"
+      "value": "022592007014"
     },
     {
       "checkTypeID": 2,
@@ -14,7 +14,7 @@
       "type": "barcode",
       "title": "Barcode Check",
       "description": "This is the 2nd barcode check.",
-      "value": "0-00000-00000-0"
+      "value": "022592007014"
     },
     {
       "checkTypeID": 3,

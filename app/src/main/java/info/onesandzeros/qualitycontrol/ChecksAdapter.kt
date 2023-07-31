@@ -36,17 +36,18 @@ class ChecksAdapter(
             binding.descriptionTextView.text = check.description
             // Bind other views for barcode check type as needed
 
-            binding.barcodeValueTextView.text = check.value?.toString() ?: ""
-
             binding.barcodeIconImageView.setOnClickListener {
                 scannerUtil.startBarcodeScanning { barcodeValue ->
                     binding.barcodeValueTextView.text = barcodeValue ?: "Scanning failed"
                     check.result = barcodeValue
 
-                    Log.d(
-                        "YourFragment",
-                        "Received barcode value: $barcodeValue"
-                    ) // Add this log statement
+                    // Re-evaluate the comparison and update the background color
+                    val updatedUserInputMatchesExpected = check.value == check.result
+                    if (updatedUserInputMatchesExpected) {
+                        binding.root.setBackgroundColor(Color.WHITE)
+                    } else {
+                        binding.root.setBackgroundColor(Color.parseColor("#FFC0C0"))
+                    }
                 }
             }
         }
