@@ -7,8 +7,12 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
+import com.google.firebase.auth.FirebaseAuth
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
+import com.google.firebase.auth.FirebaseAuthInvalidUserException
 import dagger.hilt.android.AndroidEntryPoint
 import info.onesandzeros.qualitycontrol.databinding.FragmentLoginBinding
+
 
 @AndroidEntryPoint
 class LoginFragment : Fragment() {
@@ -31,23 +35,52 @@ class LoginFragment : Fragment() {
 
         // Set up the login button click listener
         binding.loginButton.setOnClickListener {
-            val username = binding.usernameEditText.text.toString().trim()
-            val password = binding.passwordEditText.text.toString().trim()
+            val email = binding.usernameEditText.text.toString().trim()
+            val password = binding.passwordEditText.text.toString()
 
-            // Replace the following condition with your actual authentication logic
-            if (username == "user" && password == "user") {
-                // Navigate to the next screen using the Navigation component
-                navController.navigate(R.id.action_loginFragment_to_checkSetupFragment)
-            } else {
-                // Show an error message if the credentials are invalid
+            if (email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(
                     requireContext(),
-                    "Invalid credentials. Please try again.",
+                    "Please enter email and password.",
                     Toast.LENGTH_SHORT
                 ).show()
+                return@setOnClickListener
             }
+
+            // Sign in with email and password using Firebase Authentication
+            FirebaseAuth.getInstance().signInWithEmailAndPassword(email, password)
+                .addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        // Login success, navigate to the next screen
+                        navController.navigate(R.id.action_loginFragment_to_checkSetupFragment)
+                    } else {
+                        // Login failed, display a message to the user
+                        try {
+                            throw task.exception!!
+                        } catch (e: FirebaseAuthInvalidUserException) {
+                            Toast.makeText(
+                                requireContext(),
+                                "Invalid user, please register.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } catch (e: FirebaseAuthInvalidCredentialsException) {
+                            Toast.makeText(
+                                requireContext(),
+                                "Invalid email or password.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        } catch (e: Exception) {
+                            Toast.makeText(
+                                requireContext(),
+                                "Login failed. Please try again later.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+                }
         }
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

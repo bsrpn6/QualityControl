@@ -113,6 +113,10 @@ dependencies {
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-core:21.1.1")
 
+    // Firebase Auth
+    implementation("com.google.firebase:firebase-auth:20.0.2")
+
+
     // Firebase ML Kit dependencies
     implementation("com.google.firebase:firebase-ml-vision:24.0.3")
     implementation("com.google.firebase:firebase-ml-vision-barcode-model:16.1.1")
