@@ -1,0 +1,116 @@
+{
+  "checks": [
+    {
+      "checktype": "product_case",
+      "type": "barcode",
+      "title": "Barcode Check",
+      "description": "This is the 1st barcode check.",
+      "value": true
+    },
+    {
+      "checktype": "product_case",
+      "type": "barcode",
+      "title": "Barcode Check",
+      "description": "This is the 2nd barcode check.",
+      "value": 0
+    },
+    {
+      "checktype": "product_case",
+      "type": "integer",
+      "title": "Barcode SKU Digits",
+      "description": "Provide the barcode SKU.",
+      "value": 0
+    },
+    {
+      "checktype": "product_case",
+      "type": "string",
+      "title": "Datecode",
+      "description": "Enter the product datecode.",
+      "value": "Sample Text"
+    },
+    {
+      "checktype": "product_case",
+      "type": "boolean",
+      "title": "Datecode Legible",
+      "description": "Is the datecode human readable?",
+      "value": true
+    },
+    {
+      "checktype": "product_case",
+      "type": "double",
+      "title": "Case Weight",
+      "description": "Weight the case on the scale.",
+      "value": 0.0
+    },
+    {
+      "checktype": "product_case",
+      "type": "integer",
+      "title": "Product Count",
+      "description": "How many cons are in the case?",
+      "value": 0
+    },
+    {
+      "checktype": "product_case",
+      "type": "boolean",
+      "title": "Damage",
+      "description": "Is the case damaged?",
+      "value": "Sample Text"
+    },
+    {
+      "checktype": "product_case",
+      "type": "boolean",
+      "title": "Alignment",
+      "description": "Is the case aligned and square?",
+      "value": true
+    },
+    {
+      "checktype": "product_case",
+      "type": "boolean",
+      "title": "Sealed",
+      "description": "Is the case completely sealed with tape over the edges?",
+      "value": true
+    },
+    {
+      "checktype": "product_case",
+      "type": "string",
+      "title": "Additional Comments",
+      "description": "Provide any additional comments regarding the case.",
+      "value": ""
+    },
+    {
+      "checktype": "product_bottle",
+      "type": "barcode",
+      "title": "Barcode check",
+      "description": "This is a barcode check.",
+      "value": true
+    },
+    {
+      "checktype": "product_bottle",
+      "type": "string",
+      "title": "Datecode",
+      "description": "Enter the product datecode.",
+      "value": "Sample Text"
+    },
+    {
+      "checktype": "product_bottle",
+      "type": "boolean",
+      "title": "Datecode Legible",
+      "description": "Is the datecode human readable?",
+      "value": true
+    },
+    {
+      "checktype": "product_bottle",
+      "type": "boolean",
+      "title": "Label",
+      "description": "Is the label fully adhered to the bottle?",
+      "value": true
+    },
+    {
+      "checktype": "product_bottle",
+      "type": "boolean",
+      "title": "Cap",
+      "description": "Is the cap fully closed and absent of scuffs?",
+      "value": true
+    }
+  ]
+}

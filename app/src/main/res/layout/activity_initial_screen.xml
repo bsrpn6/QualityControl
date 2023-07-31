@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- activity_initial_screen.xml -->
+
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <!-- Company Logo -->
+    <ImageView
+        android:id="@+id/imageViewLogo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/company_logo"
+        android:contentDescription="Company Logo" />
+
+    <!-- Refresh Button -->
+    <ImageButton
+        android:id="@+id/btnRefresh"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:src="@drawable/ic_refresh"
+        android:background="?android:attr/selectableItemBackgroundBorderless"
+        android:contentDescription="Refresh Data" />
+
+    <!-- Department Selection -->
+    <TextView
+        android:id="@+id/textViewDepartment"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Select Department:"
+        android:textSize="18sp" />
+
+    <Spinner
+        android:id="@+id/spinnerDepartment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textViewDepartment"
+        android:layout_marginTop="8dp" />
+
+    <!-- Production Line Selection -->
+    <TextView
+        android:id="@+id/textViewLine"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/spinnerDepartment"
+        android:layout_marginTop="16dp"
+        android:text="Select Production Line:"
+        android:textSize="18sp" />
+
+    <Spinner
+        android:id="@+id/spinnerLine"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textViewLine"
+        android:layout_marginTop="8dp" />
+
+    <!-- Product Selection -->
+    <TextView
+        android:id="@+id/textViewProduct"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/spinnerLine"
+        android:layout_marginTop="16dp"
+        android:text="Select Product:"
+        android:textSize="18sp" />
+
+    <Spinner
+        android:id="@+id/spinnerProduct"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/textViewProduct"
+        android:layout_marginTop="8dp" />
+
+    <Button
+        android:id="@+id/btnStartChecks"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_marginTop="32dp"
+        android:text="Start Checks"
+        android:textSize="18sp" />
+
+
+</RelativeLayout>

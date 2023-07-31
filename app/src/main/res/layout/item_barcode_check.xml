@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/layout/item_barcode_check.xml -->
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Title TextView -->
+    <TextView
+        android:id="@+id/titleTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textAppearance="?android:textAppearanceMedium"
+        android:text="Check Title" />
+
+    <!-- Description TextView -->
+    <TextView
+        android:id="@+id/descriptionTextView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Check Description" />
+
+    <!-- Horizontal layout for Barcode and Icon -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <!-- Barcode-specific views, e.g., TextView to display the barcode value -->
+        <TextView
+            android:id="@+id/barcodeValueTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="top|start"
+            android:hint="Barcode Value"
+            android:inputType="text" />
+        <TextView
+            android:id="@+id/barcodeGradeTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="top|start"
+            android:hint="Barcode Grade"
+            android:inputType="text" />
+
+        <!-- Barcode icon (replace the srcCompat with your actual barcode icon) -->
+        <ImageView
+            android:id="@+id/barcodeIconImageView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_barcode"
+            android:clickable="true"
+            android:padding="8dp" />
+        </LinearLayout>
+
+</LinearLayout>

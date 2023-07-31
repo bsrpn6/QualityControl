@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- nav_graph.xml -->
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/loginFragment">
+
+    <fragment
+        android:id="@+id/loginFragment"
+        android:name="info.onesandzeros.qualitycontrol.LoginFragment"
+        android:label="Login Fragment"
+        tools:layout="@layout/fragment_login">
+        <action
+            android:id="@+id/action_loginFragment_to_checkSetupFragment"
+            app:destination="@id/checkSetupFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/checkSetupFragment"
+        android:name="info.onesandzeros.qualitycontrol.CheckSetupFragment"
+        android:label="Check Setup Fragment"
+        tools:layout="@layout/fragment_check_setup">
+
+        <action
+            android:id="@+id/action_checkSetupFragment_to_checksFragment"
+            app:destination="@id/checksFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/checksFragment"
+        android:name="info.onesandzeros.qualitycontrol.ChecksFragment"
+        android:label="ChecksFragment">
+        <action
+            android:id="@+id/action_checksFragment_to_submissionResultFragment"
+            app:destination="@id/submissionResultFragment">
+            <argument
+                android:name="totalFailedChecks"
+                app:argType="integer" />
+        </action>
+    </fragment>
+
+    <fragment
+        android:id="@+id/submissionResultFragment"
+        android:name="info.onesandzeros.qualitycontrol.SubmissionResultFragment"
+        android:label="SubmissionResultFragment" >
+        <!-- Define any arguments needed by the SubmissionResultFragment -->
+        <argument
+            android:name="totalFailedChecks"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_submissionResultFragment_to_checkSetupFragment"
+            app:destination="@id/submissionResultFragment" />
+    </fragment>
+
+
+</navigation>

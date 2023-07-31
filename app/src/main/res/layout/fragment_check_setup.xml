@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- res/layout/fragment_check_setup.xml -->
+
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Spinner for Department selection -->
+    <Spinner
+        android:id="@+id/departmentSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:spinnerMode="dropdown"
+        android:entries="@array/department_options"
+        android:layout_marginBottom="24dp"
+        android:layout_gravity="center" />
+
+    <!-- Spinner for Line selection -->
+    <Spinner
+        android:id="@+id/lineSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:spinnerMode="dropdown"
+        android:entries="@array/line_options"
+        android:layout_marginBottom="24dp"
+        android:layout_gravity="center" />
+
+    <AutoCompleteTextView
+        android:id="@+id/idhNumberAutoCompleteTextView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        android:hint="Enter IDH Number"
+        android:layout_marginBottom="24dp"
+        android:layout_gravity="center"/>
+
+    <!-- Add a button to proceed to the next step, e.g., Start Checks -->
+    <Button
+        android:id="@+id/startChecksButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Start Checks"
+        android:layout_marginTop="16dp"
+        android:layout_gravity="center" />
+
+</LinearLayout>
