@@ -1,9 +1,10 @@
 import android.graphics.Color
 import android.text.Editable
 import android.text.TextWatcher
-import androidx.recyclerview.widget.RecyclerView
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import info.onesandzeros.qualitycontrol.CheckItem
 import info.onesandzeros.qualitycontrol.databinding.ItemBarcodeCheckBinding
@@ -13,7 +14,10 @@ import info.onesandzeros.qualitycontrol.databinding.ItemIntegerCheckBinding
 import info.onesandzeros.qualitycontrol.databinding.ItemStringCheckBinding
 import info.onesandzeros.qualitycontrol.databinding.ItemUnknownCheckBinding
 
-class ChecksAdapter(private val checksList: List<CheckItem>) :
+class ChecksAdapter(
+    private val checksList: List<CheckItem>,
+    private val barcodeScannerUtil: BarcodeScannerUtil
+) :
     RecyclerView.Adapter<ChecksAdapter.CheckViewHolder>() {
 
     // ViewHolder to hold the views in each item using ViewBinding
@@ -22,7 +26,10 @@ class ChecksAdapter(private val checksList: List<CheckItem>) :
     }
 
     // ViewHolders with ViewBinding for each check type
-    class BarcodeCheckViewHolder(private val binding: ItemBarcodeCheckBinding) : CheckViewHolder(binding) {
+    class BarcodeCheckViewHolder(
+        private val binding: ItemBarcodeCheckBinding,
+        private val scannerUtil: BarcodeScannerUtil
+    ) : CheckViewHolder(binding) {
         override fun bind(check: CheckItem) {
             // Bind the views for barcode check type using ViewBinding
             binding.titleTextView.text = check.title
@@ -31,11 +38,22 @@ class ChecksAdapter(private val checksList: List<CheckItem>) :
 
             binding.barcodeValueTextView.text = check.value?.toString() ?: ""
 
-            //TODO - this will be where the Barcode SDK needs to save the value
+            binding.barcodeIconImageView.setOnClickListener {
+                scannerUtil.startBarcodeScanning { barcodeValue ->
+                    binding.barcodeValueTextView.text = barcodeValue ?: "Scanning failed"
+                    check.result = barcodeValue
+
+                    Log.d(
+                        "YourFragment",
+                        "Received barcode value: $barcodeValue"
+                    ) // Add this log statement
+                }
+            }
         }
     }
 
-    class BooleanCheckViewHolder(private val binding: ItemBooleanCheckBinding) : CheckViewHolder(binding) {
+    class BooleanCheckViewHolder(private val binding: ItemBooleanCheckBinding) :
+        CheckViewHolder(binding) {
         override fun bind(check: CheckItem) {
             // Bind the views for boolean check type using ViewBinding
             binding.titleTextView.text = check.title
@@ -61,7 +79,8 @@ class ChecksAdapter(private val checksList: List<CheckItem>) :
         }
     }
 
-    class IntegerCheckViewHolder(private val binding: ItemIntegerCheckBinding) : CheckViewHolder(binding) {
+    class IntegerCheckViewHolder(private val binding: ItemIntegerCheckBinding) :
+        CheckViewHolder(binding) {
         override fun bind(check: CheckItem) {
             // Bind the views for integer check type using ViewBinding
             binding.titleTextView.text = check.title
@@ -73,7 +92,13 @@ class ChecksAdapter(private val checksList: List<CheckItem>) :
 
             // Add an OnValueChangeListener to the EditText
             binding.integerInputEditText.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
 
@@ -94,7 +119,8 @@ class ChecksAdapter(private val checksList: List<CheckItem>) :
         }
     }
 
-    class DoubleCheckViewHolder(private val binding: ItemDoubleCheckBinding) : CheckViewHolder(binding) {
+    class DoubleCheckViewHolder(private val binding: ItemDoubleCheckBinding) :
+        CheckViewHolder(binding) {
         override fun bind(check: CheckItem) {
             // Bind the views for double check type using ViewBinding
             binding.titleTextView.text = check.title
@@ -106,7 +132,13 @@ class ChecksAdapter(private val checksList: List<CheckItem>) :
 
             // Add an OnValueChangeListener to the EditText
             binding.doubleInputEditText.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
 
@@ -126,7 +158,8 @@ class ChecksAdapter(private val checksList: List<CheckItem>) :
         }
     }
 
-    class StringCheckViewHolder(private val binding: ItemStringCheckBinding) : CheckViewHolder(binding) {
+    class StringCheckViewHolder(private val binding: ItemStringCheckBinding) :
+        CheckViewHolder(binding) {
         override fun bind(check: CheckItem) {
             // Bind the views for string check type using ViewBinding
             binding.titleTextView.text = check.title
@@ -138,7 +171,13 @@ class ChecksAdapter(private val checksList: List<CheckItem>) :
 
             // Add an OnValueChangeListener to the EditText
             binding.stringInputEditText.addTextChangedListener(object : TextWatcher {
-                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
 
                 override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
 
@@ -158,7 +197,8 @@ class ChecksAdapter(private val checksList: List<CheckItem>) :
         }
     }
 
-    class UnknownCheckViewHolder(private val binding: ItemUnknownCheckBinding) : CheckViewHolder(binding) {
+    class UnknownCheckViewHolder(private val binding: ItemUnknownCheckBinding) :
+        CheckViewHolder(binding) {
         override fun bind(check: CheckItem) {
             // Bind the views for unknown check type using ViewBinding
             binding.titleTextView.text = check.title
@@ -175,20 +215,24 @@ class ChecksAdapter(private val checksList: List<CheckItem>) :
         return when (viewType) {
             TYPE_BARCODE -> {
                 val binding = ItemBarcodeCheckBinding.inflate(inflater, parent, false)
-                BarcodeCheckViewHolder(binding)
+                BarcodeCheckViewHolder(binding, barcodeScannerUtil)
             }
+
             TYPE_BOOLEAN -> {
                 val binding = ItemBooleanCheckBinding.inflate(inflater, parent, false)
                 BooleanCheckViewHolder(binding)
             }
+
             TYPE_INTEGER -> {
                 val binding = ItemIntegerCheckBinding.inflate(inflater, parent, false)
                 IntegerCheckViewHolder(binding)
             }
+
             TYPE_DOUBLE -> {
                 val binding = ItemDoubleCheckBinding.inflate(inflater, parent, false)
                 DoubleCheckViewHolder(binding)
             }
+
             TYPE_STRING -> {
                 val binding = ItemStringCheckBinding.inflate(inflater, parent, false)
                 StringCheckViewHolder(binding)
@@ -224,12 +268,14 @@ class ChecksAdapter(private val checksList: List<CheckItem>) :
         }
     }
 
+
     companion object {
         private const val TYPE_BOOLEAN = 0
         private const val TYPE_INTEGER = 1
         private const val TYPE_STRING = 2
         private const val TYPE_BARCODE = 3
         private const val TYPE_DOUBLE = 4
+
         // Add other types as needed
         private const val TYPE_UNKNOWN = -1 // Unknown type
     }

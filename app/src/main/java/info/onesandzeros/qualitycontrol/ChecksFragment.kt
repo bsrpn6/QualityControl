@@ -7,27 +7,32 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.activity.result.ActivityResultRegistry
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentManager
-import androidx.lifecycle.Lifecycle
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
+import dagger.hilt.android.AndroidEntryPoint
 import info.onesandzeros.qualitycontrol.databinding.FragmentChecksBinding
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.InputStream
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class ChecksFragment : Fragment(R.layout.fragment_checks) {
     private lateinit var binding: FragmentChecksBinding
     private lateinit var adapter: ChecksAdapter
+
+    @Inject
+    lateinit var activityResultRegistry: ActivityResultRegistry // Inject the ActivityResultRegistry
 
     private lateinit var checksMap: Map<String, List<CheckItem>>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentChecksBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -51,7 +56,8 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
 
         for ((checkType, checkItems) in checksMap) {
             // Create a new fragment for each check type
-            val checkTypeFragment = CheckTypeFragment.newInstance(checkItems)
+            val checkTypeFragment =
+                CheckTypeFragment.newInstance(checkItems, activityResultRegistry)
 
             // Add the fragment to the list
             fragmentList.add(checkTypeFragment)
@@ -87,7 +93,9 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
             // You can define your own logic here based on your app's requirements.
             // Navigate to SubmissionResultFragment and pass the totalFailedChecks as an argument
             val totalFailedChecks = calculateTotalFailedChecks()
-            val action = ChecksFragmentDirections.actionChecksFragmentToSubmissionResultFragment(totalFailedChecks)
+            val action = ChecksFragmentDirections.actionChecksFragmentToSubmissionResultFragment(
+                totalFailedChecks
+            )
             findNavController().navigate(action)
         }
     }
@@ -125,7 +133,8 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
             val type = item.optString("type")
             val title = item.optString("title")
             val description = item.optString("description")
-            val value = item.opt("value") // This will be a dynamic type (Boolean, Integer, String, etc.)
+            val value =
+                item.opt("value") // This will be a dynamic type (Boolean, Integer, String, etc.)
 
             val checkItem = CheckItem(checkId, checkType, type, title, description, value)
 
@@ -148,7 +157,11 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
         // For simplicity, you can name your drawable resources after the check types, e.g., "case.png", "con.png", etc.
         // and use the following code:
         val fileNameWithoutExtension = checkType.substringBeforeLast(".")
-        return resources.getIdentifier(fileNameWithoutExtension, "drawable", requireActivity().packageName)
+        return resources.getIdentifier(
+            fileNameWithoutExtension,
+            "drawable",
+            requireActivity().packageName
+        )
     }
 
     private inner class ChecksPagerAdapter(

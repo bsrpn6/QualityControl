@@ -14,7 +14,7 @@ class SubmissionResultFragment : Fragment(R.layout.fragment_submission_result) {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentSubmissionResultBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -25,7 +25,8 @@ class SubmissionResultFragment : Fragment(R.layout.fragment_submission_result) {
         val completeChecksButton = binding.completeChecksButton
 
         // Access the passed argument for the total number of failed checks
-        val totalFailedChecks = SubmissionResultFragmentArgs.fromBundle(requireArguments()).totalFailedChecks
+        val totalFailedChecks =
+            SubmissionResultFragmentArgs.fromBundle(requireArguments()).totalFailedChecks
 
         // Display the total number of failed checks and success message
         // Display the total number of failed checks and success message

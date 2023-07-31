@@ -1,8 +1,6 @@
 package info.onesandzeros.qualitycontrol
 
 import android.os.Bundle
-import android.util.Log
-
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -11,7 +9,6 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import dagger.hilt.DefineComponent
 import info.onesandzeros.qualitycontrol.api.ApiService
 import info.onesandzeros.qualitycontrol.api.MyApi
 import info.onesandzeros.qualitycontrol.api.models.Department
@@ -56,7 +53,7 @@ class CheckSetupFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentCheckSetupBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -69,9 +66,14 @@ class CheckSetupFragment : Fragment() {
 
         binding.departmentSpinner.adapter = departmentAdapter
         binding.lineSpinner.adapter = lineAdapter
-        idhNumberAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_dropdown_item_1line, mutableListOf<Int>())
+        idhNumberAdapter = ArrayAdapter(
+            requireContext(),
+            android.R.layout.simple_dropdown_item_1line,
+            mutableListOf<Int>()
+        )
         binding.idhNumberAutoCompleteTextView.setAdapter(idhNumberAdapter)
-        binding.idhNumberAutoCompleteTextView.threshold = 1 // Set minimum number of characters to trigger suggestions
+        binding.idhNumberAutoCompleteTextView.threshold =
+            1 // Set minimum number of characters to trigger suggestions
 
         var selectedDepartment: Department? = null
         var selectedLine: Line? = null
@@ -80,23 +82,37 @@ class CheckSetupFragment : Fragment() {
 
         fetchDepartmentsFromApi()
 
-        binding.departmentSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                if (departments.isNotEmpty()) {
-                    selectedDepartment = departments[position]
-                    selectedLine = null // Clear the line selection when the department is changed
-                    selectedIDHNumber = null // Clear the IDH number selection when the department is changed
-                    loadLinesForDepartment(selectedDepartment?.id ?: -1)
+        binding.departmentSpinner.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    if (departments.isNotEmpty()) {
+                        selectedDepartment = departments[position]
+                        selectedLine =
+                            null // Clear the line selection when the department is changed
+                        selectedIDHNumber =
+                            null // Clear the IDH number selection when the department is changed
+                        loadLinesForDepartment(selectedDepartment?.id ?: -1)
+                    }
                 }
-            }
 
-            override fun onNothingSelected(parent: AdapterView<*>?) {}
-        }
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
+            }
         binding.lineSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
-            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
                 if (lines.isNotEmpty()) {
                     selectedLine = lines[position]
-                    selectedIDHNumber = null // Clear the IDH number selection when the line is changed
+                    selectedIDHNumber =
+                        null // Clear the IDH number selection when the line is changed
                     loadIDHNumbersForLine(selectedLine?.id ?: -1)
                 }
             }
@@ -104,10 +120,11 @@ class CheckSetupFragment : Fragment() {
             override fun onNothingSelected(parent: AdapterView<*>?) {}
         }
 
-        binding.idhNumberAutoCompleteTextView.onItemClickListener = AdapterView.OnItemClickListener { parent, _, position, _ ->
-            // Update the selectedIDHNumber when an IDH number is selected from the dropdown
-            selectedIDHNumber = parent.getItemAtPosition(position) as Int
-        }
+        binding.idhNumberAutoCompleteTextView.onItemClickListener =
+            AdapterView.OnItemClickListener { parent, _, position, _ ->
+                // Update the selectedIDHNumber when an IDH number is selected from the dropdown
+                selectedIDHNumber = parent.getItemAtPosition(position) as Int
+            }
 
         binding.startChecksButton.setOnClickListener {
             // Check if all three fields have valid selections
@@ -116,7 +133,11 @@ class CheckSetupFragment : Fragment() {
                 findNavController().navigate(R.id.action_checkSetupFragment_to_checksFragment)
             } else {
                 // Display a toast indicating invalid selections
-                Toast.makeText(requireContext(), "Please select valid values for all fields", Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    requireContext(),
+                    "Please select valid values for all fields",
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
     }
@@ -138,7 +159,10 @@ class CheckSetupFragment : Fragment() {
 
     private fun fetchDepartmentsFromApi() {
         myApi.getDepartments().enqueue(object : Callback<List<Department>> {
-            override fun onResponse(call: Call<List<Department>>, response: Response<List<Department>>) {
+            override fun onResponse(
+                call: Call<List<Department>>,
+                response: Response<List<Department>>
+            ) {
                 if (response.isSuccessful) {
                     departments.clear()
                     departments.addAll(response.body() ?: emptyList())
@@ -170,8 +194,6 @@ class CheckSetupFragment : Fragment() {
             }
         })
     }
-
-
 
 
     private fun loadLinesForDepartment(departmentId: Int) {
@@ -221,7 +243,10 @@ class CheckSetupFragment : Fragment() {
 
     private fun loadIDHNumbersForLine(lineId: Int) {
         myApi.getIDHNumbersForLine(lineId).enqueue(object : Callback<List<IDHNumbers>> {
-            override fun onResponse(call: Call<List<IDHNumbers>>, response: Response<List<IDHNumbers>>) {
+            override fun onResponse(
+                call: Call<List<IDHNumbers>>,
+                response: Response<List<IDHNumbers>>
+            ) {
                 if (response.isSuccessful) {
                     idhNumbers.clear()
                     idhNumbers.addAll(response.body() ?: emptyList())
@@ -259,12 +284,13 @@ class CheckSetupFragment : Fragment() {
             val localIDHNumbers = appDatabase.idhNumbersDao().getIDHNumbersByLineId(lineId)
 
             // Check if localIDHNumbers is not null before adding it to the adapter
-            localIDHNumbers?.let {
+            localIDHNumbers.let {
                 val idhNumbersEntity = it // Single IDHNumbersEntity object
-                val idhNumbersList = idhNumbersEntity.idhNumbers ?: emptyList() // Use the idhNumbers property directly from IDHNumbersEntity
+                val idhNumbersList =
+                    idhNumbersEntity.idhNumbers // Use the idhNumbers property directly from IDHNumbersEntity
 
                 // Create a single IDHNumbers object and add it to the idhNumbers list
-                val idhNumbersData = IDHNumbers(idhNumbersEntity.lineId ?: -1, idhNumbersList)
+                val idhNumbersData = IDHNumbers(idhNumbersEntity.lineId, idhNumbersList)
                 idhNumbers.clear()
                 idhNumbers.add(idhNumbersData)
 
@@ -274,9 +300,6 @@ class CheckSetupFragment : Fragment() {
             }
         }
     }
-
-
-
 
 
     fun List<DepartmentEntity>.toDepartmentList(): List<Department> {

@@ -13,7 +13,7 @@ class CheckItem(
     var result: Any? = null // Add the property for storing user-inputted value
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
-        parcel.readInt() ?: 0,
+        parcel.readInt(),
         parcel.readString() ?: "",
         parcel.readString() ?: "",
         parcel.readString() ?: "",

@@ -1,9 +1,10 @@
 package info.onesandzeros.qualitycontrol
 
+import BarcodeScannerUtil
 import ChecksAdapter
 import android.os.Bundle
-import android.os.Parcelable
 import android.view.View
+import androidx.activity.result.ActivityResultRegistry
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import info.onesandzeros.qualitycontrol.databinding.FragmentCheckTypeBinding
@@ -17,19 +18,29 @@ class CheckTypeFragment : Fragment(R.layout.fragment_check_type) {
         binding = FragmentCheckTypeBinding.bind(view)
 
         // Get the list of checks for this check type from arguments
-        val checkItems: List<CheckItem> = requireArguments().getParcelableArrayList(ARG_CHECK_ITEMS) ?: emptyList()
+        val checkItems: List<CheckItem> =
+            requireArguments().getParcelableArrayList(ARG_CHECK_ITEMS) ?: emptyList()
+
+        // Create the BarcodeScannerUtil instance and pass it to the ChecksAdapter
+        val barcodeScannerUtil =
+            BarcodeScannerUtil(requireActivity(), requireActivity().activityResultRegistry)
+        val checksAdapter = ChecksAdapter(checkItems, barcodeScannerUtil)
+
 
         // Set up the RecyclerView with the ChecksAdapter for this check type
         val checksRecyclerView = binding.checksRecyclerView
-        val checksAdapter = ChecksAdapter(checkItems)
         checksRecyclerView.adapter = checksAdapter
         checksRecyclerView.layoutManager = LinearLayoutManager(requireContext())
     }
 
     companion object {
         private const val ARG_CHECK_ITEMS = "arg_check_items"
+        private const val ARG_ACTIVITY_RESULT_REGISTRY = "arg_activity_result_registry"
 
-        fun newInstance(checkItems: List<CheckItem>): CheckTypeFragment {
+        fun newInstance(
+            checkItems: List<CheckItem>,
+            activityResultRegistry: ActivityResultRegistry
+        ): CheckTypeFragment {
             val fragment = CheckTypeFragment()
             val args = Bundle()
             args.putParcelableArrayList(ARG_CHECK_ITEMS, ArrayList(checkItems))

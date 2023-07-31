@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "742880156510",
+    "project_id": "qualitycontrol-68d09",
+    "storage_bucket": "qualitycontrol-68d09.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:742880156510:android:09759c677ce6525baf0dcf",
+        "android_client_info": {
+          "package_name": "info.onesandzeros.qualitycontrol"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "742880156510-bu48rsmu523qoindkvg64c905acpg7v8.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD0AhoFBScpBarwAQVwjfoyLVek0lrBe8M"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "742880156510-bu48rsmu523qoindkvg64c905acpg7v8.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

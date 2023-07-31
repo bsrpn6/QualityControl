@@ -1,16 +1,13 @@
 package info.onesandzeros.qualitycontrol
 
 import android.os.Bundle
-import android.text.TextUtils.replace
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
-import info.onesandzeros.qualitycontrol.databinding.FragmentCheckSetupBinding
 import info.onesandzeros.qualitycontrol.databinding.FragmentLoginBinding
 
 @AndroidEntryPoint
@@ -22,7 +19,7 @@ class LoginFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentLoginBinding.inflate(inflater, container, false)
         return binding.root
     }
@@ -43,7 +40,11 @@ class LoginFragment : Fragment() {
                 navController.navigate(R.id.action_loginFragment_to_checkSetupFragment)
             } else {
                 // Show an error message if the credentials are invalid
-                Toast.makeText(requireContext(), "Invalid credentials. Please try again.", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    requireContext(),
+                    "Invalid credentials. Please try again.",
+                    Toast.LENGTH_SHORT
+                ).show()
             }
         }
     }

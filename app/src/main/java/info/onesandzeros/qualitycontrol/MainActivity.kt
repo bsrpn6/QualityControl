@@ -23,7 +23,8 @@ class MainActivity : AppCompatActivity() {
         supportActionBar?.hide()
 
         // Find the NavHostFragment using findFragmentById
-        val navHostFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainer) as NavHostFragment
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.fragmentContainer) as NavHostFragment
         val navController = navHostFragment.navController
 
         // Set the navigation controller as the action bar's support action bar
@@ -43,7 +44,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onSupportNavigateUp(): Boolean {
-        val navController = supportFragmentManager.findFragmentById(R.id.fragmentContainer)?.findNavController()
+        val navController =
+            supportFragmentManager.findFragmentById(R.id.fragmentContainer)?.findNavController()
         return navController?.navigateUp() ?: false
     }
 }

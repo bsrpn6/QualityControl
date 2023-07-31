@@ -7,6 +7,7 @@ plugins {
     id("androidx.navigation.safeargs.kotlin")
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -88,7 +89,6 @@ dependencies {
     // Java 8
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.2.2")
 
-
     // Hilt Dependency Injection
     implementation("com.google.dagger:hilt-android:2.44")
     kapt("com.google.dagger:hilt-android-compiler:2.44")
@@ -108,9 +108,25 @@ dependencies {
     implementation("androidx.room:room-ktx:$room_version")
     kapt("androidx.room:room-compiler:$room_version")
 
+    // Firebase
+    implementation(platform("com.google.firebase:firebase-bom:32.2.0"))
+    implementation("com.google.firebase:firebase-analytics-ktx")
+    implementation("com.google.firebase:firebase-core:21.1.1")
 
-    // WorkManager
-    //implementation("androidx.work:work-*:2.8.1")
+    // Firebase ML Kit dependencies
+    implementation("com.google.firebase:firebase-ml-vision:24.0.3")
+    implementation("com.google.firebase:firebase-ml-vision-barcode-model:16.1.1")
+
+    // Google Play
+    implementation("com.google.android.gms:play-services-vision:20.0.0")
+
+    val camera_version = "1.1.0"
+    // Camera PreviewView
+    implementation("androidx.camera:camera-camera2:$camera_version")
+    implementation("androidx.camera:camera-lifecycle:$camera_version")
+    implementation("androidx.camera:camera-view:$camera_version")
+
+
 
     // Retrofit
     implementation("com.squareup.retrofit2:retrofit:2.9.0")
