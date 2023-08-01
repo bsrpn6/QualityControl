@@ -9,7 +9,7 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import info.onesandzeros.qualitycontrol.api.ApiService
+import dagger.hilt.android.AndroidEntryPoint
 import info.onesandzeros.qualitycontrol.api.MyApi
 import info.onesandzeros.qualitycontrol.api.models.Department
 import info.onesandzeros.qualitycontrol.api.models.IDHNumbers
@@ -26,7 +26,9 @@ import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class CheckSetupFragment : Fragment() {
 
     private var _binding: FragmentCheckSetupBinding? = null
@@ -42,7 +44,8 @@ class CheckSetupFragment : Fragment() {
     private lateinit var lineAdapter: ArrayAdapter<String>
     private lateinit var idhNumberAdapter: ArrayAdapter<Int>
 
-    private val myApi: MyApi = ApiService.create()
+    @Inject
+    lateinit var myApi: MyApi
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

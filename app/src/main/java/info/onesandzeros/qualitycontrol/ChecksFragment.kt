@@ -7,16 +7,19 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.ActivityResultRegistry
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
+import info.onesandzeros.qualitycontrol.api.MyApi
 import info.onesandzeros.qualitycontrol.databinding.FragmentChecksBinding
-import org.json.JSONArray
-import org.json.JSONObject
-import java.io.InputStream
+import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.utils.StringUtils
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -25,9 +28,13 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
     private lateinit var adapter: ChecksAdapter
 
     @Inject
-    lateinit var activityResultRegistry: ActivityResultRegistry // Inject the ActivityResultRegistry
+    lateinit var activityResultRegistry: ActivityResultRegistry
 
-    private lateinit var checksMap: Map<String, List<CheckItem>>
+    @Inject
+    lateinit var myApi: MyApi
+
+
+    private var checksMap: Map<String, List<CheckItem>> = emptyMap()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -41,7 +48,7 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
         super.onViewCreated(view, savedInstanceState)
 
         // Fetch the list of checks from the JSON file and categorize them by type
-        checksMap = loadChecksDataFromJson()
+        loadChecksDataFromApi()
 
         // Set up the tab layout and view pager
         val tabLayout = binding.tabLayout
@@ -78,7 +85,7 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
             val tabText = customTabView.findViewById<TextView>(R.id.tabText)
             val checkType = tabTitleList[position]
             tabIcon.setImageResource(getTabIconResourceId(checkType)) // Set the image for each tab
-            tabText.text = checkType // Set the text for each tab
+            tabText.text = StringUtils.formatTabText(checkType) // Set the text for each tab
             tab.customView = customTabView
         }.attach()
 
@@ -118,27 +125,48 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
         return totalFailedChecks
     }
 
-    private fun loadChecksDataFromJson(): Map<String, List<CheckItem>> {
-        val inputStream: InputStream = resources.openRawResource(R.raw.checks_data)
-        val jsonString = inputStream.bufferedReader().use { it.readText() }
-        val jsonObject = JSONObject(jsonString)
-        val jsonArray: JSONArray = jsonObject.optJSONArray("checks") ?: return emptyMap()
+    private fun loadChecksDataFromApi() {
+        myApi.getChecksData().enqueue(object : Callback<List<CheckItem>> {
+            override fun onResponse(
+                call: Call<List<CheckItem>>,
+                response: Response<List<CheckItem>>
+            ) {
+                if (response.isSuccessful) {
+                    val checkResponse = response.body()
+                    checkResponse?.let { checksResponse ->
+                        // Update the checksMap with the data from the API response
+                        checksMap = categorizeChecksByType(checksResponse)
 
+                        // Update the UI with the new data
+                        setupViewPagerAndTabs()
+                    }
+                } else {
+                    // Handle the API error here
+                    Toast.makeText(
+                        requireContext(),
+                        "Failed to load checks data from the API.",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            }
+
+            override fun onFailure(call: Call<List<CheckItem>>, t: Throwable) {
+                // Handle the network failure here
+                Toast.makeText(
+                    requireContext(),
+                    "Failed to fetch checks data. Check your internet connection.",
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+        })
+    }
+
+    private fun categorizeChecksByType(checks: List<CheckItem>): Map<String, List<CheckItem>> {
         val checksMap = mutableMapOf<String, MutableList<CheckItem>>()
 
-        for (i in 0 until jsonArray.length()) {
-            val item = jsonArray.getJSONObject(i)
-            val checkId = item.optInt("checkId")
-            val checkType = item.optString("checktype") // Read the checktype field from JSON
-            val type = item.optString("type")
-            val title = item.optString("title")
-            val description = item.optString("description")
-            val value =
-                item.opt("value") // This will be a dynamic type (Boolean, Integer, String, etc.)
+        for (checkItem in checks) {
+            val checkType = checkItem.checkType
 
-            val checkItem = CheckItem(checkId, checkType, type, title, description, value)
-
-            // Add the checkItem to the appropriate category in the checksMap
             if (checksMap.containsKey(checkType)) {
                 checksMap[checkType]?.add(checkItem)
             } else {
@@ -147,6 +175,42 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
         }
 
         return checksMap
+    }
+
+    private fun setupViewPagerAndTabs() {
+        val tabLayout = binding.tabLayout
+        val viewPager = binding.viewPager
+
+        val fragmentList = mutableListOf<Fragment>()
+        val tabTitleList = mutableListOf<String>()
+
+        for ((checkType, checkItems) in checksMap) {
+            // Create a new fragment for each check type
+            val checkTypeFragment =
+                CheckTypeFragment.newInstance(checkItems, activityResultRegistry)
+
+            // Add the fragment to the list
+            fragmentList.add(checkTypeFragment)
+
+            // Add the tab title to the list
+            tabTitleList.add(checkType)
+        }
+
+        val pagerAdapter = ChecksPagerAdapter(fragmentList, this)
+        viewPager.adapter = pagerAdapter
+
+        // Connect the tab layout with the view pager
+        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+            // Set the custom tab view with image and text for each tab
+            val customTabView = LayoutInflater.from(tabLayout.context)
+                .inflate(R.layout.custom_tab_layout, null, false)
+            val tabIcon = customTabView.findViewById<ImageView>(R.id.tabIcon)
+            val tabText = customTabView.findViewById<TextView>(R.id.tabText)
+            val checkType = tabTitleList[position]
+            tabIcon.setImageResource(getTabIconResourceId(checkType)) // Set the image for each tab
+            tabText.text = StringUtils.formatTabText(checkType) // Set the text for each tab
+            tab.customView = customTabView
+        }.attach()
     }
 
     // Helper method to get the tab icon resource based on the check type

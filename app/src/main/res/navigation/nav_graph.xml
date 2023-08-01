@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- nav_graph.xml -->
+<?xml version="1.0" encoding="utf-8"?><!-- nav_graph.xml -->
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -43,14 +42,14 @@
     <fragment
         android:id="@+id/submissionResultFragment"
         android:name="info.onesandzeros.qualitycontrol.SubmissionResultFragment"
-        android:label="SubmissionResultFragment" >
+        android:label="SubmissionResultFragment">
         <!-- Define any arguments needed by the SubmissionResultFragment -->
         <argument
             android:name="totalFailedChecks"
             app:argType="integer" />
         <action
             android:id="@+id/action_submissionResultFragment_to_checkSetupFragment"
-            app:destination="@id/submissionResultFragment" />
+            app:destination="@id/checkSetupFragment" />
     </fragment>
 
 

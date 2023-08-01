@@ -40,7 +40,7 @@ class SubmissionResultFragment : Fragment(R.layout.fragment_submission_result) {
 
         completeChecksButton.setOnClickListener {
             // Handle exit checks action (e.g., navigate back to previous fragment)
-            findNavController().popBackStack()
+            findNavController().navigate(R.id.action_submissionResultFragment_to_checkSetupFragment)
         }
     }
 }

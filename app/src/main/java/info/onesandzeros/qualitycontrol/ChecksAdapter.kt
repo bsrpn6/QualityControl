@@ -1,7 +1,6 @@
 import android.graphics.Color
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -53,6 +52,7 @@ class ChecksAdapter(
         }
     }
 
+
     class BooleanCheckViewHolder(private val binding: ItemBooleanCheckBinding) :
         CheckViewHolder(binding) {
         override fun bind(check: CheckItem) {
@@ -62,7 +62,7 @@ class ChecksAdapter(
             // Bind other views for boolean check type as needed
 
             // Set the switch state based on the user input value
-            binding.checkSwitch.isChecked = check.value as? Boolean ?: false
+            binding.checkSwitch.isChecked = (check.value as? Boolean) ?: false
 
             // Add an OnCheckedChangeListener to the switch
             binding.checkSwitch.setOnCheckedChangeListener { _, isChecked ->
@@ -80,6 +80,7 @@ class ChecksAdapter(
         }
     }
 
+
     class IntegerCheckViewHolder(private val binding: ItemIntegerCheckBinding) :
         CheckViewHolder(binding) {
         override fun bind(check: CheckItem) {
@@ -88,8 +89,10 @@ class ChecksAdapter(
             binding.descriptionTextView.text = check.description
             // Bind other views for integer check type as needed
 
+            val myInt = check.value as? Int ?: 0
+
             // Set the text of the EditText based on the user input value
-            binding.integerInputEditText.setText(check.value?.toString() ?: "")
+            binding.integerInputEditText.setText(myInt.toString())
 
             // Add an OnValueChangeListener to the EditText
             binding.integerInputEditText.addTextChangedListener(object : TextWatcher {
@@ -106,7 +109,7 @@ class ChecksAdapter(
                 override fun afterTextChanged(s: Editable?) {
                     // Update the userInputValue property of the CheckItem with the new integer value
                     val inputValue = s.toString()
-                    check.result = if (inputValue.isNotEmpty()) inputValue.toInt() else null
+                    check.result = inputValue.toIntOrNull()
 
                     // Re-evaluate the comparison and update the background color
                     val updatedUserInputMatchesExpected = check.value == check.result
@@ -119,6 +122,7 @@ class ChecksAdapter(
             })
         }
     }
+
 
     class DoubleCheckViewHolder(private val binding: ItemDoubleCheckBinding) :
         CheckViewHolder(binding) {
@@ -145,7 +149,8 @@ class ChecksAdapter(
 
                 override fun afterTextChanged(s: Editable?) {
                     // Update the userInputValue property of the CheckItem with the new double value
-                    check.result = s.toString().toDoubleOrNull()
+                    val inputValue = s.toString().toDoubleOrNull()
+                    check.result = inputValue
 
                     // Re-evaluate the comparison and update the background color
                     val updatedUserInputMatchesExpected = check.value == check.result
@@ -158,6 +163,7 @@ class ChecksAdapter(
             })
         }
     }
+
 
     class StringCheckViewHolder(private val binding: ItemStringCheckBinding) :
         CheckViewHolder(binding) {
@@ -197,6 +203,7 @@ class ChecksAdapter(
             })
         }
     }
+
 
     class UnknownCheckViewHolder(private val binding: ItemUnknownCheckBinding) :
         CheckViewHolder(binding) {
