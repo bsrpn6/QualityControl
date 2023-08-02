@@ -1,4 +1,4 @@
-package info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.di.modules
+package info.onesandzeros.qualitycontrol.di.modules
 
 import androidx.activity.result.ActivityResultRegistry
 import androidx.fragment.app.Fragment

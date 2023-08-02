@@ -1,4 +1,4 @@
-package info.onesandzeros.qualitycontrol
+package info.onesandzeros.qualitycontrol.ui.fragments
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import dagger.hilt.android.AndroidEntryPoint
+import info.onesandzeros.qualitycontrol.R
 
 @AndroidEntryPoint
 class MainFragment : Fragment() {

@@ -1,5 +1,6 @@
-package info.onesandzeros.qualitycontrol
+package info.onesandzeros.qualitycontrol.ui.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -8,8 +9,11 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
+import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.api.MyApi
 import info.onesandzeros.qualitycontrol.api.models.Department
 import info.onesandzeros.qualitycontrol.api.models.IDHNumbers
@@ -19,6 +23,7 @@ import info.onesandzeros.qualitycontrol.data.models.DepartmentEntity
 import info.onesandzeros.qualitycontrol.data.models.IDHNumbersEntity
 import info.onesandzeros.qualitycontrol.data.models.LineEntity
 import info.onesandzeros.qualitycontrol.databinding.FragmentCheckSetupBinding
+import info.onesandzeros.qualitycontrol.ui.viewmodels.SharedViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -44,8 +49,17 @@ class CheckSetupFragment : Fragment() {
     private lateinit var lineAdapter: ArrayAdapter<String>
     private lateinit var idhNumberAdapter: ArrayAdapter<Int>
 
+    private lateinit var sharedViewModel: SharedViewModel
+
+    private lateinit var firebaseAuth: FirebaseAuth
+
     @Inject
     lateinit var myApi: MyApi
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        sharedViewModel = ViewModelProvider(requireActivity()).get(SharedViewModel::class.java)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -63,6 +77,7 @@ class CheckSetupFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        firebaseAuth = FirebaseAuth.getInstance()
 
         departmentAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item)
         lineAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item)
@@ -132,6 +147,10 @@ class CheckSetupFragment : Fragment() {
         binding.startChecksButton.setOnClickListener {
             // Check if all three fields have valid selections
             if (selectedDepartment != null && selectedLine != null && selectedIDHNumber != null) {
+                sharedViewModel.departmentLiveData.value = selectedDepartment
+                sharedViewModel.lineLiveData.value = selectedLine?.name
+                sharedViewModel.idhNumberLiveData.value = selectedIDHNumber
+
                 // Proceed to ChecksFragment when the button is clicked
                 findNavController().navigate(R.id.action_checkSetupFragment_to_checksFragment)
             } else {
@@ -142,6 +161,10 @@ class CheckSetupFragment : Fragment() {
                     Toast.LENGTH_LONG
                 ).show()
             }
+        }
+
+        binding.logoutButton.setOnClickListener {
+            logoutUser()
         }
     }
 
@@ -302,6 +325,18 @@ class CheckSetupFragment : Fragment() {
                 idhNumberAdapter.notifyDataSetChanged()
             }
         }
+    }
+
+    private fun logoutUser() {
+        firebaseAuth.signOut()
+        sharedViewModel.clearUserName()
+        Toast.makeText(
+            requireContext(),
+            "Logout Successful",
+            Toast.LENGTH_LONG
+        ).show()
+        findNavController().navigate(R.id.action_checkSetupFragment_to_loginFragment)
+
     }
 
 

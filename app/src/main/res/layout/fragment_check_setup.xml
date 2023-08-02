@@ -1,11 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- res/layout/fragment_check_setup.xml -->
+<?xml version="1.0" encoding="utf-8"?><!-- res/layout/fragment_check_setup.xml -->
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:padding="16dp">
 
     <!-- Spinner for Department selection -->
@@ -13,37 +10,51 @@
         android:id="@+id/departmentSpinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:spinnerMode="dropdown"
-        android:entries="@array/department_options"
+        android:layout_gravity="center"
         android:layout_marginBottom="24dp"
-        android:layout_gravity="center" />
+        android:entries="@array/department_options"
+        android:spinnerMode="dropdown" />
 
     <!-- Spinner for Line selection -->
     <Spinner
         android:id="@+id/lineSpinner"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:spinnerMode="dropdown"
-        android:entries="@array/line_options"
+        android:layout_below="@id/departmentSpinner"
+        android:layout_gravity="center"
         android:layout_marginBottom="24dp"
-        android:layout_gravity="center" />
+        android:entries="@array/line_options"
+        android:spinnerMode="dropdown" />
 
     <AutoCompleteTextView
         android:id="@+id/idhNumberAutoCompleteTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="number"
-        android:hint="Enter IDH Number"
+        android:layout_below="@id/lineSpinner"
+        android:layout_gravity="center"
         android:layout_marginBottom="24dp"
-        android:layout_gravity="center"/>
+        android:hint="Enter IDH Number"
+        android:inputType="number" />
 
     <!-- Add a button to proceed to the next step, e.g., Start Checks -->
     <Button
         android:id="@+id/startChecksButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Start Checks"
+        android:layout_below="@id/idhNumberAutoCompleteTextView"
+        android:layout_gravity="center"
         android:layout_marginTop="16dp"
-        android:layout_gravity="center" />
+        android:text="Start Checks" />
 
-</LinearLayout>
+    <!-- Logout button -->
+    <ImageButton
+        android:id="@+id/logoutButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentBottom="true"
+        android:layout_margin="16dp"
+        android:background="@android:color/transparent"
+        android:src="@drawable/ic_logout" />
+
+</RelativeLayout>

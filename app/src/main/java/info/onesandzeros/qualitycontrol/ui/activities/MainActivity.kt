@@ -1,4 +1,4 @@
-package info.onesandzeros.qualitycontrol
+package info.onesandzeros.qualitycontrol.ui.activities
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
@@ -6,6 +6,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI.setupActionBarWithNavController
 import dagger.hilt.android.AndroidEntryPoint
+import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.databinding.ActivityMainBinding
 
 @AndroidEntryPoint

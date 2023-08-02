@@ -1,6 +1,7 @@
-package info.onesandzeros.qualitycontrol
+package info.onesandzeros.qualitycontrol.ui.fragments
 
-import ChecksAdapter
+import info.onesandzeros.qualitycontrol.ChecksAdapter
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,13 +11,19 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultRegistry
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
+import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.api.MyApi
 import info.onesandzeros.qualitycontrol.databinding.FragmentChecksBinding
-import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.utils.StringUtils
+import info.onesandzeros.qualitycontrol.api.models.CheckItem
+import info.onesandzeros.qualitycontrol.api.models.ChecksSubmissionRequest
+import info.onesandzeros.qualitycontrol.api.models.SubmissionResult
+import info.onesandzeros.qualitycontrol.ui.viewmodels.SharedViewModel
+import info.onesandzeros.qualitycontrol.utils.StringUtils
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -35,6 +42,13 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
 
 
     private var checksMap: Map<String, List<CheckItem>> = emptyMap()
+
+    private lateinit var sharedViewModel: SharedViewModel
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        sharedViewModel = ViewModelProvider(requireActivity()).get(SharedViewModel::class.java)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -96,6 +110,51 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
         }
 
         submitButton.setOnClickListener {
+            sharedViewModel.checksLiveData.value = checksMap
+
+            // Submit the data using Retrofit
+            val submissionData = ChecksSubmissionRequest(
+                sharedViewModel.usernameLiveData.value ?: "",
+                sharedViewModel.departmentLiveData.value,
+                sharedViewModel.lineLiveData.value,
+                sharedViewModel.idhNumberLiveData.value ?: -1,
+                checksMap
+            )
+
+            myApi.submitChecks(submissionData)
+                .enqueue(object : retrofit2.Callback<SubmissionResult> {
+                    override fun onResponse(
+                        call: Call<SubmissionResult>,
+                        response: Response<SubmissionResult>
+                    ) {
+                        // Handle the response from the server
+                        if (response.isSuccessful) {
+                            val result = response.body()
+                            // Process the result and display it to the user
+                            // For example, show a toast with the result message
+                            Toast.makeText(requireContext(), "Successfully saved records to API", Toast.LENGTH_SHORT)
+                                .show()
+                        } else {
+                            // Handle the error response
+                            // For example, show a toast with the error message
+                            Toast.makeText(
+                                requireContext(),
+                                "Failed to submit checks.",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    }
+
+                    override fun onFailure(call: Call<SubmissionResult>, t: Throwable) {
+                        // Handle the failure case
+                        // For example, show a toast with the error message
+                        Toast.makeText(
+                            requireContext(),
+                            "Failed to submit checks.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                })
             // Handle submit checks action (e.g., perform checks submission logic)
             // You can define your own logic here based on your app's requirements.
             // Navigate to SubmissionResultFragment and pass the totalFailedChecks as an argument
@@ -215,11 +274,6 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
 
     // Helper method to get the tab icon resource based on the check type
     private fun getTabIconResourceId(checkType: String): Int {
-        // Implement your logic here to return the appropriate drawable resource for each tab
-        // based on the checkType.
-        // For example, you can use a when statement or a mapping of checkType to drawable resource.
-        // For simplicity, you can name your drawable resources after the check types, e.g., "case.png", "con.png", etc.
-        // and use the following code:
         val fileNameWithoutExtension = checkType.substringBeforeLast(".")
         return resources.getIdentifier(
             fileNameWithoutExtension,

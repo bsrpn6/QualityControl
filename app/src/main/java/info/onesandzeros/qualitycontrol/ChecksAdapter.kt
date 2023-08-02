@@ -1,3 +1,6 @@
+package info.onesandzeros.qualitycontrol
+
+import BarcodeScannerUtil
 import android.graphics.Color
 import android.text.Editable
 import android.text.TextWatcher
@@ -5,7 +8,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
-import info.onesandzeros.qualitycontrol.CheckItem
+import info.onesandzeros.qualitycontrol.api.models.CheckItem
 import info.onesandzeros.qualitycontrol.databinding.ItemBarcodeCheckBinding
 import info.onesandzeros.qualitycontrol.databinding.ItemBooleanCheckBinding
 import info.onesandzeros.qualitycontrol.databinding.ItemDoubleCheckBinding
@@ -33,7 +36,11 @@ class ChecksAdapter(
             // Bind the views for barcode check type using ViewBinding
             binding.titleTextView.text = check.title
             binding.descriptionTextView.text = check.description
-            // Bind other views for barcode check type as needed
+
+            val myBarcode = (check.result as? String) ?: (check.value as? String) ?: ""
+
+            // Set the switch state based on the user input value
+            binding.barcodeValueTextView.text = myBarcode
 
             binding.barcodeIconImageView.setOnClickListener {
                 scannerUtil.startBarcodeScanning { barcodeValue ->
@@ -59,10 +66,11 @@ class ChecksAdapter(
             // Bind the views for boolean check type using ViewBinding
             binding.titleTextView.text = check.title
             binding.descriptionTextView.text = check.description
-            // Bind other views for boolean check type as needed
+
+            val myBoolean = (check.result as? Boolean) ?: (check.value as? Boolean) ?: false
 
             // Set the switch state based on the user input value
-            binding.checkSwitch.isChecked = (check.value as? Boolean) ?: false
+            binding.checkSwitch.isChecked = myBoolean
 
             // Add an OnCheckedChangeListener to the switch
             binding.checkSwitch.setOnCheckedChangeListener { _, isChecked ->
@@ -89,7 +97,7 @@ class ChecksAdapter(
             binding.descriptionTextView.text = check.description
             // Bind other views for integer check type as needed
 
-            val myInt = check.value as? Int ?: 0
+            val myInt = (check.result as? Int) ?: (check.value as? Int) ?: 0
 
             // Set the text of the EditText based on the user input value
             binding.integerInputEditText.setText(myInt.toString())
@@ -132,8 +140,10 @@ class ChecksAdapter(
             binding.descriptionTextView.text = check.description
             // Bind other views for double check type as needed
 
+            val myDouble = (check.result as? Double) ?: (check.value as? Double) ?: 0.0
+
             // Set the text of the EditText based on the user input value
-            binding.doubleInputEditText.setText(check.value?.toString() ?: "")
+            binding.doubleInputEditText.setText(myDouble.toString())
 
             // Add an OnValueChangeListener to the EditText
             binding.doubleInputEditText.addTextChangedListener(object : TextWatcher {
@@ -171,10 +181,11 @@ class ChecksAdapter(
             // Bind the views for string check type using ViewBinding
             binding.titleTextView.text = check.title
             binding.descriptionTextView.text = check.description
-            // Bind other views for string check type as needed
+
+            val myString = (check.result as? String) ?: (check.value as? String) ?: ""
 
             // Set the text of the EditText based on the user input value
-            binding.stringInputEditText.setText(check.value?.toString() ?: "")
+            binding.stringInputEditText.setText(myString)
 
             // Add an OnValueChangeListener to the EditText
             binding.stringInputEditText.addTextChangedListener(object : TextWatcher {
@@ -214,8 +225,6 @@ class ChecksAdapter(
             // Bind other views for unknown check type as needed
         }
     }
-
-    // Add other CheckViewHolder classes for different check types as needed
 
     // Create a new ViewHolder for each item in the RecyclerView based on its type
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): CheckViewHolder {

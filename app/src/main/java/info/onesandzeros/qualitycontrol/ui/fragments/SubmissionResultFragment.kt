@@ -1,15 +1,25 @@
-package info.onesandzeros.qualitycontrol
+package info.onesandzeros.qualitycontrol.ui.fragments
 
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.databinding.FragmentSubmissionResultBinding
+import info.onesandzeros.qualitycontrol.ui.viewmodels.SharedViewModel
 
 class SubmissionResultFragment : Fragment(R.layout.fragment_submission_result) {
     private lateinit var binding: FragmentSubmissionResultBinding
+    private lateinit var sharedViewModel: SharedViewModel
+
+    override fun onAttach(context: Context) {
+        super.onAttach(context)
+        sharedViewModel = ViewModelProvider(requireActivity()).get(SharedViewModel::class.java)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -38,9 +48,17 @@ class SubmissionResultFragment : Fragment(R.layout.fragment_submission_result) {
         binding.totalFailedChecksTextView.text = "Total Failed Checks: $totalFailedChecks"
         binding.successMessageTextView.text = "Checks have been pushed to the database."
 
+
         completeChecksButton.setOnClickListener {
             // Handle exit checks action (e.g., navigate back to previous fragment)
             findNavController().navigate(R.id.action_submissionResultFragment_to_checkSetupFragment)
         }
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+
+        // Clear the data in the SharedViewModel after a successful save
+        sharedViewModel.clearDataSaveUser()
     }
 }

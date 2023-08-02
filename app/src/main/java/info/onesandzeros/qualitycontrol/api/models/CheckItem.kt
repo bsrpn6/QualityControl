@@ -1,10 +1,10 @@
-package info.onesandzeros.qualitycontrol
+package info.onesandzeros.qualitycontrol.api.models
 
 import android.os.Parcel
 import android.os.Parcelable
 
 class CheckItem(
-    val checkId: Int,
+    val checkTypeID: Int,
     val checkType: String,
     val type: String,
     val title: String,
@@ -23,7 +23,7 @@ class CheckItem(
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(checkId)
+        parcel.writeInt(checkTypeID)
         parcel.writeString(checkType)
         parcel.writeString(type)
         parcel.writeString(title)

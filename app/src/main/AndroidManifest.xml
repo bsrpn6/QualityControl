@@ -21,7 +21,7 @@
         android:theme="@style/Theme.QualityControl"
         tools:targetApi="31">
         <activity
-            android:name=".MainActivity"
+            android:name="info.onesandzeros.qualitycontrol.ui.activities.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.QualityControl">
@@ -32,7 +32,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name="info.onesandzeros.qualitycontrol.BarcodeScannerActivity"
+            android:name="info.onesandzeros.qualitycontrol.ui.activities.BarcodeScannerActivity"
             android:label="Barcode Scanner"
             android:theme="@style/Theme.AppCompat">
         </activity>

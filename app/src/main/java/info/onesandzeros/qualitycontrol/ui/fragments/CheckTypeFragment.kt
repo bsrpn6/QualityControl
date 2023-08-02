@@ -1,12 +1,14 @@
-package info.onesandzeros.qualitycontrol
+package info.onesandzeros.qualitycontrol.ui.fragments
 
 import BarcodeScannerUtil
-import ChecksAdapter
+import info.onesandzeros.qualitycontrol.ChecksAdapter
 import android.os.Bundle
 import android.view.View
 import androidx.activity.result.ActivityResultRegistry
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import info.onesandzeros.qualitycontrol.api.models.CheckItem
+import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.databinding.FragmentCheckTypeBinding
 
 class CheckTypeFragment : Fragment(R.layout.fragment_check_type) {

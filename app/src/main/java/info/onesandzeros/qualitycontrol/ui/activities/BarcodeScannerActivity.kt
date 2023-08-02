@@ -1,4 +1,4 @@
-package info.onesandzeros.qualitycontrol
+package info.onesandzeros.qualitycontrol.ui.activities
 
 import android.app.Activity
 import android.content.Intent
@@ -20,6 +20,7 @@ import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetector
 import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetectorOptions
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
+import info.onesandzeros.qualitycontrol.R
 
 class BarcodeScannerActivity : AppCompatActivity() {
     private lateinit var previewView: PreviewView

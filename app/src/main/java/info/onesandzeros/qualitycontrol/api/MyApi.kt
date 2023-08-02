@@ -1,11 +1,15 @@
 package info.onesandzeros.qualitycontrol.api
 
-import info.onesandzeros.qualitycontrol.CheckItem
+import info.onesandzeros.qualitycontrol.api.models.CheckItem
 import info.onesandzeros.qualitycontrol.api.models.Department
 import info.onesandzeros.qualitycontrol.api.models.IDHNumbers
 import info.onesandzeros.qualitycontrol.api.models.Line
+import info.onesandzeros.qualitycontrol.api.models.ChecksSubmissionRequest
+import info.onesandzeros.qualitycontrol.api.models.SubmissionResult
 import retrofit2.Call
+import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.POST
 import retrofit2.http.Query
 import javax.inject.Singleton
 
@@ -22,4 +26,7 @@ interface MyApi {
 
     @GET("checks")
     fun getChecksData(): Call<List<CheckItem>>
+
+    @POST("results")
+    fun submitChecks(@Body submissionData: ChecksSubmissionRequest): Call<SubmissionResult>
 }
