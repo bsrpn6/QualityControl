@@ -8,6 +8,7 @@ plugins {
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
     id("com.google.gms.google-services")
+    id("com.google.firebase.crashlytics")
 }
 
 android {
@@ -120,6 +121,10 @@ dependencies {
     // Firebase ML Kit dependencies
     implementation("com.google.firebase:firebase-ml-vision:24.0.3")
     implementation("com.google.firebase:firebase-ml-vision-barcode-model:16.1.1")
+
+    // Firebase Crashlytics
+    implementation("com.google.firebase:firebase-crashlytics-ktx")
+    implementation("com.google.firebase:firebase-analytics-ktx")
 
     // Google Play
     implementation("com.google.android.gms:play-services-vision:20.0.0")
