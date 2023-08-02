@@ -39,7 +39,8 @@ class CheckSetupFragment : Fragment() {
     private var _binding: FragmentCheckSetupBinding? = null
     private val binding get() = _binding!!
 
-    private lateinit var appDatabase: AppDatabase
+    @Inject
+    lateinit var appDatabase: AppDatabase
 
     private val departments = mutableListOf<Department>()
     private val lines = mutableListOf<Line>()
@@ -59,12 +60,6 @@ class CheckSetupFragment : Fragment() {
     override fun onAttach(context: Context) {
         super.onAttach(context)
         sharedViewModel = ViewModelProvider(requireActivity()).get(SharedViewModel::class.java)
-    }
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-
-        appDatabase = AppDatabase.getDatabase(requireContext())
     }
 
     override fun onCreateView(

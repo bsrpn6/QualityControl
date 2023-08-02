@@ -1,7 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- res/layout/fragment_submission_result.xml -->
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<?xml version="1.0" encoding="utf-8"?><!-- res/layout/fragment_submission_result.xml -->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -11,36 +9,53 @@
         android:id="@+id/logoImageView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:src="@drawable/ic_failure"
         android:layout_gravity="center"
         android:layout_marginBottom="32dp"
-        />
+        android:src="@drawable/ic_failure" />
+
     <!-- Display the total number of failed checks -->
     <TextView
-        android:id="@+id/totalFailedChecksTextView"
+        android:id="@+id/resultMessageTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="18sp"
-        android:textStyle="bold"
         android:layout_gravity="center"
         android:layout_marginTop="16dp"
-        android:layout_marginBottom="8dp"/>
+        android:layout_marginBottom="8dp"
+        android:textSize="18sp"
+        android:textStyle="bold" />
 
     <!-- Display the success message -->
     <TextView
         android:id="@+id/successMessageTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textSize="16sp"
         android:layout_gravity="center"
-        android:layout_marginBottom="16dp"/>
+        android:layout_marginBottom="16dp"
+        android:textSize="16sp" />
+
+    <!-- Add a scrollable view to display the failed checks -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:padding="8dp">
+
+        <!-- Use a vertical LinearLayout to display the failed checks -->
+        <LinearLayout
+            android:id="@+id/failedChecksLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+            <!-- The failed checks will be dynamically added here -->
+        </LinearLayout>
+    </ScrollView>
 
     <!-- Add a button to proceed to the next step, e.g., Start Checks -->
     <Button
         android:id="@+id/completeChecksButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Complete"
-        android:layout_marginTop="16dp" />
+        android:layout_marginTop="16dp"
+        android:text="Complete" />
 
 </LinearLayout>

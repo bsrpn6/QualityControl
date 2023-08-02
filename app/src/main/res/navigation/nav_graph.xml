@@ -38,7 +38,8 @@
             app:destination="@id/submissionResultFragment">
             <argument
                 android:name="totalFailedChecks"
-                app:argType="integer" />
+                app:argType="info.onesandzeros.qualitycontrol.api.models.CheckItem[]" />
+
         </action>
     </fragment>
 
@@ -49,7 +50,7 @@
         <!-- Define any arguments needed by the SubmissionResultFragment -->
         <argument
             android:name="totalFailedChecks"
-            app:argType="integer" />
+            app:argType="info.onesandzeros.qualitycontrol.api.models.CheckItem[]" />
         <action
             android:id="@+id/action_submissionResultFragment_to_checkSetupFragment"
             app:destination="@id/checkSetupFragment" />

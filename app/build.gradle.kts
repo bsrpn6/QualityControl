@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.config.JvmAnalysisFlags.useIR
-
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -86,6 +84,8 @@ dependencies {
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1")
+
 
     // Java 8
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:1.2.2")
@@ -134,7 +134,6 @@ dependencies {
     implementation("androidx.camera:camera-camera2:$camera_version")
     implementation("androidx.camera:camera-lifecycle:$camera_version")
     implementation("androidx.camera:camera-view:$camera_version")
-
 
 
     // Retrofit

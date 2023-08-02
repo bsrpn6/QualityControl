@@ -1,6 +1,5 @@
 package info.onesandzeros.qualitycontrol.ui.fragments
 
-import info.onesandzeros.qualitycontrol.ChecksAdapter
 import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -18,12 +17,16 @@ import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.api.MyApi
-import info.onesandzeros.qualitycontrol.databinding.FragmentChecksBinding
 import info.onesandzeros.qualitycontrol.api.models.CheckItem
 import info.onesandzeros.qualitycontrol.api.models.ChecksSubmissionRequest
 import info.onesandzeros.qualitycontrol.api.models.SubmissionResult
+import info.onesandzeros.qualitycontrol.data.AppDatabase
+import info.onesandzeros.qualitycontrol.databinding.FragmentChecksBinding
+import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.data.models.CheckSubmissionEntity
 import info.onesandzeros.qualitycontrol.ui.viewmodels.SharedViewModel
 import info.onesandzeros.qualitycontrol.utils.StringUtils
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -32,13 +35,18 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class ChecksFragment : Fragment(R.layout.fragment_checks) {
     private lateinit var binding: FragmentChecksBinding
-    private lateinit var adapter: ChecksAdapter
+
+    @Inject
+    lateinit var coroutineScope: CoroutineScope
 
     @Inject
     lateinit var activityResultRegistry: ActivityResultRegistry
 
     @Inject
     lateinit var myApi: MyApi
+
+    @Inject
+    lateinit var appDatabase: AppDatabase
 
 
     private var checksMap: Map<String, List<CheckItem>> = emptyMap()
@@ -122,7 +130,7 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
             )
 
             myApi.submitChecks(submissionData)
-                .enqueue(object : retrofit2.Callback<SubmissionResult> {
+                .enqueue(object : Callback<SubmissionResult> {
                     override fun onResponse(
                         call: Call<SubmissionResult>,
                         response: Response<SubmissionResult>
@@ -132,7 +140,11 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
                             val result = response.body()
                             // Process the result and display it to the user
                             // For example, show a toast with the result message
-                            Toast.makeText(requireContext(), "Successfully saved records to API", Toast.LENGTH_SHORT)
+                            Toast.makeText(
+                                requireContext(),
+                                "Successfully saved records to API",
+                                Toast.LENGTH_SHORT
+                            )
                                 .show()
                         } else {
                             // Handle the error response
@@ -158,16 +170,16 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
             // Handle submit checks action (e.g., perform checks submission logic)
             // You can define your own logic here based on your app's requirements.
             // Navigate to SubmissionResultFragment and pass the totalFailedChecks as an argument
-            val totalFailedChecks = calculateTotalFailedChecks()
+            val totalFailedChecks = retrieveTotalFailedChecks()
             val action = ChecksFragmentDirections.actionChecksFragmentToSubmissionResultFragment(
-                totalFailedChecks
+                totalFailedChecks.toTypedArray()
             )
             findNavController().navigate(action)
         }
     }
 
-    private fun calculateTotalFailedChecks(): Int {
-        var totalFailedChecks = 0
+    private fun retrieveTotalFailedChecks(): List<CheckItem> {
+        val checksList = mutableListOf<CheckItem>()
 
         for ((_, checkItems) in checksMap) {
             for (checkItem in checkItems) {
@@ -176,12 +188,12 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
 
                 // Check if the user input value does not match the expected value
                 if (result != null && result != value) {
-                    totalFailedChecks++
+                    checksList.add(checkItem)
                 }
             }
         }
 
-        return totalFailedChecks
+        return checksList
     }
 
     private fun loadChecksDataFromApi() {
@@ -280,6 +292,20 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
             "drawable",
             requireActivity().packageName
         )
+    }
+
+    private fun saveSubmissionToLocalDatabase(submissionData: ChecksSubmissionRequest) {
+        val localSubmission = CheckSubmissionEntity(
+            username = submissionData.username,
+            department = submissionData.department,
+            line = submissionData.line,
+            idhNumber = submissionData.idhNumber,
+            checks = submissionData.checks
+        )
+
+        coroutineScope.launch {
+            appDatabase.checkSubmissionDao().insertSubmission(localSubmission)
+        }
     }
 
     private inner class ChecksPagerAdapter(
