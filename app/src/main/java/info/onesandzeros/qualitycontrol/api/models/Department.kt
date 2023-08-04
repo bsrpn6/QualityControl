@@ -22,6 +22,23 @@ data class Department(
         return 0
     }
 
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other !is Department) return false
+
+        if (id != other.id) return false
+        if (name != other.name) return false
+
+        return true
+    }
+
+    // Override the hashCode method when overriding equals
+    override fun hashCode(): Int {
+        var result = id
+        result = 31 * result + name.hashCode()
+        return result
+    }
+
     companion object CREATOR : Parcelable.Creator<Department> {
         override fun createFromParcel(parcel: Parcel): Department {
             return Department(parcel)

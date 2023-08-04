@@ -2,10 +2,16 @@ package info.onesandzeros.qualitycontrol.ui.viewmodels
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import info.onesandzeros.qualitycontrol.api.models.Department
 import info.onesandzeros.qualitycontrol.api.models.CheckItem
+import info.onesandzeros.qualitycontrol.api.models.Department
+import info.onesandzeros.qualitycontrol.api.models.IDHNumbers
+import info.onesandzeros.qualitycontrol.api.models.Line
 
 class SharedViewModel : ViewModel() {
+    fun clearDataSaveUserAndID() {
+        checksLiveData.value = null
+    }
+
     fun clearDataSaveUser() {
         departmentLiveData.value = null
         lineLiveData.value = null
@@ -17,10 +23,11 @@ class SharedViewModel : ViewModel() {
         usernameLiveData.value = null
     }
 
+    val checkStartTimestamp = MutableLiveData<Long>()
     val usernameLiveData = MutableLiveData<String?>()
     val departmentLiveData = MutableLiveData<Department?>()
-    val lineLiveData = MutableLiveData<String?>()
-    val idhNumberLiveData = MutableLiveData<Int?>()
+    val lineLiveData = MutableLiveData<Line?>()
+    val idhNumberLiveData = MutableLiveData<IDHNumbers?>()
     val checksLiveData = MutableLiveData<Map<String, List<CheckItem>>?>()
 }
 

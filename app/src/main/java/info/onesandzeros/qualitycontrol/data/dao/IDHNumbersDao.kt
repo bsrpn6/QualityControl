@@ -10,8 +10,8 @@ import info.onesandzeros.qualitycontrol.data.models.IDHNumbersEntity
 interface IDHNumbersDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertIDHNumbers(idhNumberEntities: IDHNumbersEntity)
+    suspend fun insertIDHNumbers(idhNumberEntities: List<IDHNumbersEntity>)
 
-    @Query("SELECT * FROM idh_numbers WHERE lineId = :lineId")
-    suspend fun getIDHNumbersByLineId(lineId: Int): IDHNumbersEntity
+    @Query("SELECT * FROM idh_numbers WHERE line_id = :lineId")
+    suspend fun getIDHNumbersByLineId(lineId: Int): List<IDHNumbersEntity>
 }

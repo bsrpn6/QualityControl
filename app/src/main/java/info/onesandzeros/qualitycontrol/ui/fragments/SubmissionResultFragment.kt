@@ -66,6 +66,6 @@ class SubmissionResultFragment : Fragment(R.layout.fragment_submission_result) {
         super.onDestroyView()
 
         // Clear the data in the SharedViewModel after a successful save
-        sharedViewModel.clearDataSaveUser()
+        sharedViewModel.clearDataSaveUserAndID()
     }
 }

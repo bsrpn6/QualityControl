@@ -36,12 +36,20 @@
         android:hint="Enter IDH Number"
         android:inputType="number" />
 
+    <Button
+        android:id="@+id/startNewCheckButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/idhNumberAutoCompleteTextView"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"
+        android:text="Start New Check Sequence" />
     <!-- Add a button to proceed to the next step, e.g., Start Checks -->
     <Button
         android:id="@+id/startChecksButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/idhNumberAutoCompleteTextView"
+        android:layout_below="@id/startNewCheckButton"
         android:layout_gravity="center"
         android:layout_marginTop="16dp"
         android:text="Start Checks" />

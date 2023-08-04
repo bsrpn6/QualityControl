@@ -122,12 +122,15 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
 
             // Submit the data using Retrofit
             val submissionData = ChecksSubmissionRequest(
+                sharedViewModel.checkStartTimestamp.value,
                 sharedViewModel.usernameLiveData.value ?: "",
                 sharedViewModel.departmentLiveData.value,
                 sharedViewModel.lineLiveData.value,
-                sharedViewModel.idhNumberLiveData.value ?: -1,
+                sharedViewModel.idhNumberLiveData.value,
                 checksMap
             )
+
+            saveSubmissionToLocalDatabase(submissionData)
 
             myApi.submitChecks(submissionData)
                 .enqueue(object : Callback<SubmissionResult> {
@@ -296,6 +299,7 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
 
     private fun saveSubmissionToLocalDatabase(submissionData: ChecksSubmissionRequest) {
         val localSubmission = CheckSubmissionEntity(
+            checkStartTimestamp = submissionData.checkStartTimestamp,
             username = submissionData.username,
             department = submissionData.department,
             line = submissionData.line,
