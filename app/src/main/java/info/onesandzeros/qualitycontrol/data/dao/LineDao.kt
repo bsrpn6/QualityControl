@@ -12,6 +12,9 @@ interface LineDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLines(lineEntities: List<LineEntity>)
 
+    @Query("SELECT * FROM lines")
+    suspend fun getAllLines(): List<LineEntity>
+
     @Query("SELECT * FROM lines WHERE departmentId = :departmentId")
     suspend fun getLinesByDepartmentId(departmentId: Int): List<LineEntity>
 }

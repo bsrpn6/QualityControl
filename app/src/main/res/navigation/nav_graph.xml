@@ -25,9 +25,18 @@
             android:id="@+id/action_checkSetupFragment_to_checksFragment"
             app:destination="@id/checksFragment" />
         <action
+            android:id="@+id/action_checkSetupFragment_to_ViewResultsFragment"
+            app:destination="@id/viewResultsFragment" />
+        <action
             android:id="@+id/action_checkSetupFragment_to_loginFragment"
             app:destination="@id/loginFragment" />
     </fragment>
+
+    <fragment
+        android:id="@+id/viewResultsFragment"
+        android:name="info.onesandzeros.qualitycontrol.ui.fragments.ViewResultsFragment"
+        android:label="View Results Fragment"
+        tools:layout="@layout/fragment_view_results"></fragment>
 
     <fragment
         android:id="@+id/checksFragment"

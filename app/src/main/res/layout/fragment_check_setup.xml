@@ -44,6 +44,7 @@
         android:layout_gravity="center"
         android:layout_marginTop="16dp"
         android:text="Start New Check Sequence" />
+
     <!-- Add a button to proceed to the next step, e.g., Start Checks -->
     <Button
         android:id="@+id/startChecksButton"
@@ -53,6 +54,16 @@
         android:layout_gravity="center"
         android:layout_marginTop="16dp"
         android:text="Start Checks" />
+
+    <Button
+        android:id="@+id/viewResultsButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/startChecksButton"
+        android:layout_gravity="center"
+        android:layout_marginTop="16dp"
+        android:text="View Previous Results"
+        android:visibility="gone" />
 
     <!-- Logout button -->
     <ImageButton

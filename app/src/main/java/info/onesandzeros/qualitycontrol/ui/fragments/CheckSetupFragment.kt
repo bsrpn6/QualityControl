@@ -126,6 +126,10 @@ class CheckSetupFragment : Fragment() {
             }
         }
 
+        binding.viewResultsButton.setOnClickListener {
+            findNavController().navigate(R.id.action_checkSetupFragment_to_ViewResultsFragment)
+        }
+
         binding.logoutButton.setOnClickListener {
             logoutUser()
         }
