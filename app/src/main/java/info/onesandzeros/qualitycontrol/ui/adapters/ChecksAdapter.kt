@@ -1,4 +1,4 @@
-package info.onesandzeros.qualitycontrol
+package info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.adapters
 
 import BarcodeScannerUtil
 import android.graphics.Color

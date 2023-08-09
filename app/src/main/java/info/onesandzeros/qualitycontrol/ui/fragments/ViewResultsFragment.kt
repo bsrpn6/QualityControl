@@ -1,31 +1,36 @@
 package info.onesandzeros.qualitycontrol.ui.fragments
 
+import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Observer
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.LinearLayoutManager
 import dagger.hilt.android.AndroidEntryPoint
+import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.api.models.CheckItem
 import info.onesandzeros.qualitycontrol.api.models.Line
 import info.onesandzeros.qualitycontrol.databinding.FragmentViewResultsBinding
-import info.onesandzeros.qualitycontrol.databinding.TabularRowLayoutBinding
+import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.adapters.ResultsAdapter
 import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.viewmodels.ViewResultsViewModel
-import info.onesandzeros.qualitycontrol.utils.StringUtils
-import java.text.SimpleDateFormat
-import java.util.Date
+import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.utils.FailedCheckDetailsDisplayer
 
 @AndroidEntryPoint
 class ViewResultsFragment : Fragment() {
 
     private lateinit var binding: FragmentViewResultsBinding
     private val viewModel: ViewResultsViewModel by viewModels()
+    private lateinit var resultsAdapter: ResultsAdapter
+
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -88,40 +93,52 @@ class ViewResultsFragment : Fragment() {
             adapter.addAll(lines)
         })
 
-        // Observe the LiveData for check submissions and update the tabular layout
-        viewModel.checkSubmissions.observe(viewLifecycleOwner, Observer { checkSubmissionsForLine ->
-            // Clear previous tabular data
-            binding.tabularLayout.removeAllViews()
+        // Initialize RecyclerView and Adapter
+        resultsAdapter = ResultsAdapter(emptyList()) { checkResult ->
+            // Extract the failed checks for this item
+            val failedChecks = retrieveTotalFailedChecks(checkResult.checks)
 
-            if (checkSubmissionsForLine.isNotEmpty()) {
-                val rowBinding = TabularRowLayoutBinding.inflate(layoutInflater)
-                rowBinding.dateTextView.text = "DATE"
-                rowBinding.usernameTextView.text = "USERNAME"
-                rowBinding.idhNumberTextView.text = "IDH NUMBER"
+            // Create a dialog or navigate to a new fragment
+            val dialog = Dialog(requireContext())
 
-                rowBinding.failedCheckCountTextView.text = "# FAILED CHECKS"
+            // Inflate the layout containing a ViewGroup (e.g., LinearLayout) for the details
+            val detailsLayout = LayoutInflater.from(requireContext())
+                .inflate(R.layout.failed_check_details_layout, null)
 
-                binding.tabularLayout.addView(rowBinding.root)
+            // Set up the dialog's content view
+            dialog.setContentView(detailsLayout)
+
+            // Adjust the dialog's width and height
+            val window = dialog.window
+            window?.setLayout(
+                (resources.displayMetrics.widthPixels * 0.9).toInt(),
+                WindowManager.LayoutParams.WRAP_CONTENT
+            )
+
+            // Create a FailedCheckDetailsDisplayer and display the details
+            val displayer = FailedCheckDetailsDisplayer(
+                requireContext(), detailsLayout.findViewById(
+                    R.id.detailsLayout
+                )
+            )
+            displayer.displayFailedCheckDetails(failedChecks)
+
+            // Set up the close button
+            detailsLayout.findViewById<Button>(R.id.closeButton).setOnClickListener {
+                dialog.dismiss()
             }
 
-            // Loop through check submissions and populate the tabular layout
-            for (checkSubmission in checkSubmissionsForLine) {
-                val rowBinding = TabularRowLayoutBinding.inflate(layoutInflater)
+            // Show the dialog or navigate to the fragment
+            dialog.show()
+        }
+        binding.resultsRecyclerView.layoutManager = LinearLayoutManager(requireContext())
+        binding.resultsRecyclerView.adapter = resultsAdapter
 
-                val sdf = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-                val formattedDate: String = sdf.format(Date(checkSubmission.checkStartTimestamp!!))
-
-                rowBinding.dateTextView.text = formattedDate
-                rowBinding.usernameTextView.text =
-                    StringUtils.parseUsername(checkSubmission.username)
-                rowBinding.idhNumberTextView.text =
-                    checkSubmission.idhNumber?.idhNumber.toString()
-
-                rowBinding.failedCheckCountTextView.text =
-                    calculateFailedChecks(checkSubmission.checks).toString()
-
-                binding.tabularLayout.addView(rowBinding.root)
-            }
+        // Observe check submissions and update RecyclerView
+        viewModel.checkSubmissions.observe(viewLifecycleOwner, Observer { checkSubmissions ->
+            // Update the RecyclerView adapter with the filtered check submissions
+            resultsAdapter.results = checkSubmissions
+            resultsAdapter.notifyDataSetChanged()
         })
 
         // Load lines from the database using the ViewModel
@@ -130,18 +147,22 @@ class ViewResultsFragment : Fragment() {
         return binding.root
     }
 
-    private fun calculateFailedChecks(checks: Map<String, List<CheckItem>>): Int {
-        var failedCheckCount = 0
+    private fun retrieveTotalFailedChecks(checksMap: Map<String, List<CheckItem>>): Array<CheckItem> {
+        val checksList = mutableListOf<CheckItem>()
 
-        for ((_, checkItems) in checks) {
-            for (check in checkItems) {
-                if (check.result != null && check.value != check.result) {
-                    failedCheckCount++
+        for ((_, checkItems) in checksMap) {
+            for (checkItem in checkItems) {
+                val value = checkItem.value
+                val result = checkItem.result
+
+                // Check if the user input value does not match the expected value
+                if (result != null && result != value) {
+                    checksList.add(checkItem)
                 }
             }
         }
 
-        return failedCheckCount
+        return checksList.toTypedArray()
     }
 
 }

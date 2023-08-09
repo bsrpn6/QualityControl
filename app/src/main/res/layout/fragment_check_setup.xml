@@ -62,8 +62,7 @@
         android:layout_below="@id/startChecksButton"
         android:layout_gravity="center"
         android:layout_marginTop="16dp"
-        android:text="View Previous Results"
-        android:visibility="gone" />
+        android:text="View Previous Results" />
 
     <!-- Logout button -->
     <ImageButton
