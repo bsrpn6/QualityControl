@@ -7,7 +7,7 @@ import androidx.navigation.ui.NavigationUI.setupActionBarWithNavController
 import dagger.hilt.android.AndroidEntryPoint
 import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.databinding.ActivityMainBinding
-import info.onesandzeros.qualitycontrol.ui.fragments.LoginFragment
+import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.fragments.login.LoginFragment
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
