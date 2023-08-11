@@ -28,15 +28,13 @@
         android:gravity="center_vertical"
         android:orientation="horizontal">
 
-        <!-- Barcode-specific views, e.g., TextView to display the barcode value -->
-        <TextView
-            android:id="@+id/failedWeightChecksTextView"
+        <info.onesandzeros.qualitycontrol.ui.views.TinyLineGraphView
+            android:id="@+id/tinyGraphView"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:gravity="top|start"
-            android:hint="Failed Checks:"
-            android:inputType="text" />
+            android:gravity="top|start" />
+
 
         <!-- Vertical layout for Barcode icon and "Tap To Scan" text -->
         <LinearLayout
@@ -50,7 +48,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
-                android:text="Tap To Scan"
+                android:text="Tap To Start"
                 android:textColor="@android:color/darker_gray" />
 
             <ImageView

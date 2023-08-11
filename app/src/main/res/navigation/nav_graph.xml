@@ -53,8 +53,8 @@
             android:id="@+id/action_checksFragment_to_weightCaptureFragment"
             app:destination="@id/weightCaptureFragment">
             <argument
-                android:name="weightCheckItem"
-                app:argType="info.onesandzeros.qualitycontrol.api.models.WeightCheckItem" />
+                android:name="checkItem"
+                app:argType="info.onesandzeros.qualitycontrol.api.models.CheckItem" />
         </action>
     </fragment>
 
@@ -63,8 +63,8 @@
         android:name="info.onesandzeros.qualitycontrol.ui.fragments.WeightCaptureFragment"
         android:label="Weight Capture">
         <argument
-            android:name="weightCheckItem"
-            app:argType="info.onesandzeros.qualitycontrol.api.models.WeightCheckItem"
+            android:name="checkItem"
+            app:argType="info.onesandzeros.qualitycontrol.api.models.CheckItem"
             app:nullable="true" />
     </fragment>
 

@@ -12,8 +12,11 @@ import android.view.animation.TranslateAnimation
 import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
+import com.google.gson.Gson
+import info.onesandzeros.qualitycontrol.api.models.CheckItem
 import info.onesandzeros.qualitycontrol.api.models.FillHeadItem
 import info.onesandzeros.qualitycontrol.api.models.WeightCheckItem
 import info.onesandzeros.qualitycontrol.databinding.FragmentWeightCaptureBinding
@@ -34,7 +37,9 @@ class WeightCaptureFragment : Fragment() {
     // Define mockBluetoothService at the class level so it can be accessed in multiple methods
     private lateinit var mockBluetoothService: MockBluetoothService
 
+    private lateinit var checkItem: CheckItem
     private lateinit var weightCheckItem: WeightCheckItem
+    private lateinit var fillHeadList: MutableList<FillHeadItem>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -48,7 +53,12 @@ class WeightCaptureFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val args: WeightCaptureFragmentArgs by navArgs()
-        weightCheckItem = args.weightCheckItem!!
+        checkItem = args.checkItem!!
+
+        //TODO - Why this conversion by JSON?
+        val gson = Gson()
+        val jsonString = gson.toJson(checkItem.value)
+        weightCheckItem = gson.fromJson(jsonString, WeightCheckItem::class.java)
 
         // Set the layout manager to a grid with 4 columns
         binding.fillHeadsRecyclerView.layoutManager = GridLayoutManager(context, 3)
@@ -56,10 +66,15 @@ class WeightCaptureFragment : Fragment() {
         binding.fillHeadsRecyclerView.adapter = fillHeadsAdapter
 
         // Initialize the fill heads
-        val fillHeads = weightCheckItem.fillHeads// Get the fill heads from the shared ViewModel
-        fillHeadsAdapter.submitList(fillHeads.map { FillHeadItem(it, null) })
+        fillHeadList = weightCheckItem.fillHeads.map { FillHeadItem(it, null) }.toMutableList()
+        fillHeadsAdapter.submitList(fillHeadList)
 
         setSpecValues()
+
+        binding.completeChecksButton.setOnClickListener {
+            checkItem.result = fillHeadList
+            findNavController().popBackStack()
+        }
 
         // Create an instance of the MockBluetoothService and connect
         mockBluetoothService = MockBluetoothService(handler)
@@ -130,7 +145,7 @@ class WeightCaptureFragment : Fragment() {
 
             override fun onAnimationEnd(animation: Animation?) {
                 // Update the value in the RecyclerView
-                val fillHeadList = fillHeadsAdapter.currentList.toMutableList()
+
                 fillHeadList[currentFillHeadIndex] =
                     FillHeadItem(fillHeadList[currentFillHeadIndex].fillHead, weight)
                 fillHeadsAdapter.submitList(fillHeadList)

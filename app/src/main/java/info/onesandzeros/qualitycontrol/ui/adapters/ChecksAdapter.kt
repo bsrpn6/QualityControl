@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import com.google.gson.Gson
 import info.onesandzeros.qualitycontrol.api.models.CheckItem
+import info.onesandzeros.qualitycontrol.api.models.FillHeadItem
 import info.onesandzeros.qualitycontrol.api.models.WeightCheckItem
 import info.onesandzeros.qualitycontrol.databinding.ItemBarcodeCheckBinding
 import info.onesandzeros.qualitycontrol.databinding.ItemBooleanCheckBinding
@@ -72,19 +73,23 @@ class ChecksAdapter(
             binding.titleTextView.text = check.title
             binding.descriptionTextView.text = check.description
 
-            // Set the switch state based on the user input value
-            binding.failedWeightChecksTextView.text = ""
+            val gson = Gson()
+            val jsonString = gson.toJson(check.value)
+            val weightCheckItem = gson.fromJson(jsonString, WeightCheckItem::class.java)
+            if (check.result != null) {
+                val fillHeads = check.result as List<FillHeadItem>
+
+                binding.tinyGraphView.mav = weightCheckItem.mav
+                binding.tinyGraphView.lsl = weightCheckItem.lsl
+                binding.tinyGraphView.usl = weightCheckItem.usl
+                binding.tinyGraphView.fillHeadValues = fillHeads
+            }
 
             // Set a click listener on the image (or button) to start weight capture
             binding.scaleIconImageView.setOnClickListener {
                 // Trigger navigation to the WeightCaptureFragment
-                //TODO - See if there is a way to cast this without converting JSON.
-                val gson = Gson()
-                val jsonString = gson.toJson(check.value)
-                val weightCheckItem = gson.fromJson(jsonString, WeightCheckItem::class.java)
-                val action = ChecksFragmentDirections.actionChecksFragmentToWeightCaptureFragment(
-                    weightCheckItem
-                )
+                val action =
+                    ChecksFragmentDirections.actionChecksFragmentToWeightCaptureFragment(check)
                 it.findNavController().navigate(action)
             }
         }
