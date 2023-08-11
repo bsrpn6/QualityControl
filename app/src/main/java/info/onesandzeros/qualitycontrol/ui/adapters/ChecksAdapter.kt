@@ -6,15 +6,20 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
+import com.google.gson.Gson
 import info.onesandzeros.qualitycontrol.api.models.CheckItem
+import info.onesandzeros.qualitycontrol.api.models.WeightCheckItem
 import info.onesandzeros.qualitycontrol.databinding.ItemBarcodeCheckBinding
 import info.onesandzeros.qualitycontrol.databinding.ItemBooleanCheckBinding
 import info.onesandzeros.qualitycontrol.databinding.ItemDoubleCheckBinding
 import info.onesandzeros.qualitycontrol.databinding.ItemIntegerCheckBinding
 import info.onesandzeros.qualitycontrol.databinding.ItemStringCheckBinding
 import info.onesandzeros.qualitycontrol.databinding.ItemUnknownCheckBinding
+import info.onesandzeros.qualitycontrol.databinding.ItemWeightCheckBinding
+import info.onesandzeros.qualitycontrol.ui.fragments.ChecksFragmentDirections
 
 class ChecksAdapter(
     private val checksList: List<CheckItem>,
@@ -59,6 +64,31 @@ class ChecksAdapter(
         }
     }
 
+    class WeightCheckViewHolder(
+        private val binding: ItemWeightCheckBinding
+    ) : CheckViewHolder(binding) {
+        override fun bind(check: CheckItem) {
+            // Bind the views for barcode check type using ViewBinding
+            binding.titleTextView.text = check.title
+            binding.descriptionTextView.text = check.description
+
+            // Set the switch state based on the user input value
+            binding.failedWeightChecksTextView.text = ""
+
+            // Set a click listener on the image (or button) to start weight capture
+            binding.scaleIconImageView.setOnClickListener {
+                // Trigger navigation to the WeightCaptureFragment
+                //TODO - See if there is a way to cast this without converting JSON.
+                val gson = Gson()
+                val jsonString = gson.toJson(check.value)
+                val weightCheckItem = gson.fromJson(jsonString, WeightCheckItem::class.java)
+                val action = ChecksFragmentDirections.actionChecksFragmentToWeightCaptureFragment(
+                    weightCheckItem
+                )
+                it.findNavController().navigate(action)
+            }
+        }
+    }
 
     class BooleanCheckViewHolder(private val binding: ItemBooleanCheckBinding) :
         CheckViewHolder(binding) {
@@ -235,6 +265,11 @@ class ChecksAdapter(
                 BarcodeCheckViewHolder(binding, barcodeScannerUtil)
             }
 
+            TYPE_WEIGHT -> {
+                val binding = ItemWeightCheckBinding.inflate(inflater, parent, false)
+                WeightCheckViewHolder(binding)
+            }
+
             TYPE_BOOLEAN -> {
                 val binding = ItemBooleanCheckBinding.inflate(inflater, parent, false)
                 BooleanCheckViewHolder(binding)
@@ -279,6 +314,7 @@ class ChecksAdapter(
             "integer" -> TYPE_INTEGER
             "string" -> TYPE_STRING
             "barcode" -> TYPE_BARCODE
+            "weight" -> TYPE_WEIGHT
             "double" -> TYPE_DOUBLE
             // Add other types as needed
             else -> TYPE_UNKNOWN // Unknown type
@@ -291,7 +327,8 @@ class ChecksAdapter(
         private const val TYPE_INTEGER = 1
         private const val TYPE_STRING = 2
         private const val TYPE_BARCODE = 3
-        private const val TYPE_DOUBLE = 4
+        private const val TYPE_WEIGHT = 4
+        private const val TYPE_DOUBLE = 5
 
         // Add other types as needed
         private const val TYPE_UNKNOWN = -1 // Unknown type
