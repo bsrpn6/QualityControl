@@ -1,84 +1,64 @@
-package info.onesandzeros.qualitycontrol.ui.fragments
+package info.onesandzeros.qualitycontrol.ui.activities
 
+import android.app.Activity
+import android.content.Intent
+import android.os.Build
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.os.Message
-import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
 import android.widget.TextView
-import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
-import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
+import androidx.annotation.RequiresApi
+import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
-import com.google.gson.Gson
-import info.onesandzeros.qualitycontrol.api.models.CheckItem
 import info.onesandzeros.qualitycontrol.api.models.FillHeadItem
 import info.onesandzeros.qualitycontrol.api.models.WeightCheckItem
-import info.onesandzeros.qualitycontrol.databinding.FragmentWeightCaptureBinding
+import info.onesandzeros.qualitycontrol.databinding.ActivityWeightCaptureBinding
 import info.onesandzeros.qualitycontrol.mock.MockBluetoothService
 import info.onesandzeros.qualitycontrol.ui.adapters.FillHeadsAdapter
-import info.onesandzeros.qualitycontrol.ui.viewmodels.SharedViewModel
 
+class WeightCaptureActivity : AppCompatActivity() {
 
-class WeightCaptureFragment : Fragment() {
-    private val viewModel: SharedViewModel by activityViewModels()
-    val fillHeadsAdapter = FillHeadsAdapter()
-    private var _binding: FragmentWeightCaptureBinding? = null
-    private val binding get() = _binding!!
-
-    // Define a variable to track the current fill head index
+    private lateinit var binding: ActivityWeightCaptureBinding
+    private val fillHeadsAdapter = FillHeadsAdapter()
     private var currentFillHeadIndex = 0
+    private lateinit var weightCheckItem: WeightCheckItem
 
-    // Define mockBluetoothService at the class level so it can be accessed in multiple methods
     private lateinit var mockBluetoothService: MockBluetoothService
 
-    private lateinit var checkItem: CheckItem
-    private lateinit var weightCheckItem: WeightCheckItem
     private lateinit var fillHeadList: MutableList<FillHeadItem>
 
-    override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
-    ): View {
-        _binding = FragmentWeightCaptureBinding.inflate(inflater, container, false)
-        return binding.root
-    }
+    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+        weightCheckItem = intent.getParcelableExtra("weight_check_item_data")!!
+        fillHeadList = weightCheckItem.fillHeads.map { FillHeadItem(it, null) }.toMutableList()
 
-        val args: WeightCaptureFragmentArgs by navArgs()
-        checkItem = args.checkItem!!
+        binding = ActivityWeightCaptureBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
-        //TODO - Why this conversion by JSON?
-        val gson = Gson()
-        val jsonString = gson.toJson(checkItem.value)
-        weightCheckItem = gson.fromJson(jsonString, WeightCheckItem::class.java)
-
-        // Set the layout manager to a grid with 4 columns
-        binding.fillHeadsRecyclerView.layoutManager = GridLayoutManager(context, 3)
-
+        binding.fillHeadsRecyclerView.layoutManager = GridLayoutManager(this, 3)
         binding.fillHeadsRecyclerView.adapter = fillHeadsAdapter
 
-        // Initialize the fill heads
-        fillHeadList = weightCheckItem.fillHeads.map { FillHeadItem(it, null) }.toMutableList()
-        fillHeadsAdapter.submitList(fillHeadList)
+        val fillHeads = weightCheckItem.fillHeads
+        fillHeadsAdapter.submitList(fillHeads?.map { FillHeadItem(it, null) })
 
         setSpecValues()
 
-        binding.completeChecksButton.setOnClickListener {
-            checkItem.result = fillHeadList
-            findNavController().popBackStack()
-        }
-
-        // Create an instance of the MockBluetoothService and connect
         mockBluetoothService = MockBluetoothService(handler)
         mockBluetoothService.connect(weightCheckItem.tarWt)
+
+        binding.completeChecksButton.setOnClickListener {
+            val resultIntent = Intent().apply {
+                putParcelableArrayListExtra("weight_capture_data", ArrayList(fillHeadList))
+            }
+            setResult(Activity.RESULT_OK, resultIntent)
+            finish()
+        }
     }
 
     private fun setSpecValues() {
@@ -99,14 +79,14 @@ class WeightCaptureFragment : Fragment() {
             // Wait for 2 seconds, then process the weight
             Handler(Looper.getMainLooper()).postDelayed({
                 animateWeightToTarget(weight)
-            }, 4000) // 2 seconds delay
+            }, 2000) // 2 seconds delay
 
             return true
         }
     })
 
     private fun animateWeightToTarget(weight: Double) {
-        val flyingTextView = TextView(context)
+        val flyingTextView = TextView(this)
         flyingTextView.text = "$weight g"
         flyingTextView.textSize =
             binding.weightDisplay.textSize / resources.displayMetrics.scaledDensity
@@ -116,7 +96,7 @@ class WeightCaptureFragment : Fragment() {
         )
 
         // Add the flyingTextView to the root layout of your fragment
-        (view as ViewGroup).addView(flyingTextView)
+        (binding.root as ViewGroup).addView(flyingTextView)
 
         //TODO - This math doesn't make sense but the result is close.
         // Set the exact position of weightDisplay
@@ -129,7 +109,7 @@ class WeightCaptureFragment : Fragment() {
         val targetView =
             binding.fillHeadsRecyclerView.layoutManager?.findViewByPosition(currentFillHeadIndex)
         if (targetView == null) {
-            (view as ViewGroup).removeView(flyingTextView)
+            (binding.root as ViewGroup).removeView(flyingTextView)
             return
         }
 
@@ -152,7 +132,7 @@ class WeightCaptureFragment : Fragment() {
                 fillHeadsAdapter.notifyItemChanged(currentFillHeadIndex)
 
                 // Remove the flyingTextView from the root layout
-                (view as ViewGroup).removeView(flyingTextView)
+                (binding.root as ViewGroup).removeView(flyingTextView)
 
                 // Increment the index for the next fill head
                 currentFillHeadIndex++
@@ -172,6 +152,4 @@ class WeightCaptureFragment : Fragment() {
 
         flyingTextView.startAnimation(animation)
     }
-
-
 }

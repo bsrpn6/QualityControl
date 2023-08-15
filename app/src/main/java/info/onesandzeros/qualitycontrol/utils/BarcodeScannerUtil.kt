@@ -1,3 +1,5 @@
+package info.onesandzeros.qualitycontrol.utils
+
 import android.app.Activity
 import android.content.Intent
 import android.util.Log
@@ -20,10 +22,16 @@ class BarcodeScannerUtil(
                 if (result.resultCode == Activity.RESULT_OK) {
                     val intent = result.data
                     val barcodeValue = intent?.getStringExtra("barcode_data")
-                    Log.d("BarcodeScannerUtil", "Barcode data: $barcodeValue")
+                    Log.d(
+                        "info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.utils.BarcodeScannerUtil",
+                        "Barcode data: $barcodeValue"
+                    )
                     callback(barcodeValue)
                 } else {
-                    Log.d("BarcodeScannerUtil", "No barcode detected.")
+                    Log.d(
+                        "info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.utils.BarcodeScannerUtil",
+                        "No barcode detected."
+                    )
                     callback(null)
                 }
             }

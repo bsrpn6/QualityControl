@@ -37,7 +37,10 @@
         <activity
             android:name=".ui.activities.BarcodeScannerActivity"
             android:label="Barcode Scanner"
-            android:theme="@style/Theme.AppCompat"></activity>
+            android:theme="@style/Theme.AppCompat" />
+        <activity
+            android:name=".ui.activities.WeightCaptureActivity"
+            android:label="Weight Capture" />
 
         <provider
             android:name="androidx.core.content.FileProvider"

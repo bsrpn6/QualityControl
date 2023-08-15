@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
+import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.api.models.FillHeadItem
 
 class TinyLineGraphView @JvmOverloads constructor(
@@ -15,7 +16,7 @@ class TinyLineGraphView @JvmOverloads constructor(
     var mav: Double = 0.0
     var lsl: Double = 0.0
     var usl: Double = 0.0
-    var weights: List<Double> = emptyList()
+    private var weights: List<Double> = emptyList()
 
     // List of fill head values, for this example, let's say values range between 0 and 100
     var fillHeadValues: List<FillHeadItem> = emptyList()
@@ -27,12 +28,12 @@ class TinyLineGraphView @JvmOverloads constructor(
 
     // Define paints for different colors
     private val redPaint = Paint().apply {
-        color = Color.RED
+        color = resources.getColor(R.color.warning_red)
         style = Paint.Style.FILL
     }
 
     private val yellowPaint = Paint().apply {
-        color = Color.YELLOW
+        color = resources.getColor(R.color.warning_yellow)
         style = Paint.Style.FILL
     }
 
@@ -46,26 +47,32 @@ class TinyLineGraphView @JvmOverloads constructor(
 
         if (weights.isEmpty()) return
 
+        val actualMaxValue = weights.maxOrNull() ?: 1.0
+        val actualMinValue = weights.minOrNull() ?: 0.0
+
         val widthPerValue = width / (weights.size - 1).toFloat()
+
         for (i in weights.indices) {
             val x = i * widthPerValue
-            val y = height - (weights[i] / 100 * height).toFloat()
+            val y =
+                height - ((weights[i] - actualMinValue) / (actualMaxValue - actualMinValue) * height).toFloat()
 
             val paint = when {
                 weights[i] < mav -> redPaint
                 weights[i] < lsl || weights[i] > usl -> yellowPaint
                 else -> defaultPaint
             }
-            canvas.drawCircle(x, y, 5f, paint) // Draw the dot
+
+            canvas.drawCircle(x, y, 10f, paint) // Draw the dot
 
             // Draw line to next dot if not the last dot
             if (i != weights.size - 1) {
                 val nextX = (i + 1) * widthPerValue
-                val nextY = height - (weights[i + 1] / 100 * height).toFloat()
+                val nextY =
+                    height - ((weights[i + 1] - actualMinValue) / (actualMaxValue - actualMinValue) * height).toFloat()
                 canvas.drawLine(x, y, nextX, nextY, defaultPaint)
             }
         }
     }
-
 
 }

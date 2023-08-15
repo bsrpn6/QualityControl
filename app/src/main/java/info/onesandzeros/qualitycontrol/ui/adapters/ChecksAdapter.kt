@@ -1,17 +1,14 @@
 package info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.adapters
 
-import BarcodeScannerUtil
 import android.graphics.Color
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.navigation.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import com.google.gson.Gson
 import info.onesandzeros.qualitycontrol.api.models.CheckItem
-import info.onesandzeros.qualitycontrol.api.models.FillHeadItem
 import info.onesandzeros.qualitycontrol.api.models.WeightCheckItem
 import info.onesandzeros.qualitycontrol.databinding.ItemBarcodeCheckBinding
 import info.onesandzeros.qualitycontrol.databinding.ItemBooleanCheckBinding
@@ -20,11 +17,13 @@ import info.onesandzeros.qualitycontrol.databinding.ItemIntegerCheckBinding
 import info.onesandzeros.qualitycontrol.databinding.ItemStringCheckBinding
 import info.onesandzeros.qualitycontrol.databinding.ItemUnknownCheckBinding
 import info.onesandzeros.qualitycontrol.databinding.ItemWeightCheckBinding
-import info.onesandzeros.qualitycontrol.ui.fragments.ChecksFragmentDirections
+import info.onesandzeros.qualitycontrol.utils.BarcodeScannerUtil
+import info.onesandzeros.qualitycontrol.utils.WeightCaptureUtil
 
 class ChecksAdapter(
     private val checksList: List<CheckItem>,
-    private val barcodeScannerUtil: BarcodeScannerUtil
+    private val barcodeScannerUtil: BarcodeScannerUtil,
+    private val weightCaptureUtil: WeightCaptureUtil
 ) :
     RecyclerView.Adapter<ChecksAdapter.CheckViewHolder>() {
 
@@ -66,7 +65,8 @@ class ChecksAdapter(
     }
 
     class WeightCheckViewHolder(
-        private val binding: ItemWeightCheckBinding
+        private val binding: ItemWeightCheckBinding,
+        private val weightCaptureUtil: WeightCaptureUtil
     ) : CheckViewHolder(binding) {
         override fun bind(check: CheckItem) {
             // Bind the views for barcode check type using ViewBinding
@@ -76,21 +76,18 @@ class ChecksAdapter(
             val gson = Gson()
             val jsonString = gson.toJson(check.value)
             val weightCheckItem = gson.fromJson(jsonString, WeightCheckItem::class.java)
-            if (check.result != null) {
-                val fillHeads = check.result as List<FillHeadItem>
-
-                binding.tinyGraphView.mav = weightCheckItem.mav
-                binding.tinyGraphView.lsl = weightCheckItem.lsl
-                binding.tinyGraphView.usl = weightCheckItem.usl
-                binding.tinyGraphView.fillHeadValues = fillHeads
-            }
+            binding.tinyGraphView.mav = weightCheckItem.mav
+            binding.tinyGraphView.lsl = weightCheckItem.lsl
+            binding.tinyGraphView.usl = weightCheckItem.usl
 
             // Set a click listener on the image (or button) to start weight capture
             binding.scaleIconImageView.setOnClickListener {
-                // Trigger navigation to the WeightCaptureFragment
-                val action =
-                    ChecksFragmentDirections.actionChecksFragmentToWeightCaptureFragment(check)
-                it.findNavController().navigate(action)
+                weightCaptureUtil.startWeightCapture(weightCheckItem) { weightCaptureValue ->
+                    check.result = weightCaptureValue
+
+//                    binding.tinyGraphView.weights = weightCaptureValue?.mapNotNull { it.weight } ?: emptyList()
+                    binding.tinyGraphView.fillHeadValues = weightCaptureValue!!
+                }
             }
         }
     }
@@ -272,7 +269,7 @@ class ChecksAdapter(
 
             TYPE_WEIGHT -> {
                 val binding = ItemWeightCheckBinding.inflate(inflater, parent, false)
-                WeightCheckViewHolder(binding)
+                WeightCheckViewHolder(binding, weightCaptureUtil)
             }
 
             TYPE_BOOLEAN -> {

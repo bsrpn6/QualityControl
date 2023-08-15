@@ -49,25 +49,7 @@
                 android:name="totalFailedChecks"
                 app:argType="info.onesandzeros.qualitycontrol.api.models.CheckItem[]" />
         </action>
-        <action
-            android:id="@+id/action_checksFragment_to_weightCaptureFragment"
-            app:destination="@id/weightCaptureFragment">
-            <argument
-                android:name="checkItem"
-                app:argType="info.onesandzeros.qualitycontrol.api.models.CheckItem" />
-        </action>
     </fragment>
-
-    <fragment
-        android:id="@+id/weightCaptureFragment"
-        android:name="info.onesandzeros.qualitycontrol.ui.fragments.WeightCaptureFragment"
-        android:label="Weight Capture">
-        <argument
-            android:name="checkItem"
-            app:argType="info.onesandzeros.qualitycontrol.api.models.CheckItem"
-            app:nullable="true" />
-    </fragment>
-
 
     <fragment
         android:id="@+id/submissionResultFragment"

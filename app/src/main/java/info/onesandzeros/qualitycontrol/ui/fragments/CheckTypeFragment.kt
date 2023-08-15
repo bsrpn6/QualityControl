@@ -1,6 +1,5 @@
 package info.onesandzeros.qualitycontrol.ui.fragments
 
-import BarcodeScannerUtil
 import android.os.Bundle
 import android.view.View
 import androidx.activity.result.ActivityResultRegistry
@@ -10,6 +9,8 @@ import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.api.models.CheckItem
 import info.onesandzeros.qualitycontrol.databinding.FragmentCheckTypeBinding
 import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.adapters.ChecksAdapter
+import info.onesandzeros.qualitycontrol.utils.BarcodeScannerUtil
+import info.onesandzeros.qualitycontrol.utils.WeightCaptureUtil
 
 class CheckTypeFragment : Fragment(R.layout.fragment_check_type) {
 
@@ -23,10 +24,12 @@ class CheckTypeFragment : Fragment(R.layout.fragment_check_type) {
         val checkItems: List<CheckItem> =
             requireArguments().getParcelableArrayList(ARG_CHECK_ITEMS) ?: emptyList()
 
-        // Create the BarcodeScannerUtil instance and pass it to the ChecksAdapter
+        // Create the info.onesandzeros.qualitycontrol.utils.BarcodeScannerUtil instance and pass it to the ChecksAdapter
         val barcodeScannerUtil =
             BarcodeScannerUtil(requireActivity(), requireActivity().activityResultRegistry)
-        val checksAdapter = ChecksAdapter(checkItems, barcodeScannerUtil)
+        val weightCaptureUtil =
+            WeightCaptureUtil(requireActivity(), requireActivity().activityResultRegistry)
+        val checksAdapter = ChecksAdapter(checkItems, barcodeScannerUtil, weightCaptureUtil)
 
 
         // Set up the RecyclerView with the ChecksAdapter for this check type
