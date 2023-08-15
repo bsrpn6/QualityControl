@@ -12,17 +12,20 @@ import info.onesandzeros.qualitycontrol.api.models.CheckItem
 import info.onesandzeros.qualitycontrol.api.models.WeightCheckItem
 import info.onesandzeros.qualitycontrol.databinding.ItemBarcodeCheckBinding
 import info.onesandzeros.qualitycontrol.databinding.ItemBooleanCheckBinding
+import info.onesandzeros.qualitycontrol.databinding.ItemDatecodeCheckBinding
 import info.onesandzeros.qualitycontrol.databinding.ItemDoubleCheckBinding
 import info.onesandzeros.qualitycontrol.databinding.ItemIntegerCheckBinding
 import info.onesandzeros.qualitycontrol.databinding.ItemStringCheckBinding
 import info.onesandzeros.qualitycontrol.databinding.ItemUnknownCheckBinding
 import info.onesandzeros.qualitycontrol.databinding.ItemWeightCheckBinding
 import info.onesandzeros.qualitycontrol.utils.BarcodeScannerUtil
+import info.onesandzeros.qualitycontrol.utils.DateCodeScannerUtil
 import info.onesandzeros.qualitycontrol.utils.WeightCaptureUtil
 
 class ChecksAdapter(
     private val checksList: List<CheckItem>,
     private val barcodeScannerUtil: BarcodeScannerUtil,
+    private val datecodeScannerUtil: DateCodeScannerUtil,
     private val weightCaptureUtil: WeightCaptureUtil
 ) :
     RecyclerView.Adapter<ChecksAdapter.CheckViewHolder>() {
@@ -51,6 +54,37 @@ class ChecksAdapter(
                 scannerUtil.startBarcodeScanning { barcodeValue ->
                     binding.barcodeValueTextView.text = barcodeValue ?: "Scanning failed"
                     check.result = barcodeValue
+
+                    // Re-evaluate the comparison and update the background color
+                    val updatedUserInputMatchesExpected = check.value == check.result
+                    if (updatedUserInputMatchesExpected) {
+                        binding.root.setBackgroundColor(Color.WHITE)
+                    } else {
+                        binding.root.setBackgroundColor(Color.parseColor("#FFC0C0"))
+                    }
+                }
+            }
+        }
+    }
+
+    class DatecodeCheckViewHolder(
+        private val binding: ItemDatecodeCheckBinding,
+        private val scannerUtil: DateCodeScannerUtil
+    ) : CheckViewHolder(binding) {
+        override fun bind(check: CheckItem) {
+            // Bind the views for Datecode check type using ViewBinding
+            binding.titleTextView.text = check.title
+            binding.descriptionTextView.text = check.description
+
+            val myDatecode = (check.result as? String) ?: (check.value as? String) ?: ""
+
+            // Set the switch state based on the user input value
+            binding.datecodeValueTextView.text = myDatecode
+
+            binding.datecodeIconImageView.setOnClickListener {
+                scannerUtil.startDateCodeScanning { DatecodeValue ->
+                    binding.datecodeValueTextView.text = DatecodeValue ?: "Scanning failed"
+                    check.result = DatecodeValue
 
                     // Re-evaluate the comparison and update the background color
                     val updatedUserInputMatchesExpected = check.value == check.result
@@ -267,6 +301,11 @@ class ChecksAdapter(
                 BarcodeCheckViewHolder(binding, barcodeScannerUtil)
             }
 
+            TYPE_DATE_CODE -> {
+                val binding = ItemDatecodeCheckBinding.inflate(inflater, parent, false)
+                DatecodeCheckViewHolder(binding, datecodeScannerUtil)
+            }
+
             TYPE_WEIGHT -> {
                 val binding = ItemWeightCheckBinding.inflate(inflater, parent, false)
                 WeightCheckViewHolder(binding, weightCaptureUtil)
@@ -316,6 +355,7 @@ class ChecksAdapter(
             "integer" -> TYPE_INTEGER
             "string" -> TYPE_STRING
             "barcode" -> TYPE_BARCODE
+            "datecode" -> TYPE_DATE_CODE
             "weight" -> TYPE_WEIGHT
             "double" -> TYPE_DOUBLE
             // Add other types as needed
@@ -329,8 +369,9 @@ class ChecksAdapter(
         private const val TYPE_INTEGER = 1
         private const val TYPE_STRING = 2
         private const val TYPE_BARCODE = 3
-        private const val TYPE_WEIGHT = 4
-        private const val TYPE_DOUBLE = 5
+        private const val TYPE_DATE_CODE = 4
+        private const val TYPE_WEIGHT = 5
+        private const val TYPE_DOUBLE = 6
 
         // Add other types as needed
         private const val TYPE_UNKNOWN = -1 // Unknown type

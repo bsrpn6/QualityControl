@@ -1,8 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- res/layout/item_integer_check.xml -->
+<?xml version="1.0" encoding="utf-8"?><!-- res/layout/item_datecode_check.xml -->
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
@@ -13,8 +11,8 @@
         android:id="@+id/titleTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:textAppearanceMedium"
-        android:text="Check Title" />
+        android:text="Check Title"
+        android:textAppearance="?android:textAppearanceMedium" />
 
     <!-- Description TextView -->
     <TextView
@@ -23,17 +21,49 @@
         android:layout_height="wrap_content"
         android:text="Check Description" />
 
-    <!-- Freeform Integer Input -->
-    <EditText
-        android:id="@+id/integerInputEditText"
+    <!-- Horizontal layout for Datecode and Icon -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:inputType="text"
-        android:hint="0-0000 0000-0"
-        android:imeOptions="actionDone"
-        android:layout_marginTop="16dp"
-        android:gravity="top|start"
-        android:minLines="1"
-        android:maxLines="5" />
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <!-- Datecode-specific views, e.g., TextView to display the datecode value -->
+        <TextView
+            android:id="@+id/datecodeValueTextView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="top|start"
+            android:hint="Datecode Value"
+            android:inputType="text" />
+
+        <!-- Vertical layout for Datecode icon and "Tap To Scan" text -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/tapToScanTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_horizontal"
+                android:text="Tap To Scan"
+                android:textColor="@android:color/darker_gray" />
+
+            <ImageView
+                android:id="@+id/datecodeIconImageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:padding="8dp"
+                android:src="@drawable/ic_ocr" />
+
+
+        </LinearLayout>
+
+    </LinearLayout>
 
 </LinearLayout>
