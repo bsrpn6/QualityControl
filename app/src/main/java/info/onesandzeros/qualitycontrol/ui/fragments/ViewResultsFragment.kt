@@ -103,7 +103,7 @@ class ViewResultsFragment : Fragment() {
 
             // Inflate the layout containing a ViewGroup (e.g., LinearLayout) for the details
             val detailsLayout = LayoutInflater.from(requireContext())
-                .inflate(R.layout.failed_check_details_layout, null)
+                .inflate(R.layout.scroll_view_dialog_layout, null)
 
             // Set up the dialog's content view
             dialog.setContentView(detailsLayout)

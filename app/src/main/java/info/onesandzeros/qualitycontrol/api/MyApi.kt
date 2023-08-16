@@ -1,10 +1,11 @@
 package info.onesandzeros.qualitycontrol.api
 
 import info.onesandzeros.qualitycontrol.api.models.CheckItem
+import info.onesandzeros.qualitycontrol.api.models.ChecksSubmissionRequest
 import info.onesandzeros.qualitycontrol.api.models.Department
 import info.onesandzeros.qualitycontrol.api.models.IDHNumbers
 import info.onesandzeros.qualitycontrol.api.models.Line
-import info.onesandzeros.qualitycontrol.api.models.ChecksSubmissionRequest
+import info.onesandzeros.qualitycontrol.api.models.SpecsResponse
 import info.onesandzeros.qualitycontrol.api.models.SubmissionResult
 import retrofit2.Call
 import retrofit2.http.Body
@@ -23,6 +24,9 @@ interface MyApi {
 
     @GET("idhNumbers")
     fun getIDHNumbersForLine(@Query("lineId") lineId: Int): Call<List<IDHNumbers>>
+
+    @GET("specs")
+    fun getSpecs(@Query("idhNumber") idhNumbers: Int?): Call<List<SpecsResponse>>
 
     @GET("checks")
     fun getChecksData(): Call<List<CheckItem>>

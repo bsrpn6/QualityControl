@@ -1,13 +1,16 @@
 package info.onesandzeros.qualitycontrol.ui.fragments
 
+import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
+import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
@@ -20,6 +23,7 @@ import info.onesandzeros.qualitycontrol.api.MyApi
 import info.onesandzeros.qualitycontrol.api.models.Department
 import info.onesandzeros.qualitycontrol.api.models.IDHNumbers
 import info.onesandzeros.qualitycontrol.api.models.Line
+import info.onesandzeros.qualitycontrol.api.models.SpecsResponse
 import info.onesandzeros.qualitycontrol.data.AppDatabase
 import info.onesandzeros.qualitycontrol.data.models.DepartmentEntity
 import info.onesandzeros.qualitycontrol.data.models.IDHNumbersEntity
@@ -27,6 +31,7 @@ import info.onesandzeros.qualitycontrol.data.models.LineEntity
 import info.onesandzeros.qualitycontrol.databinding.FragmentCheckSetupBinding
 import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.viewmodels.CheckSetupViewModel
 import info.onesandzeros.qualitycontrol.ui.viewmodels.SharedViewModel
+import info.onesandzeros.qualitycontrol.utils.SpecsDetailsDisplayer
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import retrofit2.Call
@@ -146,6 +151,7 @@ class CheckSetupFragment : Fragment() {
                         sharedViewModel.lineLiveData.value = lines[position]
                         sharedViewModel.idhNumberLiveData.value =
                             null // Clear the IDH number selection when the line is changed
+                        binding.infoIconImageView.visibility = View.GONE
                         binding.idhNumberAutoCompleteTextView.setText("", false)
                         fetchIDHNumbersForLineFromApi(
                             sharedViewModel.lineLiveData.value?.id ?: -1
@@ -166,8 +172,70 @@ class CheckSetupFragment : Fragment() {
                 val selectedIDHNumber = idhNumbers.find { it.idhNumber == selectedIdhNumberValue }
                 if (sharedViewModel.idhNumberLiveData.value != selectedIDHNumber) {
                     sharedViewModel.idhNumberLiveData.value = selectedIDHNumber
+
+                }
+
+                binding.infoIconImageView.visibility = View.VISIBLE
+                binding.infoIconImageView.setOnClickListener {
+                    fetchSpecsAndShowDialog()
                 }
             }
+    }
+
+    private fun fetchSpecsAndShowDialog() {
+        myApi.getSpecs(sharedViewModel.idhNumberLiveData.value?.idhNumber)
+            .enqueue(object : Callback<List<SpecsResponse>> {
+                override fun onResponse(
+                    call: Call<List<SpecsResponse>>,
+                    response: Response<List<SpecsResponse>>
+                ) {
+                    if (response.isSuccessful) {
+                        response.body()?.let { specsResponses ->
+                            // Create a dialog or navigate to a new fragment
+                            val dialog = Dialog(requireContext())
+
+                            // Inflate the layout containing a ViewGroup (e.g., LinearLayout) for the details
+                            val detailsLayout = LayoutInflater.from(requireContext())
+                                .inflate(R.layout.scroll_view_dialog_layout, null)
+
+                            // Set up the dialog's content view
+                            dialog.setContentView(detailsLayout)
+
+                            // Adjust the dialog's width and height
+                            val window = dialog.window
+                            window?.setLayout(
+                                (resources.displayMetrics.widthPixels * 0.9).toInt(),
+                                WindowManager.LayoutParams.WRAP_CONTENT
+                            )
+
+                            // Create a FailedCheckDetailsDisplayer and display the details
+                            val displayer = SpecsDetailsDisplayer(
+                                requireContext(), detailsLayout.findViewById(
+                                    R.id.detailsLayout
+                                )
+                            )
+                            displayer.displaySpecsDetails(
+                                specsResponses[0],
+                                sharedViewModel.idhNumberLiveData.value!!.idhNumber,
+                                sharedViewModel.idhNumberLiveData.value!!.description
+                            )
+
+                            // Set up the close button
+                            detailsLayout.findViewById<Button>(R.id.closeButton)
+                                .setOnClickListener {
+                                    dialog.dismiss()
+                                }
+
+                            // Show the dialog or navigate to the fragment
+                            dialog.show()
+                        }
+                    }
+                }
+
+                override fun onFailure(call: Call<List<SpecsResponse>>, t: Throwable) {
+                    Log.e(TAG, "Use case binding failed", t)
+                }
+            })
     }
 
     private fun bindDepartmentSpinner() {
@@ -184,6 +252,7 @@ class CheckSetupFragment : Fragment() {
                                 null // Clear the line selection when the department is changed
                             sharedViewModel.idhNumberLiveData.value =
                                 null // Clear the IDH number selection when the department is changed
+                            binding.infoIconImageView.visibility = View.GONE
                             binding.idhNumberAutoCompleteTextView.setText("", false)
                             fetchLinesForDepartmentFromApi(
                                 sharedViewModel.departmentLiveData.value?.id ?: -1
@@ -411,10 +480,14 @@ class CheckSetupFragment : Fragment() {
         binding.departmentSpinner.isEnabled = false
         binding.lineSpinner.isEnabled = false
         binding.idhNumberAutoCompleteTextView.isEnabled = false
+        binding.infoIconImageView.visibility = View.VISIBLE
+        binding.infoIconImageView.setOnClickListener {
+            fetchSpecsAndShowDialog()
+        }
         binding.startNewCheckButton.visibility = View.VISIBLE
         binding.startNewCheckButton.setOnClickListener {
             // Clear previous values and enable input fields for a new check sequence
-            //TODO - fetch new data but don't interupt the product selections
+            //TODO - fetch new data but don't interrupt the product selections
             //fetchDepartmentsFromApi()
             enableInputFields()
         }
@@ -458,6 +531,9 @@ class CheckSetupFragment : Fragment() {
         }
     }
 
+    companion object {
+        private const val TAG = "CheckSetupFragment"
+    }
 
     override fun onDestroyView() {
         super.onDestroyView()
