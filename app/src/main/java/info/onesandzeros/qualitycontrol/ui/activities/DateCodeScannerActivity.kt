@@ -17,7 +17,9 @@ import com.google.firebase.ml.vision.FirebaseVision
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
 import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer
+import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.databinding.ActivityDateCodeScannerBinding
+import info.onesandzeros.qualitycontrol.ui.views.BoundingBoxOverlayView
 
 class DateCodeScannerActivity : AppCompatActivity() {
     private lateinit var binding: ActivityDateCodeScannerBinding
@@ -92,6 +94,29 @@ class DateCodeScannerActivity : AppCompatActivity() {
                             setResult(Activity.RESULT_OK, resultIntent)
                             finish()
                         }
+
+                        // Draw bounding boxes around detected text elements
+                        val boundingBoxes = result.textBlocks.flatMap { it.lines }
+                            .mapNotNull { it.boundingBox }
+
+                        // Convert FirebaseVision's Rect objects to Android's Rect objects
+                        val androidBoundingBoxes = boundingBoxes.map {
+                            android.graphics.Rect(
+                                it.left,
+                                it.top,
+                                it.right,
+                                it.bottom
+                            )
+                        }
+
+                        val boundingBoxOverlayView =
+                            findViewById<BoundingBoxOverlayView>(R.id.boundingBoxOverlayView)
+                        boundingBoxOverlayView.setCameraPreviewSize(
+                            imageProxy.width,
+                            imageProxy.height
+                        )
+                        boundingBoxOverlayView.setBoundingBoxes(androidBoundingBoxes)
+
                     }
                     .addOnFailureListener { e ->
                         Log.e(TAG, "Date code detection failed", e)
@@ -101,6 +126,7 @@ class DateCodeScannerActivity : AppCompatActivity() {
                     }
             }
         }
+
 
         private fun degreesToFirebaseRotation(degrees: Int): Int {
             return when (degrees) {
