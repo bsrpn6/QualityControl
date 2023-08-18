@@ -41,7 +41,6 @@ class SubmissionResultFragment : Fragment(R.layout.fragment_submission_result) {
         val totalFailedChecks: Array<CheckItem> = args.totalFailedChecks
 
         // Display the total number of failed checks and success message
-        // Display the total number of failed checks and success message
         if (totalFailedChecks.isNotEmpty()) {
             binding.logoImageView.setImageResource(R.drawable.ic_failure)
             binding.resultMessageTextView.text = "Total Failed Checks: ${totalFailedChecks.size}"

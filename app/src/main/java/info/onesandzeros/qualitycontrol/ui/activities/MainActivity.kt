@@ -2,12 +2,10 @@ package info.onesandzeros.qualitycontrol.ui.activities
 
 import android.os.Bundle
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.fragment.findNavController
 import androidx.navigation.ui.NavigationUI.setupActionBarWithNavController
 import dagger.hilt.android.AndroidEntryPoint
 import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.databinding.ActivityMainBinding
-import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.fragments.login.LoginFragment
 
 @AndroidEntryPoint
 class MainActivity : BaseActivity() {
@@ -32,34 +30,10 @@ class MainActivity : BaseActivity() {
         setupActionBarWithNavController(this, navController)
 
         // Check if the user is logged in
-        if (!isUserLoggedIn()) {
-            // User is not logged in, navigate to LoginFragment
-            navigateToLoginFragment()
-        }
+        checkUserLoginStatus()
     }
 
-    private fun isUserLoggedIn(): Boolean {
-        // Implement your logic here to check if the user is already logged in.
-        // You can use shared preferences, authentication tokens, or other methods for this check.
-        return true // Replace with your actual check
-    }
-
-    private fun navigateToLoginFragment() {
-        // Implement navigation to the LoginFragment here.
-        // For example, you can use supportFragmentManager to replace the current fragment with LoginFragment.
-
-        // Create an instance of the LoginFragment
-        val loginFragment = LoginFragment()
-
-        // Replace the current fragment with the LoginFragment
-        supportFragmentManager.beginTransaction()
-            .replace(R.id.fragmentContainer, loginFragment)
-            .commit()
-    }
-
-    override fun onSupportNavigateUp(): Boolean {
-        val navController =
-            supportFragmentManager.findFragmentById(R.id.fragmentContainer)?.findNavController()
-        return navController?.navigateUp() ?: false
+    companion object {
+        private const val TAG = "MainActivity"
     }
 }

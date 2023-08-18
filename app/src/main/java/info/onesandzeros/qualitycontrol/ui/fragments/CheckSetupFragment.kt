@@ -502,7 +502,7 @@ class CheckSetupFragment : Fragment() {
 
     private fun logoutUser() {
         firebaseAuth.signOut()
-        sharedViewModel.clearUserName()
+//        sharedViewModel.clearUserName()
         Toast.makeText(
             requireContext(), "Logout Successful", Toast.LENGTH_LONG
         ).show()

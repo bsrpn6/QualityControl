@@ -1,6 +1,8 @@
 package info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.fragments.login
 
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -43,6 +45,24 @@ class LoginFragment : Fragment() {
             this,
             LoginViewModelFactory(sharedViewModel)
         )[LoginViewModel::class.java]
+
+        binding.usernameEditText.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                binding.clearUsernameButton.visibility = if (s.isNullOrEmpty()) {
+                    View.GONE
+                } else {
+                    View.VISIBLE
+                }
+            }
+        })
+
+        sharedViewModel.usernameLiveData.observe(viewLifecycleOwner) { email ->
+            binding.usernameEditText.setText(email)
+        }
 
         viewModel.state.observe(viewLifecycleOwner) { state ->
             when (state) {
@@ -87,6 +107,10 @@ class LoginFragment : Fragment() {
             val email = binding.usernameEditText.text.toString().trim()
             val password = binding.passwordEditText.text.toString()
             viewModel.submitAction(LoginAction.Login(email, password))
+        }
+
+        binding.clearUsernameButton.setOnClickListener {
+            binding.usernameEditText.text.clear()
         }
     }
 

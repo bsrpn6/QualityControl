@@ -2,13 +2,20 @@ package info.onesandzeros.qualitycontrol.ui.activities
 
 import android.os.Bundle
 import android.os.Handler
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.navigation.NavOptions
+import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
+import info.onesandzeros.qualitycontrol.R
 
 abstract class BaseActivity : AppCompatActivity() {
     companion object {
+        private const val TAG = "BaseActivity"
         private const val TIMEOUT_INTERVAL = 15 * 60 * 1000L // 15 minutes timeout
     }
+
+    private var shouldNavigateToLogin = false
 
     private lateinit var firebaseAuth: FirebaseAuth
     private val logoutHandler = Handler()
@@ -25,19 +32,40 @@ abstract class BaseActivity : AppCompatActivity() {
         resetLogoutTimer()
     }
 
-    private fun checkUserLoginStatus() {
+    fun checkUserLoginStatus() {
         val user = firebaseAuth.currentUser
         if (user == null) {
             // User is not logged in, navigate to LoginFragment
-            navigateToLoginFragment()
+            performNavigationToLogin()
         } else {
             // User is logged in, reset the logout timer
             resetLogoutTimer()
         }
     }
 
-    private fun navigateToLoginFragment() {
-        // Override this method in MainActivity to navigate to the LoginFragment
+    override fun onPostResume() {
+        super.onPostResume()
+        if (shouldNavigateToLogin) {
+            shouldNavigateToLogin = false
+            performNavigationToLogin()
+        }
+    }
+
+    private fun performNavigationToLogin() {
+        val navController =
+            supportFragmentManager.findFragmentById(R.id.fragmentContainer)?.findNavController()
+        val navOptions = NavOptions.Builder()
+            .setLaunchSingleTop(true)
+            .setPopUpTo(R.id.loginFragment, true)
+            .build()
+
+        navController?.navigate(R.id.loginFragment, null, navOptions)
+    }
+
+    override fun onSupportNavigateUp(): Boolean {
+        val navController =
+            supportFragmentManager.findFragmentById(R.id.fragmentContainer)?.findNavController()
+        return navController?.navigateUp() ?: false
     }
 
     private fun resetLogoutTimer() {
@@ -47,7 +75,8 @@ abstract class BaseActivity : AppCompatActivity() {
 
     private fun logout() {
         // Logout the user and navigate to the LoginFragment
+        Log.i(TAG, "User logout.")
         firebaseAuth.signOut()
-        navigateToLoginFragment()
+        performNavigationToLogin()
     }
 }
