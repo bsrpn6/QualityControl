@@ -72,44 +72,10 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
         // Fetch the list of checks from the JSON file and categorize them by type
         loadChecksDataFromApi()
 
-        // Set up the tab layout and view pager
-        val tabLayout = binding.tabLayout
-        val viewPager = binding.viewPager
-
+        // Find the buttons by their IDs
         // Find the buttons by their IDs
         val exitButton = binding.exitButton
         val submitButton = binding.submitButton
-
-        val fragmentList = mutableListOf<Fragment>()
-        val tabTitleList = mutableListOf<String>()
-
-        for ((checkType, checkItems) in checksMap) {
-            // Create a new fragment for each check type
-            val checkTypeFragment =
-                CheckTypeFragment.newInstance(checkItems, activityResultRegistry)
-
-            // Add the fragment to the list
-            fragmentList.add(checkTypeFragment)
-
-            // Add the tab title to the list
-            tabTitleList.add(checkType)
-        }
-
-        val pagerAdapter = ChecksPagerAdapter(fragmentList, this)
-        viewPager.adapter = pagerAdapter
-
-        // Connect the tab layout with the view pager
-        TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            // Set the custom tab view with image and text for each tab
-            val customTabView = LayoutInflater.from(tabLayout.context)
-                .inflate(R.layout.custom_tab_layout, null, false)
-            val tabIcon = customTabView.findViewById<ImageView>(R.id.tabIcon)
-            val tabText = customTabView.findViewById<TextView>(R.id.tabText)
-            val checkType = tabTitleList[position]
-            tabIcon.setImageResource(getTabIconResourceId(checkType)) // Set the image for each tab
-            tabText.text = StringUtils.formatTabText(checkType) // Set the text for each tab
-            tab.customView = customTabView
-        }.attach()
 
         // Set click listeners for the buttons
         exitButton.setOnClickListener {
@@ -170,6 +136,7 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
                         ).show()
                     }
                 })
+
             // Handle submit checks action (e.g., perform checks submission logic)
             // You can define your own logic here based on your app's requirements.
             // Navigate to SubmissionResultFragment and pass the totalFailedChecks as an argument

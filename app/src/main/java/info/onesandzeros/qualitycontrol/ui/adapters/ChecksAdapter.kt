@@ -118,8 +118,6 @@ class ChecksAdapter(
             binding.scaleIconImageView.setOnClickListener {
                 weightCaptureUtil.startWeightCapture(weightCheckItem) { weightCaptureValue ->
                     check.result = weightCaptureValue
-
-//                    binding.tinyGraphView.weights = weightCaptureValue?.mapNotNull { it.weight } ?: emptyList()
                     binding.tinyGraphView.fillHeadValues = weightCaptureValue!!
                 }
             }
