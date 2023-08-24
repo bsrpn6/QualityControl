@@ -5,19 +5,25 @@ import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 
 data class IDHNumbers(
-    @SerializedName("idhNumber") val idhNumber: Int,
+    @SerializedName("_id") val id: String,
+    @SerializedName("productId") val productId: Int,
     @SerializedName("lineId") val lineId: Int,
+    @SerializedName("name") val name: String,
     @SerializedName("description") val description: String
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
+        parcel.readString() ?: "",
         parcel.readInt(),
         parcel.readInt(),
+        parcel.readString() ?: "",
         parcel.readString() ?: ""
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(idhNumber)
+        parcel.writeString(id)
+        parcel.writeInt(productId)
         parcel.writeInt(lineId)
+        parcel.writeString(name)
         parcel.writeString(description)
     }
 
@@ -25,22 +31,26 @@ data class IDHNumbers(
         return 0
     }
 
-    // Override the equals method to compare the content of two IDHNumbers objects
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is IDHNumbers) return false
+        if (javaClass != other?.javaClass) return false
 
+        other as IDHNumbers
+
+        if (id != other.id) return false
+        if (productId != other.productId) return false
         if (lineId != other.lineId) return false
-        if (idhNumber != other.idhNumber) return false
+        if (name != other.name) return false
         if (description != other.description) return false
 
         return true
     }
 
-    // Override the hashCode method when overriding equals
     override fun hashCode(): Int {
-        var result = lineId
-        result = 31 * result + idhNumber
+        var result = id.hashCode()
+        result = 31 * result + productId
+        result = 31 * result + lineId
+        result = 31 * result + name.hashCode()
         result = 31 * result + description.hashCode()
         return result
     }
@@ -54,4 +64,5 @@ data class IDHNumbers(
             return arrayOfNulls(size)
         }
     }
+
 }

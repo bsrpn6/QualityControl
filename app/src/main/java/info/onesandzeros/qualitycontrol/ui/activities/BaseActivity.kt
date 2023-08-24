@@ -8,11 +8,11 @@ import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
 import info.onesandzeros.qualitycontrol.R
+import info.onesandzeros.qualitycontrol.constants.Constants.TIMEOUT_INTERVAL
 
 abstract class BaseActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "BaseActivity"
-        private const val TIMEOUT_INTERVAL = 15 * 60 * 1000L // 15 minutes timeout
     }
 
     private var shouldNavigateToLogin = false

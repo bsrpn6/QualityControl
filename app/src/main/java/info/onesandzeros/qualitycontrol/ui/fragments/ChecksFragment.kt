@@ -93,6 +93,7 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
                 sharedViewModel.departmentLiveData.value,
                 sharedViewModel.lineLiveData.value,
                 sharedViewModel.idhNumberLiveData.value,
+                sharedViewModel.checkTypeLiveData.value,
                 checksMap
             )
 
@@ -153,7 +154,7 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
 
         for ((_, checkItems) in checksMap) {
             for (checkItem in checkItems) {
-                val value = checkItem.value
+                val value = checkItem.expectedValue
                 val result = checkItem.result
 
                 // Check if the user input value does not match the expected value
@@ -167,7 +168,11 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
     }
 
     private fun loadChecksDataFromApi() {
-        myApi.getChecksData().enqueue(object : Callback<List<CheckItem>> {
+        myApi.getChecks(
+            sharedViewModel.lineLiveData.value!!.id,
+            sharedViewModel.checkTypeLiveData.value!!.id,
+            sharedViewModel.idhNumberLiveData.value!!.id
+        ).enqueue(object : Callback<List<CheckItem>> {
             override fun onResponse(
                 call: Call<List<CheckItem>>,
                 response: Response<List<CheckItem>>
@@ -206,7 +211,7 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
         val checksMap = mutableMapOf<String, MutableList<CheckItem>>()
 
         for (checkItem in checks) {
-            val checkType = checkItem.checkType
+            val checkType = checkItem.section
 
             if (checksMap.containsKey(checkType)) {
                 checksMap[checkType]?.add(checkItem)

@@ -45,7 +45,7 @@ class ChecksAdapter(
             binding.titleTextView.text = check.title
             binding.descriptionTextView.text = check.description
 
-            val myBarcode = (check.result as? String) ?: (check.value as? String) ?: ""
+            val myBarcode = (check.result as? String) ?: (check.expectedValue as? String) ?: ""
 
             // Set the switch state based on the user input value
             binding.barcodeValueTextView.text = myBarcode
@@ -56,7 +56,7 @@ class ChecksAdapter(
                     check.result = barcodeValue
 
                     // Re-evaluate the comparison and update the background color
-                    val updatedUserInputMatchesExpected = check.value == check.result
+                    val updatedUserInputMatchesExpected = check.expectedValue == check.result
                     if (updatedUserInputMatchesExpected) {
                         binding.root.setBackgroundColor(Color.WHITE)
                     } else {
@@ -76,7 +76,7 @@ class ChecksAdapter(
             binding.titleTextView.text = check.title
             binding.descriptionTextView.text = check.description
 
-            val myDatecode = (check.result as? String) ?: (check.value as? String) ?: ""
+            val myDatecode = (check.result as? String) ?: (check.expectedValue as? String) ?: ""
 
             // Set the switch state based on the user input value
             binding.datecodeValueTextView.text = myDatecode
@@ -87,7 +87,7 @@ class ChecksAdapter(
                     check.result = DatecodeValue
 
                     // Re-evaluate the comparison and update the background color
-                    val updatedUserInputMatchesExpected = check.value == check.result
+                    val updatedUserInputMatchesExpected = check.expectedValue == check.result
                     if (updatedUserInputMatchesExpected) {
                         binding.root.setBackgroundColor(Color.WHITE)
                     } else {
@@ -108,7 +108,7 @@ class ChecksAdapter(
             binding.descriptionTextView.text = check.description
 
             val gson = Gson()
-            val jsonString = gson.toJson(check.value)
+            val jsonString = gson.toJson(check.expectedValue)
             val weightCheckItem = gson.fromJson(jsonString, WeightCheckItem::class.java)
             binding.tinyGraphView.mav = weightCheckItem.mav
             binding.tinyGraphView.lsl = weightCheckItem.lsl
@@ -131,7 +131,7 @@ class ChecksAdapter(
             binding.titleTextView.text = check.title
             binding.descriptionTextView.text = check.description
 
-            val myBoolean = (check.result as? Boolean) ?: (check.value as? Boolean) ?: false
+            val myBoolean = (check.result as? Boolean) ?: (check.expectedValue as? Boolean) ?: false
 
             // Set the switch state based on the user input value
             binding.checkSwitch.isChecked = myBoolean
@@ -142,7 +142,7 @@ class ChecksAdapter(
                 check.result = isChecked
 
                 // Re-evaluate the comparison and update the background color
-                val updatedUserInputMatchesExpected = check.value == check.result
+                val updatedUserInputMatchesExpected = check.expectedValue == check.result
                 if (updatedUserInputMatchesExpected) {
                     binding.root.setBackgroundColor(Color.WHITE)
                 } else {
@@ -161,7 +161,7 @@ class ChecksAdapter(
             binding.descriptionTextView.text = check.description
             // Bind other views for integer check type as needed
 
-            val myInt = (check.result as? Int) ?: (check.value as? Int) ?: 0
+            val myInt = (check.result as? Int) ?: (check.expectedValue as? Int) ?: 0
 
             // Set the text of the EditText based on the user input value
             binding.integerInputEditText.setText(myInt.toString())
@@ -184,7 +184,7 @@ class ChecksAdapter(
                     check.result = inputValue.toIntOrNull()
 
                     // Re-evaluate the comparison and update the background color
-                    val updatedUserInputMatchesExpected = check.value == check.result
+                    val updatedUserInputMatchesExpected = check.expectedValue == check.result
                     if (updatedUserInputMatchesExpected) {
                         binding.root.setBackgroundColor(Color.WHITE)
                     } else {
@@ -204,7 +204,7 @@ class ChecksAdapter(
             binding.descriptionTextView.text = check.description
             // Bind other views for double check type as needed
 
-            val myDouble = (check.result as? Double) ?: (check.value as? Double) ?: 0.0
+            val myDouble = (check.result as? Double) ?: (check.expectedValue as? Double) ?: 0.0
 
             // Set the text of the EditText based on the user input value
             binding.doubleInputEditText.setText(myDouble.toString())
@@ -227,7 +227,7 @@ class ChecksAdapter(
                     check.result = inputValue
 
                     // Re-evaluate the comparison and update the background color
-                    val updatedUserInputMatchesExpected = check.value == check.result
+                    val updatedUserInputMatchesExpected = check.expectedValue == check.result
                     if (updatedUserInputMatchesExpected) {
                         binding.root.setBackgroundColor(Color.WHITE)
                     } else {
@@ -246,7 +246,7 @@ class ChecksAdapter(
             binding.titleTextView.text = check.title
             binding.descriptionTextView.text = check.description
 
-            val myString = (check.result as? String) ?: (check.value as? String) ?: ""
+            val myString = (check.result as? String) ?: (check.expectedValue as? String) ?: ""
 
             // Set the text of the EditText based on the user input value
             binding.stringInputEditText.setText(myString)
@@ -268,7 +268,7 @@ class ChecksAdapter(
                     check.result = s.toString()
 
                     // Re-evaluate the comparison and update the background color
-                    val updatedUserInputMatchesExpected = check.value == check.result
+                    val updatedUserInputMatchesExpected = check.expectedValue == check.result
                     if (updatedUserInputMatchesExpected) {
                         binding.root.setBackgroundColor(Color.WHITE)
                     } else {

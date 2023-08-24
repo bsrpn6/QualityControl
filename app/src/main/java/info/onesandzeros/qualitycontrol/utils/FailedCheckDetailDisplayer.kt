@@ -19,10 +19,10 @@ class FailedCheckDetailsDisplayer(private val context: Context, private val layo
         layout.removeAllViews()
 
         // Sort the totalFailedChecks by checkType
-        val sortedFailedChecks = totalFailedChecks.sortedBy { it.checkType }
+        val sortedFailedChecks = totalFailedChecks.sortedBy { it.section }
 
         for (checkItem in sortedFailedChecks) {
-            val checkType = checkItem.checkType
+            val checkType = checkItem.section
 
             // Add a title for each new checkType group
             if (checkType != currentCheckType) {
@@ -31,7 +31,7 @@ class FailedCheckDetailsDisplayer(private val context: Context, private val layo
             }
 
             addCheckTitle(checkItem.title)
-            addExpectedValue("Expected Value: ${checkItem.value}")
+            addExpectedValue("Expected Value: ${checkItem.expectedValue}")
             addRecordedValue("Recorded: ${checkItem.result}")
             addSpacing()
         }

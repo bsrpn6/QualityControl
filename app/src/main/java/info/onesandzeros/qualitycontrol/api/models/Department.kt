@@ -5,17 +5,35 @@ import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
 
 data class Department(
-    @SerializedName("id") val id: Int,
-    @SerializedName("name") val name: String
+    @SerializedName("_id")
+    val id: String,
+
+    @SerializedName("name")
+    val name: String,
+
+    @SerializedName("abbreviation")
+    val abbreviation: String,
+
+    @SerializedName("description")
+    val description: String,
+
+    @SerializedName("lines")
+    val lines: List<String>? = null // This is nullable because some departments might not have lines.
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
-        parcel.readInt(),
-        parcel.readString() ?: ""
+        parcel.readString() ?: "",
+        parcel.readString() ?: "",
+        parcel.readString() ?: "",
+        parcel.readString() ?: "",
+        parcel.createStringArrayList() ?: emptyList()
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(id)
+        parcel.writeString(id)
         parcel.writeString(name)
+        parcel.writeString(abbreviation)
+        parcel.writeString(description)
+        parcel.writeStringList(lines)
     }
 
     override fun describeContents(): Int {
@@ -24,18 +42,25 @@ data class Department(
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
-        if (other !is Department) return false
+        if (javaClass != other?.javaClass) return false
+
+        other as Department
 
         if (id != other.id) return false
         if (name != other.name) return false
+        if (abbreviation != other.abbreviation) return false
+        if (description != other.description) return false
+        if (lines != other.lines) return false
 
         return true
     }
 
-    // Override the hashCode method when overriding equals
     override fun hashCode(): Int {
-        var result = id
+        var result = id.hashCode()
         result = 31 * result + name.hashCode()
+        result = 31 * result + abbreviation.hashCode()
+        result = 31 * result + description.hashCode()
+        result = 31 * result + (lines?.hashCode() ?: 0)
         return result
     }
 

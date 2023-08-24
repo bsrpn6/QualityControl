@@ -10,14 +10,16 @@ import androidx.room.PrimaryKey
     tableName = "lines",
     foreignKeys = [ForeignKey(
         entity = DepartmentEntity::class,
-        parentColumns = ["department_id"],
+        parentColumns = ["departmentId"],
         childColumns = ["departmentId"],
         onDelete = ForeignKey.CASCADE
     )],
     indices = [Index("departmentId")] // Add this line to create an index for departmentId
 )
 data class LineEntity(
-    @PrimaryKey val line_id: Int,
+    @PrimaryKey val lineId: String,
+    @ColumnInfo(name = "abbreviation") val abbreviation: String,
     @ColumnInfo(name = "name") val name: String,
-    @ColumnInfo(name = "departmentId") val departmentId: Int
+    @ColumnInfo(name = "departmentId") val departmentId: String,
+    @ColumnInfo(name = "checkTypes") val checkTypes: List<String>?
 )

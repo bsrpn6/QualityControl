@@ -4,16 +4,16 @@ import android.os.Parcel
 import android.os.Parcelable
 
 class CheckItem(
-    val checkTypeID: Int,
-    val checkType: String,
+    val id: String,
+    val section: String,
     val type: String,
     val title: String,
     val description: String,
-    val value: Any?,
+    val expectedValue: Any?,
     var result: Any? = null // Add the property for storing user-inputted value
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
-        parcel.readInt(),
+        parcel.readString() ?: "",
         parcel.readString() ?: "",
         parcel.readString() ?: "",
         parcel.readString() ?: "",
@@ -23,12 +23,12 @@ class CheckItem(
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeInt(checkTypeID)
-        parcel.writeString(checkType)
+        parcel.writeString(id)
+        parcel.writeString(section)
         parcel.writeString(type)
         parcel.writeString(title)
         parcel.writeString(description)
-        parcel.writeValue(value)
+        parcel.writeValue(expectedValue)
         parcel.writeValue(result) // Write the user input value to the parcel
     }
 

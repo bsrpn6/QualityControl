@@ -152,7 +152,7 @@ class ViewResultsFragment : Fragment() {
 
         for ((_, checkItems) in checksMap) {
             for (checkItem in checkItems) {
-                val value = checkItem.value
+                val value = checkItem.expectedValue
                 val result = checkItem.result
 
                 // Check if the user input value does not match the expected value

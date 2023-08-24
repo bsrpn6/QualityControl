@@ -8,37 +8,38 @@ import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.TextView
 import info.onesandzeros.qualitycontrol.R
-import info.onesandzeros.qualitycontrol.api.models.SpecsResponse
+import info.onesandzeros.qualitycontrol.api.models.ProductSpecsResponse
 
 class SpecsDetailsDisplayer(private val context: Context, private val layout: ViewGroup) {
 
-    fun displaySpecsDetails(specsResponse: SpecsResponse, idhNumber: Int, description: String) {
+    fun displaySpecsDetails(
+        specsResponse: ProductSpecsResponse,
+        idhNumber: Int,
+        description: String
+    ) {
         layout.removeAllViews()
 
         addTitle("IDH Number: $idhNumber\nDescription: $description")
         addSpacing()
 
-        addGroupTitle("Case")
-        addKeyValue("Barcode Value", specsResponse.Case.barcode_value)
-        addKeyValue("Date Code Value", specsResponse.Case.date_code_value)
-        addKeyValue("Tar Weight", specsResponse.Case.weight_specs?.tarWt.toString())
-        addKeyValue("LSL", specsResponse.Case.weight_specs?.lsl.toString())
-        addKeyValue("USL", specsResponse.Case.weight_specs?.usl.toString())
-        addKeyValue("MAV", specsResponse.Case.weight_specs?.mav.toString())
-        addSpacing()
-
-        addGroupTitle("Package")
-        addKeyValue("Barcode Value", specsResponse.Package.barcode_value)
-        addKeyValue("Date Code Value", specsResponse.Package.date_code_value)
-        addSpacing()
-
         addGroupTitle("Product")
-        addKeyValue("Barcode Value", specsResponse.Product.barcode_value)
-        addKeyValue("Date Code Value", specsResponse.Product.date_code_value)
-        addKeyValue("Tar Weight", specsResponse.Product.weight_specs?.tarWt.toString())
-        addKeyValue("LSL", specsResponse.Product.weight_specs?.lsl.toString())
-        addKeyValue("USL", specsResponse.Product.weight_specs?.usl.toString())
-        addKeyValue("MAV", specsResponse.Product.weight_specs?.mav.toString())
+        addKeyValue("Name", specsResponse.product.name)
+        addKeyValue("Description", specsResponse.product.description)
+        addKeyValue("Case Barcode", specsResponse.product.caseBarcode.toString())
+        addKeyValue("Case SKU", specsResponse.product.caseSku)
+        addKeyValue("Product Barcode", specsResponse.product.productBarcode.toString())
+        addKeyValue("Consumables Per Case", specsResponse.product.consPerCase.toString())
+        addKeyValue("Category", specsResponse.product.category)
+        addKeyValue("Volume", specsResponse.product.volume)
+        addSpacing()
+
+        addGroupTitle("Formula")
+        addKeyValue("Description", specsResponse.formula.description)
+        addKeyValue("SPG", specsResponse.formula.spg.toString())
+        addKeyValue("Tar Weight", specsResponse.formula.tarWt.toString())
+        addKeyValue("LSL", specsResponse.formula.lsl.toString())
+        addKeyValue("USL", specsResponse.formula.usl.toString())
+        addKeyValue("MAV", specsResponse.formula.mav.toString())
     }
 
     private fun addTitle(title: String) {

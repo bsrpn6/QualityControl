@@ -31,7 +31,7 @@ class ResultsAdapter(
             dateTextView.text =
                 SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Date(checkResult.checkStartTimestamp!!))
             usernameTextView.text = StringUtils.parseUsername(checkResult.username)
-            idhNumberTextView.text = checkResult.idhNumber?.idhNumber.toString()
+            idhNumberTextView.text = checkResult.idhNumber?.id.toString()
             failedCheckCountTextView.text = calculateFailedChecks(checkResult.checks).toString()
             if (calculateFailedChecks(checkResult.checks) == 0) {
                 moreDetailsButton.visibility = View.INVISIBLE
@@ -47,7 +47,7 @@ class ResultsAdapter(
         var failedCheckCount = 0
         for ((_, checkItems) in checks) {
             for (check in checkItems) {
-                if (check.result != null && check.value != check.result) {
+                if (check.result != null && check.expectedValue != check.result) {
                     failedCheckCount++
                 }
             }

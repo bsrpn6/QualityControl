@@ -6,6 +6,9 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "departments")
 data class DepartmentEntity(
-    @PrimaryKey val department_id: Int,
-    @ColumnInfo(name = "name") val name: String
+    @PrimaryKey val departmentId: String,
+    @ColumnInfo(name = "name") val name: String,
+    @ColumnInfo(name = "abbreviation") val abbreviation: String,
+    @ColumnInfo(name = "description") val description: String,
+    @ColumnInfo(name = "lines") val lines: List<String>?
 )

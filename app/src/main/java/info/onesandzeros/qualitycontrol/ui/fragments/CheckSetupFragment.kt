@@ -20,19 +20,21 @@ import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.api.MyApi
+import info.onesandzeros.qualitycontrol.api.models.CheckType
 import info.onesandzeros.qualitycontrol.api.models.Department
 import info.onesandzeros.qualitycontrol.api.models.IDHNumbers
 import info.onesandzeros.qualitycontrol.api.models.Line
-import info.onesandzeros.qualitycontrol.api.models.SpecsResponse
+import info.onesandzeros.qualitycontrol.api.models.ProductSpecsResponse
+import info.onesandzeros.qualitycontrol.constants.Constants.SITE_ID
 import info.onesandzeros.qualitycontrol.data.AppDatabase
+import info.onesandzeros.qualitycontrol.data.models.CheckTypeEntity
 import info.onesandzeros.qualitycontrol.data.models.DepartmentEntity
 import info.onesandzeros.qualitycontrol.data.models.IDHNumbersEntity
 import info.onesandzeros.qualitycontrol.data.models.LineEntity
 import info.onesandzeros.qualitycontrol.databinding.FragmentCheckSetupBinding
-import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.viewmodels.CheckSetupViewModel
+import info.onesandzeros.qualitycontrol.ui.viewmodels.CheckSetupViewModel
 import info.onesandzeros.qualitycontrol.ui.viewmodels.SharedViewModel
 import info.onesandzeros.qualitycontrol.utils.SpecsDetailsDisplayer
-import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
@@ -50,10 +52,12 @@ class CheckSetupFragment : Fragment() {
 
     private val departments = mutableListOf<Department>()
     private val lines = mutableListOf<Line>()
+    private val checkTypes = mutableListOf<CheckType>()
     private val idhNumbers = mutableListOf<IDHNumbers>()
 
     private lateinit var departmentAdapter: ArrayAdapter<String>
     private lateinit var lineAdapter: ArrayAdapter<String>
+    private lateinit var checkTypeAdapter: ArrayAdapter<String>
     private lateinit var idhNumberAdapter: ArrayAdapter<Int>
 
     private lateinit var sharedViewModel: SharedViewModel
@@ -95,11 +99,13 @@ class CheckSetupFragment : Fragment() {
 
         bindDepartmentSpinner()
         bindLineSpinner()
+        bindCheckTypeSpinner()
         bindIdhAutoCompleteTextView()
 
         // Check if previous values exist
         if (sharedViewModel.departmentLiveData.value != null
             && sharedViewModel.lineLiveData.value != null
+            && sharedViewModel.checkTypeLiveData.value != null
             && sharedViewModel.idhNumberLiveData.value != null
         ) {
             // If previous values exist, populate the UI fields and disable user input
@@ -113,12 +119,8 @@ class CheckSetupFragment : Fragment() {
 
 
         binding.startChecksButton.setOnClickListener {
-            Log.d(
-                "CheckSetupFragment",
-                sharedViewModel.departmentLiveData.value.toString() + " | " + sharedViewModel.lineLiveData.value.toString() + " | " + sharedViewModel.idhNumberLiveData.value.toString()
-            )
             // Check if all three fields have valid selections
-            if (sharedViewModel.departmentLiveData.value != null && sharedViewModel.lineLiveData.value != null && sharedViewModel.idhNumberLiveData.value != null) {
+            if (sharedViewModel.departmentLiveData.value != null && sharedViewModel.lineLiveData.value != null && sharedViewModel.checkTypeLiveData.value != null && sharedViewModel.idhNumberLiveData.value != null) {
 
                 sharedViewModel.checkStartTimestamp.value = System.currentTimeMillis()
                 // Proceed to ChecksFragment when the button is clicked
@@ -140,6 +142,29 @@ class CheckSetupFragment : Fragment() {
         }
     }
 
+    private fun bindCheckTypeSpinner() {
+        checkTypeAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item)
+        checkTypeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        binding.checkTypeSpinner.adapter = checkTypeAdapter
+
+        binding.checkTypeSpinner.onItemSelectedListener =
+            object : AdapterView.OnItemSelectedListener {
+                override fun onItemSelected(
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
+                ) {
+                    if (checkTypes.isNotEmpty()) {
+                        val selectedCheckType = checkTypes[position]
+                        sharedViewModel.checkTypeLiveData.value = selectedCheckType
+                    }
+                }
+
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
+            }
+    }
+
     private fun bindLineSpinner() {
         binding.lineSpinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(
@@ -149,13 +174,14 @@ class CheckSetupFragment : Fragment() {
                     val selectedLine = lines[position]
                     if (sharedViewModel.lineLiveData.value != selectedLine) {
                         sharedViewModel.lineLiveData.value = lines[position]
-                        sharedViewModel.idhNumberLiveData.value =
-                            null // Clear the IDH number selection when the line is changed
+                        sharedViewModel.idhNumberLiveData.value = null
+                        sharedViewModel.checkTypeLiveData.value = null
                         binding.infoIconImageView.visibility = View.GONE
                         binding.idhNumberAutoCompleteTextView.setText("", false)
-                        fetchIDHNumbersForLineFromApi(
-                            sharedViewModel.lineLiveData.value?.id ?: -1
-                        )
+                        sharedViewModel.lineLiveData.value?.id?.let {
+                            fetchCheckTypesForLineFromApi(it)
+                            fetchIDHNumbersForLineFromApi(it)
+                        }
                     }
                 }
 
@@ -169,10 +195,9 @@ class CheckSetupFragment : Fragment() {
         binding.idhNumberAutoCompleteTextView.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
                 val selectedIdhNumberValue = parent.getItemAtPosition(position) as Int
-                val selectedIDHNumber = idhNumbers.find { it.idhNumber == selectedIdhNumberValue }
+                val selectedIDHNumber = idhNumbers.find { it.productId == selectedIdhNumberValue }
                 if (sharedViewModel.idhNumberLiveData.value != selectedIDHNumber) {
                     sharedViewModel.idhNumberLiveData.value = selectedIDHNumber
-
                 }
 
                 binding.infoIconImageView.visibility = View.VISIBLE
@@ -183,11 +208,11 @@ class CheckSetupFragment : Fragment() {
     }
 
     private fun fetchSpecsAndShowDialog() {
-        myApi.getSpecs(sharedViewModel.idhNumberLiveData.value?.idhNumber)
-            .enqueue(object : Callback<List<SpecsResponse>> {
+        myApi.getSpecs(sharedViewModel.idhNumberLiveData.value?.id)
+            .enqueue(object : Callback<ProductSpecsResponse> {
                 override fun onResponse(
-                    call: Call<List<SpecsResponse>>,
-                    response: Response<List<SpecsResponse>>
+                    call: Call<ProductSpecsResponse>,
+                    response: Response<ProductSpecsResponse>
                 ) {
                     if (response.isSuccessful) {
                         response.body()?.let { specsResponses ->
@@ -215,8 +240,8 @@ class CheckSetupFragment : Fragment() {
                                 )
                             )
                             displayer.displaySpecsDetails(
-                                specsResponses[0],
-                                sharedViewModel.idhNumberLiveData.value!!.idhNumber,
+                                specsResponses,
+                                sharedViewModel.idhNumberLiveData.value!!.productId,
                                 sharedViewModel.idhNumberLiveData.value!!.description
                             )
 
@@ -232,7 +257,7 @@ class CheckSetupFragment : Fragment() {
                     }
                 }
 
-                override fun onFailure(call: Call<List<SpecsResponse>>, t: Throwable) {
+                override fun onFailure(call: Call<ProductSpecsResponse>, t: Throwable) {
                     Log.e(TAG, "Use case binding failed", t)
                 }
             })
@@ -248,15 +273,16 @@ class CheckSetupFragment : Fragment() {
                         val selectedDepartment = departments[position]
                         if (sharedViewModel.departmentLiveData.value != selectedDepartment) {
                             sharedViewModel.departmentLiveData.value = departments[position]
-                            sharedViewModel.lineLiveData.value =
-                                null // Clear the line selection when the department is changed
-                            sharedViewModel.idhNumberLiveData.value =
-                                null // Clear the IDH number selection when the department is changed
+                            sharedViewModel.lineLiveData.value = null
+                            sharedViewModel.checkTypeLiveData.value = null
+                            sharedViewModel.idhNumberLiveData.value = null
                             binding.infoIconImageView.visibility = View.GONE
                             binding.idhNumberAutoCompleteTextView.setText("", false)
-                            fetchLinesForDepartmentFromApi(
-                                sharedViewModel.departmentLiveData.value?.id ?: -1
-                            )
+                            sharedViewModel.departmentLiveData.value?.id?.let {
+                                fetchLinesForDepartmentFromApi(
+                                    it
+                                )
+                            }
                         }
 
                     }
@@ -276,7 +302,7 @@ class CheckSetupFragment : Fragment() {
     }
 
     private fun fetchDepartmentsFromApi() {
-        myApi.getDepartments().enqueue(object : Callback<List<Department>> {
+        myApi.getDepartments(SITE_ID).enqueue(object : Callback<List<Department>> {
             override fun onResponse(
                 call: Call<List<Department>>, response: Response<List<Department>>
             ) {
@@ -290,7 +316,13 @@ class CheckSetupFragment : Fragment() {
                     // Update Room database with the latest fetched departments
                     viewLifecycleOwner.lifecycleScope.launch {
                         val departmentEntities = departments.map { department ->
-                            DepartmentEntity(department.id, department.name)
+                            DepartmentEntity(
+                                department.id,
+                                department.name,
+                                department.abbreviation,
+                                department.description,
+                                department.lines
+                            )
                         }
                         appDatabase.departmentDao().insertDepartments(departmentEntities)
                     }
@@ -331,7 +363,7 @@ class CheckSetupFragment : Fragment() {
         }
     }
 
-    private fun fetchLinesForDepartmentFromApi(departmentId: Int) {
+    private fun fetchLinesForDepartmentFromApi(departmentId: String) {
         myApi.getLinesForDepartment(departmentId).enqueue(object : Callback<List<Line>> {
             override fun onResponse(call: Call<List<Line>>, response: Response<List<Line>>) {
                 if (response.isSuccessful) {
@@ -344,7 +376,13 @@ class CheckSetupFragment : Fragment() {
                     // Update Room database with the latest fetched lines for the department
                     viewLifecycleOwner.lifecycleScope.launch {
                         val lineEntities = lines.map { line ->
-                            LineEntity(line.id, line.name, departmentId)
+                            LineEntity(
+                                line.id,
+                                line.abbreviation,
+                                line.name,
+                                departmentId,
+                                line.checkTypes
+                            )
                         }
                         appDatabase.lineDao().insertLines(lineEntities)
                     }
@@ -352,6 +390,7 @@ class CheckSetupFragment : Fragment() {
                     if (lines.isNotEmpty()) {
                         val selectedLine = lines[0]
                         sharedViewModel.lineLiveData.value = selectedLine
+                        fetchCheckTypesForLineFromApi(selectedLine.id)
                         fetchIDHNumbersForLineFromApi(selectedLine.id)
                     }
                 } else {
@@ -367,8 +406,8 @@ class CheckSetupFragment : Fragment() {
         })
     }
 
-    private fun loadLinesForDepartmentFromDatabase(departmentId: Int) {
-        GlobalScope.launch {
+    private fun loadLinesForDepartmentFromDatabase(departmentId: String) {
+        viewLifecycleOwner.lifecycleScope.launch {
             val localLines = appDatabase.lineDao().getLinesByDepartmentId(departmentId)
             if (localLines.isNotEmpty()) {
                 loadLinesAdapter(localLines.toLineList())
@@ -398,7 +437,44 @@ class CheckSetupFragment : Fragment() {
         }
     }
 
-    private fun fetchIDHNumbersForLineFromApi(lineId: Int) {
+    private fun fetchCheckTypesForLineFromApi(lineId: String) {
+        myApi.getCheckTypesForLine(lineId).enqueue(object : Callback<List<CheckType>> {
+            override fun onResponse(
+                call: Call<List<CheckType>>,
+                response: Response<List<CheckType>>
+            ) {
+                if (response.isSuccessful) {
+                    response.body()?.let { it ->
+                        checkSetupViewModel.checkTypeLiveData.value = it
+                        loadCheckTypesAdapter(it)
+                    }
+
+                    // Update Room database with the latest fetched lines for the department
+                    viewLifecycleOwner.lifecycleScope.launch {
+                        val checkTypeEntities = checkTypes.map { checkType ->
+                            CheckTypeEntity(
+                                checkType.id,
+                                checkType.name,
+                                lineId,
+                                checkType.displayName,
+                                checkType.checks
+                            )
+                        }
+                        appDatabase.checkTypeDao().insertCheckTypes(checkTypeEntities)
+                    }
+                } else {
+                    // If the API call fails, attempt to load IDH numbers from the Room database
+                    loadCheckTypesFromDatabase(lineId)
+                }
+            }
+
+            override fun onFailure(call: Call<List<CheckType>>, t: Throwable) {
+                loadCheckTypesFromDatabase(lineId)
+            }
+        })
+    }
+
+    private fun fetchIDHNumbersForLineFromApi(lineId: String) {
         myApi.getIDHNumbersForLine(lineId).enqueue(object : Callback<List<IDHNumbers>> {
             override fun onResponse(
                 call: Call<List<IDHNumbers>>,
@@ -414,8 +490,10 @@ class CheckSetupFragment : Fragment() {
                     viewLifecycleOwner.lifecycleScope.launch {
                         val idhNumbersEntities = idhNumbers.map { idhNumber ->
                             IDHNumbersEntity(
-                                idhNumber.idhNumber,
+                                idhNumber.id,
+                                idhNumber.productId,
                                 idhNumber.lineId,
+                                idhNumber.name,
                                 idhNumber.description
                             )
                         }
@@ -434,17 +512,42 @@ class CheckSetupFragment : Fragment() {
         })
     }
 
-    private fun loadIDHNumbersFromDatabase(lineId: Int) {
+    private fun loadCheckTypesFromDatabase(lineId: String) {
+        viewLifecycleOwner.lifecycleScope.launch {
+            val localCheckTypes = appDatabase.checkTypeDao().getAllCheckTypes(lineId)
+            loadCheckTypesAdapter(localCheckTypes.toCheckTypeList())
+        }
+    }
+
+    private fun loadIDHNumbersFromDatabase(lineId: String) {
         viewLifecycleOwner.lifecycleScope.launch {
             val localIDHNumbers = appDatabase.idhNumbersDao().getIDHNumbersByLineId(lineId)
             loadIDHNumbersAdapter(localIDHNumbers.toIdhNumbersList())
         }
     }
 
+    private fun loadCheckTypesAdapter(checkTypeList: List<CheckType>) {
+        checkTypes.clear()
+        checkTypes.addAll(checkTypeList)
+        val localCheckTypes = checkTypes.map { it.displayName }
+        checkTypeAdapter.clear()
+        checkTypeAdapter.addAll(localCheckTypes)
+
+        // Set the spinner selection based on the value from the SharedViewModel
+        val selectedCheckType = sharedViewModel.checkTypeLiveData.value
+        if (selectedCheckType != null) {
+            val selectedIndex =
+                checkTypes.indexOfFirst { it.id == selectedCheckType.id }
+            if (selectedIndex != -1) {
+                binding.checkTypeSpinner.setSelection(selectedIndex)
+            }
+        }
+    }
+
     private fun loadIDHNumbersAdapter(idhNumbersList: List<IDHNumbers>) {
         idhNumbers.clear()
         idhNumbers.addAll(idhNumbersList)
-        val localIdhNumbers = idhNumbers.map { it.idhNumber }
+        val localIdhNumbers = idhNumbers.map { it.productId }
         idhNumberAdapter.clear()
         idhNumberAdapter.addAll(localIdhNumbers)
 
@@ -452,12 +555,9 @@ class CheckSetupFragment : Fragment() {
         val selectedIDHNumber = sharedViewModel.idhNumberLiveData.value
         if (selectedIDHNumber != null) {
             val selectedIndex =
-                idhNumbers.indexOfFirst { it.idhNumber == selectedIDHNumber.idhNumber }
+                idhNumbers.indexOfFirst { it.id == selectedIDHNumber.id }
             if (selectedIndex != -1) {
-                binding.idhNumberAutoCompleteTextView.setText(
-                    selectedIDHNumber.idhNumber.toString(),
-                    false
-                )
+                binding.idhNumberAutoCompleteTextView.setText(selectedIDHNumber.productId.toString())
             }
         }
     }
@@ -471,6 +571,10 @@ class CheckSetupFragment : Fragment() {
             loadLinesAdapter(lines)
         }
 
+        checkSetupViewModel.checkTypeLiveData.value?.let { checkTypes ->
+            loadCheckTypesAdapter(checkTypes)
+        }
+
         checkSetupViewModel.idhNumberLiveData.value?.let { idhNumbers ->
             loadIDHNumbersAdapter(idhNumbers)
         }
@@ -479,6 +583,7 @@ class CheckSetupFragment : Fragment() {
     private fun disableInputFields() {
         binding.departmentSpinner.isEnabled = false
         binding.lineSpinner.isEnabled = false
+        binding.checkTypeSpinner.isEnabled = false
         binding.idhNumberAutoCompleteTextView.isEnabled = false
         binding.infoIconImageView.visibility = View.VISIBLE
         binding.infoIconImageView.setOnClickListener {
@@ -496,6 +601,7 @@ class CheckSetupFragment : Fragment() {
     private fun enableInputFields() {
         binding.departmentSpinner.isEnabled = true
         binding.lineSpinner.isEnabled = true
+        binding.checkTypeSpinner.isEnabled = true
         binding.idhNumberAutoCompleteTextView.isEnabled = true
         binding.startNewCheckButton.visibility = View.GONE
     }
@@ -510,22 +616,42 @@ class CheckSetupFragment : Fragment() {
 
     private fun List<DepartmentEntity>.toDepartmentList(): List<Department> {
         return map { departmentEntity ->
-            Department(departmentEntity.department_id, departmentEntity.name)
+            Department(
+                departmentEntity.departmentId,
+                departmentEntity.name,
+                departmentEntity.abbreviation,
+                departmentEntity.description,
+                departmentEntity.lines
+            )
         }
     }
 
     private fun List<LineEntity>.toLineList(): List<Line> {
         return map { lineEntity ->
-            Line(lineEntity.line_id, lineEntity.name, lineEntity.departmentId)
+            Line(lineEntity.lineId, lineEntity.abbreviation, lineEntity.name, lineEntity.checkTypes)
         }
     }
 
     private fun List<IDHNumbersEntity>.toIdhNumbersList(): List<IDHNumbers> {
         return map { idhNumbersEntity ->
             IDHNumbers(
-                idhNumbersEntity.idhNumber,
+                idhNumbersEntity.id,
+                idhNumbersEntity.productId,
                 idhNumbersEntity.lineId,
+                idhNumbersEntity.name,
                 idhNumbersEntity.description
+            )
+        }
+    }
+
+    private fun List<CheckTypeEntity>.toCheckTypeList(): List<CheckType> {
+        return map { checkTypeEntity ->
+            CheckType(
+                checkTypeEntity.id,
+                checkTypeEntity.name,
+                checkTypeEntity.lineId,
+                checkTypeEntity.displayName,
+                checkTypeEntity.checks
             )
         }
     }

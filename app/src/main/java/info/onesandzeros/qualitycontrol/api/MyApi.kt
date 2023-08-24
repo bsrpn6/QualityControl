@@ -1,11 +1,12 @@
 package info.onesandzeros.qualitycontrol.api
 
 import info.onesandzeros.qualitycontrol.api.models.CheckItem
+import info.onesandzeros.qualitycontrol.api.models.CheckType
 import info.onesandzeros.qualitycontrol.api.models.ChecksSubmissionRequest
 import info.onesandzeros.qualitycontrol.api.models.Department
 import info.onesandzeros.qualitycontrol.api.models.IDHNumbers
 import info.onesandzeros.qualitycontrol.api.models.Line
-import info.onesandzeros.qualitycontrol.api.models.SpecsResponse
+import info.onesandzeros.qualitycontrol.api.models.ProductSpecsResponse
 import info.onesandzeros.qualitycontrol.api.models.SubmissionResult
 import retrofit2.Call
 import retrofit2.http.Body
@@ -16,20 +17,27 @@ import javax.inject.Singleton
 
 @Singleton
 interface MyApi {
-    @GET("departments")
-    fun getDepartments(): Call<List<Department>>
+    @GET("GetDepartments")
+    fun getDepartments(@Query("siteId") siteId: String): Call<List<Department>>
 
-    @GET("lines")
-    fun getLinesForDepartment(@Query("departmentId") departmentId: Int): Call<List<Line>>
+    @GET("GetLines")
+    fun getLinesForDepartment(@Query("departmentId") departmentId: String): Call<List<Line>>
 
-    @GET("idhNumbers")
-    fun getIDHNumbersForLine(@Query("lineId") lineId: Int): Call<List<IDHNumbers>>
+    @GET("GetCheckTypes")
+    fun getCheckTypesForLine(@Query("lineId") lineId: String): Call<List<CheckType>>
 
-    @GET("specs")
-    fun getSpecs(@Query("idhNumber") idhNumbers: Int?): Call<List<SpecsResponse>>
+    @GET("GetProducts")
+    fun getIDHNumbersForLine(@Query("lineId") lineId: String): Call<List<IDHNumbers>>
 
-    @GET("checks")
-    fun getChecksData(): Call<List<CheckItem>>
+    @GET("GetProductSpecs")
+    fun getSpecs(@Query("productId") productId: String?): Call<ProductSpecsResponse>
+
+    @GET("GetChecks")
+    fun getChecks(
+        @Query("lineId") lineId: String,
+        @Query("checkTypeId") checkTypeId: String,
+        @Query("productId") productId: String
+    ): Call<List<CheckItem>>
 
     @POST("results")
     fun submitChecks(@Body submissionData: ChecksSubmissionRequest): Call<SubmissionResult>

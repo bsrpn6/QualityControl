@@ -16,5 +16,5 @@ interface LineDao {
     suspend fun getAllLines(): List<LineEntity>
 
     @Query("SELECT * FROM lines WHERE departmentId = :departmentId")
-    suspend fun getLinesByDepartmentId(departmentId: Int): List<LineEntity>
+    suspend fun getLinesByDepartmentId(departmentId: String): List<LineEntity>
 }

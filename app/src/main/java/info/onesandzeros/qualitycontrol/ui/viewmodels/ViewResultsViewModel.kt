@@ -43,7 +43,7 @@ class ViewResultsViewModel @Inject constructor(private val appDatabase: AppDatab
 
     private fun List<LineEntity>.toLineList(): List<Line> {
         return map { lineEntity ->
-            Line(lineEntity.line_id, lineEntity.name, lineEntity.departmentId)
+            Line(lineEntity.lineId, lineEntity.abbreviation, lineEntity.name, lineEntity.checkTypes)
         }
     }
 

@@ -23,6 +23,16 @@
         android:layout_below="@id/departmentSpinner"
         android:layout_gravity="center"
         android:layout_marginBottom="24dp"
+        android:spinnerMode="dropdown" />
+
+    <!-- Spinner for Check Type selection -->
+    <Spinner
+        android:id="@+id/checkTypeSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/lineSpinner"
+        android:layout_gravity="center"
+        android:layout_marginBottom="24dp"
         android:entries="@array/line_options"
         android:spinnerMode="dropdown" />
 
@@ -30,7 +40,7 @@
         android:id="@+id/idhLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/lineSpinner"
+        android:layout_below="@id/checkTypeSpinner"
         android:layout_gravity="center"
         android:layout_marginBottom="24dp">
 

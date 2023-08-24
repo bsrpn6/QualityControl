@@ -50,6 +50,17 @@ class Converters {
     }
 
     @TypeConverter
+    fun fromLines(value: String): List<String>? {
+        val listType = object : TypeToken<List<String>>() {}.type
+        return Gson().fromJson(value, listType)
+    }
+
+    @TypeConverter
+    fun toLines(list: List<String>?): String {
+        return Gson().toJson(list)
+    }
+
+    @TypeConverter
     fun fromCheckItemList(value: Map<String, List<CheckItem>>?): String? {
         return Gson().toJson(value)
     }
