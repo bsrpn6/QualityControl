@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import com.symbol.emdk.EMDKManager
 import com.symbol.emdk.EMDKManager.EMDKListener
 import com.symbol.emdk.EMDKResults
@@ -13,10 +14,11 @@ import com.symbol.emdk.barcode.Scanner
 import com.symbol.emdk.barcode.ScannerException
 import com.symbol.emdk.barcode.ScannerInfo
 import com.symbol.emdk.barcode.ScannerResults
-import info.onesandzeros.qualitycontrol.R
+import info.onesandzeros.qualitycontrol.databinding.ActivityEmdkBarcodeScannerBinding
 
 class EMDKBarcodeScannerActivity : BaseActivity(), EMDKListener,
     BarcodeManager.ScannerConnectionListener, Scanner.DataListener {
+    private lateinit var binding: ActivityEmdkBarcodeScannerBinding
 
     private var emdkManager: EMDKManager? = null
     private var barcodeManager: BarcodeManager? = null
@@ -24,7 +26,9 @@ class EMDKBarcodeScannerActivity : BaseActivity(), EMDKListener,
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_barcode_scanner)
+        binding = ActivityEmdkBarcodeScannerBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
         initializeHardwareScanner()
     }
 
@@ -37,6 +41,8 @@ class EMDKBarcodeScannerActivity : BaseActivity(), EMDKListener,
     }
 
     override fun onOpened(emdkManager: EMDKManager?) {
+        binding.scannerProgressBar.visibility = View.VISIBLE
+
         this.emdkManager = emdkManager
         barcodeManager =
             emdkManager?.getInstance(EMDKManager.FEATURE_TYPE.BARCODE) as BarcodeManager?
@@ -96,6 +102,7 @@ class EMDKBarcodeScannerActivity : BaseActivity(), EMDKListener,
             BarcodeManager.ConnectionState.DISCONNECTED -> {
                 scanner?.removeDataListener(this)
                 scanner = null
+                binding.scannerProgressBar.visibility = View.GONE
             }
 
             else -> {}
