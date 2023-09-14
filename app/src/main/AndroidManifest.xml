@@ -10,6 +10,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="com.symbol.emdk.permission.EMDK" />
 
 
     <application
@@ -53,6 +54,10 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/file_paths" />
         </provider>
+        <uses-library
+            android:name="com.symbol.emdk"
+            android:required="false" />
+
     </application>
 
 </manifest>
