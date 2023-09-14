@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
@@ -22,7 +21,7 @@ import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
 import info.onesandzeros.qualitycontrol.R
 
-class BarcodeScannerActivity : AppCompatActivity() {
+class BarcodeScannerActivity : BaseActivity() {
     private lateinit var previewView: PreviewView
     private lateinit var barcodeDetector: FirebaseVisionBarcodeDetector
 

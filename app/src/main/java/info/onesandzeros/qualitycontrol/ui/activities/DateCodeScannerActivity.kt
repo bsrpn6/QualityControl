@@ -4,7 +4,6 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
@@ -19,7 +18,7 @@ import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
 import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer
 import info.onesandzeros.qualitycontrol.databinding.ActivityDateCodeScannerBinding
 
-class DateCodeScannerActivity : AppCompatActivity() {
+class DateCodeScannerActivity : BaseActivity() {
     private lateinit var binding: ActivityDateCodeScannerBinding
     private lateinit var textRecognizer: FirebaseVisionTextRecognizer
 

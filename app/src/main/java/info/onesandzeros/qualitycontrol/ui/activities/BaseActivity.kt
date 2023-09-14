@@ -1,5 +1,6 @@
 package info.onesandzeros.qualitycontrol.ui.activities
 
+import android.content.Context
 import android.os.Bundle
 import android.os.Handler
 import android.util.Log
@@ -13,12 +14,18 @@ import info.onesandzeros.qualitycontrol.constants.Constants.TIMEOUT_INTERVAL
 abstract class BaseActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "BaseActivity"
+        private const val PREFS_NAME = "InactivityPrefs"
+        private const val LAST_INTERACTION_TIME_KEY = "LastInteractionTime"
     }
 
     private var shouldNavigateToLogin = false
 
     private lateinit var firebaseAuth: FirebaseAuth
     private val logoutHandler = Handler()
+
+    private val sharedPreferences by lazy {
+        getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -28,26 +35,37 @@ abstract class BaseActivity : AppCompatActivity() {
 
     override fun onUserInteraction() {
         super.onUserInteraction()
-        // Reset the timer on user interaction (e.g., touch, keypress)
+        // Record the current time on user interaction
+        sharedPreferences.edit()
+            .putLong(LAST_INTERACTION_TIME_KEY, System.currentTimeMillis())
+            .apply()
         resetLogoutTimer()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val lastInteractionTime = sharedPreferences.getLong(LAST_INTERACTION_TIME_KEY, 0)
+        if (System.currentTimeMillis() - lastInteractionTime > TIMEOUT_INTERVAL) {
+            logout()
+        } else {
+            resetLogoutTimer()
+        }
+    }
+
+    override fun onPause() {
+        super.onPause()
+        logoutHandler.removeCallbacksAndMessages(null)
+        sharedPreferences.edit()
+            .putLong(LAST_INTERACTION_TIME_KEY, System.currentTimeMillis())
+            .apply()
     }
 
     fun checkUserLoginStatus() {
         val user = firebaseAuth.currentUser
         if (user == null) {
-            // User is not logged in, navigate to LoginFragment
             performNavigationToLogin()
         } else {
-            // User is logged in, reset the logout timer
             resetLogoutTimer()
-        }
-    }
-
-    override fun onPostResume() {
-        super.onPostResume()
-        if (shouldNavigateToLogin) {
-            shouldNavigateToLogin = false
-            performNavigationToLogin()
         }
     }
 
@@ -74,7 +92,6 @@ abstract class BaseActivity : AppCompatActivity() {
     }
 
     private fun logout() {
-        // Logout the user and navigate to the LoginFragment
         Log.i(TAG, "User logout.")
         firebaseAuth.signOut()
         performNavigationToLogin()

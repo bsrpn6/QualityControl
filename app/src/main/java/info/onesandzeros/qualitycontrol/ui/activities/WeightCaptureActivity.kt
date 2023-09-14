@@ -12,7 +12,6 @@ import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
 import android.widget.TextView
 import androidx.annotation.RequiresApi
-import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.GridLayoutManager
 import info.onesandzeros.qualitycontrol.api.models.FillHeadItem
 import info.onesandzeros.qualitycontrol.api.models.WeightCheckItem
@@ -20,7 +19,7 @@ import info.onesandzeros.qualitycontrol.databinding.ActivityWeightCaptureBinding
 import info.onesandzeros.qualitycontrol.mock.MockBluetoothService
 import info.onesandzeros.qualitycontrol.ui.adapters.FillHeadsAdapter
 
-class WeightCaptureActivity : AppCompatActivity() {
+class WeightCaptureActivity : BaseActivity() {
 
     private lateinit var binding: ActivityWeightCaptureBinding
     private val fillHeadsAdapter = FillHeadsAdapter()
@@ -45,7 +44,7 @@ class WeightCaptureActivity : AppCompatActivity() {
         binding.fillHeadsRecyclerView.adapter = fillHeadsAdapter
 
         val fillHeads = weightCheckItem.fillHeads
-        fillHeadsAdapter.submitList(fillHeads?.map { FillHeadItem(it, null) })
+        fillHeadsAdapter.submitList(fillHeads.map { FillHeadItem(it, null) })
 
         setSpecValues()
 
