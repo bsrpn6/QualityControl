@@ -1,27 +1,45 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- res/layout/item_boolean_check.xml -->
+<?xml version="1.0" encoding="utf-8"?><!-- res/layout/item_boolean_check.xml -->
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:padding="16dp">
 
-    <!-- Title and Description Views -->
+    <!-- Title, Description, and Image Views -->
     <LinearLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:orientation="vertical">
 
-        <!-- Title TextView -->
-        <TextView
-            android:id="@+id/titleTextView"
-            android:layout_width="wrap_content"
+        <!-- Title and Image container -->
+        <LinearLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="?android:textAppearanceMedium"
-            android:text="Check Title" />
+            android:orientation="horizontal">
+
+            <!-- Title TextView -->
+            <TextView
+                android:id="@+id/titleTextView"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Check Title"
+                android:textAppearance="?android:textAppearanceMedium" />
+
+            <!-- Image Icon (to the right of the Title) -->
+            <ImageView
+                android:id="@+id/imageIconView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:adjustViewBounds="true"
+                android:maxHeight="24dp"
+                android:src="@drawable/ic_picture"
+                android:visibility="gone" />
+
+        </LinearLayout>
 
         <!-- Description TextView -->
         <TextView
@@ -40,7 +58,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="end"
-        android:text="Yes/No"
-        android:paddingStart="8dp" />
+        android:paddingStart="8dp"
+        android:text="Yes/No" />
 
 </LinearLayout>
