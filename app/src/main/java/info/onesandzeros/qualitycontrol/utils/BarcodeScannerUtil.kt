@@ -57,10 +57,10 @@ class BarcodeScannerUtil(
 
     // Helper function to check if the device is a Zebra device
     private fun isZebraDevice(): Boolean {
-        val knownZebraManufacturers = listOf("Zebra", "Motorola Solutions")
+        val knownZebraManufacturers = listOf("Zebra Technologies", "Motorola Solutions")
         val knownZebraModels = listOf(
             "TC55", "TC70", "TC75", "MC40",
-            "MC67", "MC92", "WT41N0" // add more models as necessary
+            "MC67", "MC92", "TC700H", "WT41N0" // add more models as necessary
         )
 
         return knownZebraManufacturers.contains(Build.MANUFACTURER) ||

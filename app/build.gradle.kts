@@ -16,7 +16,7 @@ android {
 
     defaultConfig {
         applicationId = "info.onesandzeros.qualitycontrol"
-        minSdk = 29
+        minSdk = 22
         targetSdk = 33
         versionCode = 1
         versionName = "1.0"
