@@ -1,13 +1,18 @@
 package info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.adapters
 
+import android.app.Dialog
 import android.graphics.Color
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
+import android.widget.Button
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import com.google.gson.Gson
+import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.api.models.CheckItem
 import info.onesandzeros.qualitycontrol.api.models.WeightCheckItem
 import info.onesandzeros.qualitycontrol.databinding.ItemBarcodeCheckBinding
@@ -20,6 +25,7 @@ import info.onesandzeros.qualitycontrol.databinding.ItemUnknownCheckBinding
 import info.onesandzeros.qualitycontrol.databinding.ItemWeightCheckBinding
 import info.onesandzeros.qualitycontrol.utils.BarcodeScannerUtil
 import info.onesandzeros.qualitycontrol.utils.DateCodeScannerUtil
+import info.onesandzeros.qualitycontrol.utils.ImageDetailsDisplayer
 import info.onesandzeros.qualitycontrol.utils.WeightCaptureUtil
 
 class ChecksAdapter(
@@ -130,6 +136,43 @@ class ChecksAdapter(
             // Bind the views for boolean check type using ViewBinding
             binding.titleTextView.text = check.title
             binding.descriptionTextView.text = check.description
+            if (!check.images.isNullOrEmpty()) {
+                binding.imageIconView.visibility = View.VISIBLE
+
+                // Set click listener for imageIconView
+                binding.imageIconView.setOnClickListener {
+                    val dialog = Dialog(binding.root.context)
+
+                    // Inflate the layout containing a ViewGroup for the details
+                    val detailsLayout = LayoutInflater.from(binding.root.context)
+                        .inflate(R.layout.scroll_view_dialog_layout, null)
+
+                    // Set up the dialog's content view
+                    dialog.setContentView(detailsLayout)
+
+                    // Adjust the dialog's width and height
+                    val window = dialog.window
+                    window?.setLayout(
+                        (binding.root.resources.displayMetrics.widthPixels * 0.9).toInt(),
+                        WindowManager.LayoutParams.WRAP_CONTENT
+                    )
+
+                    // Create an ImageDetailsDisplayer and display the image details
+                    val displayer = ImageDetailsDisplayer(
+                        binding.root.context, detailsLayout.findViewById(R.id.detailsLayout)
+                    )
+                    displayer.displayImageDetails(check.images)
+
+                    // Set up the close button
+                    detailsLayout.findViewById<Button>(R.id.closeButton)
+                        .setOnClickListener {
+                            dialog.dismiss()
+                        }
+
+                    // Show the dialog
+                    dialog.show()
+                }
+            }
 
             val myBoolean = (check.result as? Boolean) ?: (check.expectedValue as? Boolean) ?: false
 

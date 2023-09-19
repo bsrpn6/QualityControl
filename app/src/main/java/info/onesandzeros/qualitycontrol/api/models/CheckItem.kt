@@ -10,7 +10,8 @@ class CheckItem(
     val title: String,
     val description: String,
     val expectedValue: Any?,
-    var result: Any? = null // Add the property for storing user-inputted value
+    val images: List<Image>,
+    var result: Any? = null
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString() ?: "",
@@ -19,7 +20,9 @@ class CheckItem(
         parcel.readString() ?: "",
         parcel.readString() ?: "",
         parcel.readValue(Any::class.java.classLoader),
-        parcel.readValue(Any::class.java.classLoader) // Read the user input value from the parcel
+        parcel.createTypedArrayList(Image.CREATOR)
+            ?: listOf(),  // Read the images list from the parcel
+        parcel.readValue(Any::class.java.classLoader)
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
@@ -29,7 +32,8 @@ class CheckItem(
         parcel.writeString(title)
         parcel.writeString(description)
         parcel.writeValue(expectedValue)
-        parcel.writeValue(result) // Write the user input value to the parcel
+        parcel.writeTypedList(images)  // Write the images list to the parcel
+        parcel.writeValue(result)
     }
 
     override fun describeContents(): Int {
@@ -42,6 +46,38 @@ class CheckItem(
         }
 
         override fun newArray(size: Int): Array<CheckItem?> {
+            return arrayOfNulls(size)
+        }
+    }
+}
+
+data class Image(
+    val url: String,
+    val title: String,  // New title property
+    val description: String
+) : Parcelable {
+    constructor(parcel: Parcel) : this(
+        parcel.readString() ?: "",
+        parcel.readString() ?: "",
+        parcel.readString() ?: ""
+    )
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(url)
+        parcel.writeString(title)
+        parcel.writeString(description)
+    }
+
+    override fun describeContents(): Int {
+        return 0
+    }
+
+    companion object CREATOR : Parcelable.Creator<Image> {
+        override fun createFromParcel(parcel: Parcel): Image {
+            return Image(parcel)
+        }
+
+        override fun newArray(size: Int): Array<Image?> {
             return arrayOfNulls(size)
         }
     }
