@@ -2,10 +2,14 @@ package info.onesandzeros.qualitycontrol.ui.fragments
 
 import android.content.Context
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.PopupWindow
 import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultRegistry
@@ -47,7 +51,6 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
 
     @Inject
     lateinit var appDatabase: AppDatabase
-
 
     private var checksMap: Map<String, List<CheckItem>> = emptyMap()
 
@@ -146,6 +149,10 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
                 totalFailedChecks.toTypedArray()
             )
             findNavController().navigate(action)
+        }
+
+        binding.fabAdd.setOnClickListener {
+            showPopupMenu(it)
         }
     }
 
@@ -282,6 +289,51 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
         coroutineScope.launch {
             appDatabase.checkSubmissionDao().insertSubmission(localSubmission)
         }
+    }
+
+    private fun showPopupMenu(anchorView: View) {
+        val layoutInflater = LayoutInflater.from(context)
+        val popupView = layoutInflater.inflate(R.layout.popup_menu, null)
+
+        val popupWindow = PopupWindow(
+            popupView,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            true // This makes the popup window focusable
+        )
+
+        // Handle button clicks in the popup
+        val btnAddComment = popupView.findViewById<Button>(R.id.btn_add_comment)
+        val btnAttachPhoto = popupView.findViewById<Button>(R.id.btn_attach_photo)
+
+        btnAddComment.setOnClickListener {
+            popupWindow.dismiss()
+        }
+
+
+        btnAttachPhoto.setOnClickListener {
+            // Handle attach photo click
+            popupWindow.dismiss()
+        }
+
+        // Measure the popup to get the correct width and height
+        val widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        val heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        popupWindow.contentView.measure(widthMeasureSpec, heightMeasureSpec)
+
+        // Calculate the coordinates to make the popup appear above the FAB and centered
+        val location = IntArray(2)
+        anchorView.getLocationOnScreen(location)
+
+        val measuredWidth = popupWindow.contentView.measuredWidth
+        val measuredHeight = popupWindow.contentView.measuredHeight
+
+        val xPos = location[0] + anchorView.width / 2 - measuredWidth / 2
+        val yPos = location[1] - measuredHeight
+
+        // Show the popup window
+        popupWindow.showAtLocation(anchorView, Gravity.NO_GRAVITY, xPos, yPos)
+
     }
 
     private inner class ChecksPagerAdapter(

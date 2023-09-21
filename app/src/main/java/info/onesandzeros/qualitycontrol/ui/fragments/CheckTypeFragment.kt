@@ -35,7 +35,12 @@ class CheckTypeFragment : Fragment(R.layout.fragment_check_type) {
         val weightCaptureUtil =
             WeightCaptureUtil(requireActivity(), requireActivity().activityResultRegistry)
         val checksAdapter =
-            ChecksAdapter(checkItems, barcodeScannerUtil, datecodeScannerUtil, weightCaptureUtil)
+            ChecksAdapter(
+                checkItems.toMutableList(),
+                barcodeScannerUtil,
+                datecodeScannerUtil,
+                weightCaptureUtil
+            )
 
 
         // Set up the RecyclerView with the ChecksAdapter for this check type

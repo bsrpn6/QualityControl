@@ -27,9 +27,10 @@ import info.onesandzeros.qualitycontrol.utils.BarcodeScannerUtil
 import info.onesandzeros.qualitycontrol.utils.DateCodeScannerUtil
 import info.onesandzeros.qualitycontrol.utils.ImageDetailsDisplayer
 import info.onesandzeros.qualitycontrol.utils.WeightCaptureUtil
+import java.util.UUID
 
 class ChecksAdapter(
-    private val checksList: List<CheckItem>,
+    private val checksList: MutableList<CheckItem>,
     private val barcodeScannerUtil: BarcodeScannerUtil,
     private val datecodeScannerUtil: DateCodeScannerUtil,
     private val weightCaptureUtil: WeightCaptureUtil
@@ -322,6 +323,38 @@ class ChecksAdapter(
         }
     }
 
+    class CommentCheckViewHolder(private val binding: ItemStringCheckBinding) :
+        CheckViewHolder(binding) {
+        override fun bind(check: CheckItem) {
+            // Bind the views for comment check type using ViewBinding
+            binding.titleTextView.text = check.title
+            binding.descriptionTextView.text = check.description
+
+            val comment = check.result as? String ?: ""
+
+            // Set the text of the EditText based on the user input value
+            binding.stringInputEditText.setText(comment)
+
+            // Add an OnValueChangeListener to the EditText
+            binding.stringInputEditText.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(
+                    s: CharSequence?,
+                    start: Int,
+                    count: Int,
+                    after: Int
+                ) {
+                }
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+                override fun afterTextChanged(s: Editable?) {
+                    // Update the result property of the CheckItem with the new comment value
+                    check.result = s.toString()
+                }
+            })
+        }
+    }
+
 
     class UnknownCheckViewHolder(private val binding: ItemUnknownCheckBinding) :
         CheckViewHolder(binding) {
@@ -371,6 +404,11 @@ class ChecksAdapter(
                 val binding = ItemStringCheckBinding.inflate(inflater, parent, false)
                 StringCheckViewHolder(binding)
             }
+
+            TYPE_COMMENT -> {
+                val binding = ItemStringCheckBinding.inflate(inflater, parent, false)
+                CommentCheckViewHolder(binding)
+            }
             // Add other cases for different check types using ViewBinding
             else -> {
                 val binding = ItemUnknownCheckBinding.inflate(inflater, parent, false)
@@ -383,6 +421,26 @@ class ChecksAdapter(
     override fun onBindViewHolder(holder: CheckViewHolder, position: Int) {
         val currentItem = checksList[position]
         holder.bind(currentItem)
+    }
+
+    fun addCommentViewHolder(section: String) {
+        val commentCheck = CheckItem(
+            id = UUID.randomUUID().toString(), // Generating a random UUID for the comment ID
+            section = section, // You can replace this with the appropriate section name
+            type = "comment",
+            title = "Add Comment",
+            description = "Add any additional comments here.",
+            expectedValue = null,
+            images = emptyList(),
+            result = null
+        )
+        checksList.add(commentCheck)
+        notifyItemInserted(checksList.size - 1)
+    }
+
+
+    fun hasCommentViewHolder(): Boolean {
+        return checksList.any { it.type == "comment" }
     }
 
     // Return the total number of items in the RecyclerView
@@ -399,6 +457,7 @@ class ChecksAdapter(
             "datecode" -> TYPE_DATE_CODE
             "weight" -> TYPE_WEIGHT
             "double" -> TYPE_DOUBLE
+            "comment" -> TYPE_COMMENT
             // Add other types as needed
             else -> TYPE_UNKNOWN // Unknown type
         }
@@ -413,6 +472,7 @@ class ChecksAdapter(
         private const val TYPE_DATE_CODE = 4
         private const val TYPE_WEIGHT = 5
         private const val TYPE_DOUBLE = 6
+        private const val TYPE_COMMENT = 7
 
         // Add other types as needed
         private const val TYPE_UNKNOWN = -1 // Unknown type
