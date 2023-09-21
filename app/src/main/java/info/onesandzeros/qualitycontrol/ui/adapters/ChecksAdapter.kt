@@ -7,8 +7,10 @@ import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.ViewTreeObserver
 import android.view.WindowManager
 import android.widget.Button
+import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import com.google.gson.Gson
@@ -38,7 +40,60 @@ class ChecksAdapter(
 
     // ViewHolder to hold the views in each item using ViewBinding
     abstract class CheckViewHolder(binding: ViewBinding) : RecyclerView.ViewHolder(binding.root) {
-        abstract fun bind(check: CheckItem)
+        abstract val descriptionTextView: TextView
+        private var isDescriptionExpanded = false
+
+        open fun bind(check: CheckItem) {
+            // Reset maxLines to ensure that the entire text is displayed for calculating line count
+            descriptionTextView.maxLines = Integer.MAX_VALUE
+            descriptionTextView.text = check.description
+
+            // Use a ViewTreeObserver to wait for the layout to be completed
+            descriptionTextView.viewTreeObserver.addOnPreDrawListener(object :
+                ViewTreeObserver.OnPreDrawListener {
+                override fun onPreDraw(): Boolean {
+                    // Remove the listener to ensure it's not called multiple times
+                    descriptionTextView.viewTreeObserver.removeOnPreDrawListener(this)
+
+                    // Now that the layout is complete, check if the description exceeds two lines
+                    if (descriptionExceedsTwoLines()) {
+                        collapseDescription()
+                        descriptionTextView.setOnClickListener {
+                            if (isDescriptionExpanded) {
+                                collapseDescription()
+                            } else {
+                                expandDescription()
+                            }
+                        }
+                    }
+                    return true
+                }
+            })
+        }
+
+        private fun collapseDescription() {
+            if (descriptionExceedsTwoLines()) {
+                descriptionTextView.maxLines = 2
+            }
+            isDescriptionExpanded = false
+        }
+
+        private fun expandDescription() {
+            descriptionTextView.maxLines = Integer.MAX_VALUE
+            isDescriptionExpanded = true
+        }
+
+        private fun descriptionExceedsTwoLines(): Boolean {
+            descriptionTextView.maxLines = Integer.MAX_VALUE
+            descriptionTextView.measure(
+                View.MeasureSpec.makeMeasureSpec(
+                    descriptionTextView.width,
+                    View.MeasureSpec.EXACTLY
+                ),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            )
+            return descriptionTextView.lineCount > 2
+        }
     }
 
     // ViewHolders with ViewBinding for each check type
@@ -46,10 +101,14 @@ class ChecksAdapter(
         private val binding: ItemBarcodeCheckBinding,
         private val scannerUtil: BarcodeScannerUtil
     ) : CheckViewHolder(binding) {
+
+        override val descriptionTextView = binding.descriptionTextView
+
         override fun bind(check: CheckItem) {
+            super.bind(check)
+
             // Bind the views for barcode check type using ViewBinding
             binding.titleTextView.text = check.title
-            binding.descriptionTextView.text = check.description
 
             val myBarcode = (check.result as? String) ?: (check.expectedValue as? String) ?: ""
 
@@ -77,10 +136,14 @@ class ChecksAdapter(
         private val binding: ItemDatecodeCheckBinding,
         private val scannerUtil: DateCodeScannerUtil
     ) : CheckViewHolder(binding) {
+
+        override val descriptionTextView = binding.descriptionTextView
+
         override fun bind(check: CheckItem) {
+            super.bind(check)
+
             // Bind the views for Datecode check type using ViewBinding
             binding.titleTextView.text = check.title
-            binding.descriptionTextView.text = check.description
 
             val myDatecode = (check.result as? String) ?: (check.expectedValue as? String) ?: ""
 
@@ -108,10 +171,14 @@ class ChecksAdapter(
         private val binding: ItemWeightCheckBinding,
         private val weightCaptureUtil: WeightCaptureUtil
     ) : CheckViewHolder(binding) {
+
+        override val descriptionTextView = binding.descriptionTextView
+
         override fun bind(check: CheckItem) {
+            super.bind(check)
+
             // Bind the views for barcode check type using ViewBinding
             binding.titleTextView.text = check.title
-            binding.descriptionTextView.text = check.description
 
             val gson = Gson()
             val jsonString = gson.toJson(check.expectedValue)
@@ -132,10 +199,15 @@ class ChecksAdapter(
 
     class BooleanCheckViewHolder(private val binding: ItemBooleanCheckBinding) :
         CheckViewHolder(binding) {
+
+        override val descriptionTextView = binding.descriptionTextView
+
         override fun bind(check: CheckItem) {
+            super.bind(check)
+
             // Bind the views for boolean check type using ViewBinding
             binding.titleTextView.text = check.title
-            binding.descriptionTextView.text = check.description
+
             if (!check.images.isNullOrEmpty()) {
                 binding.imageIconView.visibility = View.VISIBLE
 
@@ -198,11 +270,14 @@ class ChecksAdapter(
 
     class IntegerCheckViewHolder(private val binding: ItemIntegerCheckBinding) :
         CheckViewHolder(binding) {
+
+        override val descriptionTextView = binding.descriptionTextView
+
         override fun bind(check: CheckItem) {
+            super.bind(check)
+
             // Bind the views for integer check type using ViewBinding
             binding.titleTextView.text = check.title
-            binding.descriptionTextView.text = check.description
-            // Bind other views for integer check type as needed
 
             val myInt = (check.result as? Int) ?: (check.expectedValue as? Int) ?: 0
 
@@ -241,11 +316,14 @@ class ChecksAdapter(
 
     class DoubleCheckViewHolder(private val binding: ItemDoubleCheckBinding) :
         CheckViewHolder(binding) {
+
+        override val descriptionTextView = binding.descriptionTextView
+
         override fun bind(check: CheckItem) {
+            super.bind(check)
+
             // Bind the views for double check type using ViewBinding
             binding.titleTextView.text = check.title
-            binding.descriptionTextView.text = check.description
-            // Bind other views for double check type as needed
 
             val myDouble = (check.result as? Double) ?: (check.expectedValue as? Double) ?: 0.0
 
@@ -284,10 +362,14 @@ class ChecksAdapter(
 
     class StringCheckViewHolder(private val binding: ItemStringCheckBinding) :
         CheckViewHolder(binding) {
+
+        override val descriptionTextView = binding.descriptionTextView
+
         override fun bind(check: CheckItem) {
+            super.bind(check)
+
             // Bind the views for string check type using ViewBinding
             binding.titleTextView.text = check.title
-            binding.descriptionTextView.text = check.description
 
             val myString = (check.result as? String) ?: (check.expectedValue as? String) ?: ""
 
@@ -325,11 +407,14 @@ class ChecksAdapter(
 
     class UnknownCheckViewHolder(private val binding: ItemUnknownCheckBinding) :
         CheckViewHolder(binding) {
+
+        override val descriptionTextView = binding.descriptionTextView
+
         override fun bind(check: CheckItem) {
+            super.bind(check)
+
             // Bind the views for unknown check type using ViewBinding
             binding.titleTextView.text = check.title
-            binding.descriptionTextView.text = check.description
-            // Bind other views for unknown check type as needed
         }
     }
 

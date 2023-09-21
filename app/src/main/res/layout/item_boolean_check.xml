@@ -46,6 +46,8 @@
             android:id="@+id/descriptionTextView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:ellipsize="end"
+            android:maxLines="2"
             android:text="Check Description" />
 
         <!-- Add other views for boolean checks as needed -->
