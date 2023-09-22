@@ -28,9 +28,6 @@ class MainActivity : BaseActivity() {
 
         // Set the navigation controller as the action bar's support action bar
         setupActionBarWithNavController(this, navController)
-
-        // Check if the user is logged in
-        checkUserLoginStatus()
     }
 
     companion object {

@@ -1,12 +1,11 @@
 package info.onesandzeros.qualitycontrol.ui.fragments
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import info.onesandzeros.qualitycontrol.R
@@ -17,12 +16,7 @@ import info.onesandzeros.qualitycontrol.ui.viewmodels.SharedViewModel
 
 class SubmissionResultFragment : Fragment(R.layout.fragment_submission_result) {
     private lateinit var binding: FragmentSubmissionResultBinding
-    private lateinit var sharedViewModel: SharedViewModel
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        sharedViewModel = ViewModelProvider(requireActivity()).get(SharedViewModel::class.java)
-    }
+    private val sharedViewModel: SharedViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

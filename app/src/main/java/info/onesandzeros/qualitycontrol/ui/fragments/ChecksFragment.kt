@@ -1,6 +1,5 @@
 package info.onesandzeros.qualitycontrol.ui.fragments
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -10,7 +9,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.activity.result.ActivityResultRegistry
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import com.google.android.material.tabs.TabLayoutMediator
@@ -51,12 +50,7 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
 
     private var checksMap: Map<String, List<CheckItem>> = emptyMap()
 
-    private lateinit var sharedViewModel: SharedViewModel
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        sharedViewModel = ViewModelProvider(requireActivity()).get(SharedViewModel::class.java)
-    }
+    private val sharedViewModel: SharedViewModel by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,

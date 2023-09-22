@@ -3,14 +3,17 @@ package info.onesandzeros.qualitycontrol.ui.activities
 import android.content.Context
 import android.os.Bundle
 import android.os.Handler
-import android.util.Log
+import android.os.Looper
+import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavOptions
 import androidx.navigation.fragment.findNavController
-import com.google.firebase.auth.FirebaseAuth
+import dagger.hilt.android.AndroidEntryPoint
 import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.constants.Constants.TIMEOUT_INTERVAL
+import info.onesandzeros.qualitycontrol.ui.viewmodels.BaseActivityViewModel
 
+@AndroidEntryPoint
 abstract class BaseActivity : AppCompatActivity() {
     companion object {
         private const val TAG = "BaseActivity"
@@ -18,19 +21,27 @@ abstract class BaseActivity : AppCompatActivity() {
         private const val LAST_INTERACTION_TIME_KEY = "LastInteractionTime"
     }
 
-    private var shouldNavigateToLogin = false
-
-    private lateinit var firebaseAuth: FirebaseAuth
-    private val logoutHandler = Handler()
+    private val viewModel: BaseActivityViewModel by viewModels()
 
     private val sharedPreferences by lazy {
         getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
     }
 
+    private val logoutHandler = Handler(Looper.getMainLooper())
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        firebaseAuth = FirebaseAuth.getInstance()
-        checkUserLoginStatus()
+        observeViewModel()
+    }
+
+    private fun observeViewModel() {
+        viewModel.isUserAuthenticated.observe(this) { isAuthenticated ->
+            if (!isAuthenticated) {
+                performNavigationToLogin()
+            } else {
+                resetLogoutTimer()
+            }
+        }
     }
 
     override fun onUserInteraction() {
@@ -46,7 +57,7 @@ abstract class BaseActivity : AppCompatActivity() {
         super.onResume()
         val lastInteractionTime = sharedPreferences.getLong(LAST_INTERACTION_TIME_KEY, 0)
         if (System.currentTimeMillis() - lastInteractionTime > TIMEOUT_INTERVAL) {
-            logout()
+            viewModel.logout()
         } else {
             resetLogoutTimer()
         }
@@ -58,15 +69,6 @@ abstract class BaseActivity : AppCompatActivity() {
         sharedPreferences.edit()
             .putLong(LAST_INTERACTION_TIME_KEY, System.currentTimeMillis())
             .apply()
-    }
-
-    fun checkUserLoginStatus() {
-        val user = firebaseAuth.currentUser
-        if (user == null) {
-            performNavigationToLogin()
-        } else {
-            resetLogoutTimer()
-        }
     }
 
     private fun performNavigationToLogin() {
@@ -88,12 +90,6 @@ abstract class BaseActivity : AppCompatActivity() {
 
     private fun resetLogoutTimer() {
         logoutHandler.removeCallbacksAndMessages(null)
-        logoutHandler.postDelayed(::logout, TIMEOUT_INTERVAL)
-    }
-
-    private fun logout() {
-        Log.i(TAG, "User logout.")
-        firebaseAuth.signOut()
-        performNavigationToLogin()
+        logoutHandler.postDelayed({ viewModel.logout() }, TIMEOUT_INTERVAL)
     }
 }

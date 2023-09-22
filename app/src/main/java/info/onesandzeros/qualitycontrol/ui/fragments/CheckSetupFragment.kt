@@ -1,7 +1,6 @@
 package info.onesandzeros.qualitycontrol.ui.fragments
 
 import android.app.Dialog
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -13,7 +12,8 @@ import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.google.firebase.auth.FirebaseAuth
@@ -60,19 +60,14 @@ class CheckSetupFragment : Fragment() {
     private lateinit var checkTypeAdapter: ArrayAdapter<String>
     private lateinit var idhNumberAdapter: ArrayAdapter<Int>
 
-    private lateinit var sharedViewModel: SharedViewModel
-    private lateinit var checkSetupViewModel: CheckSetupViewModel
+    private val sharedViewModel: SharedViewModel by activityViewModels()
+    private val checkSetupViewModel: CheckSetupViewModel by viewModels()
 
-    private lateinit var firebaseAuth: FirebaseAuth
+    @Inject
+    lateinit var firebaseAuth: FirebaseAuth
 
     @Inject
     lateinit var myApi: MyApi
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        sharedViewModel = ViewModelProvider(requireActivity())[SharedViewModel::class.java]
-        checkSetupViewModel = ViewModelProvider(requireActivity())[CheckSetupViewModel::class.java]
-    }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
@@ -83,7 +78,6 @@ class CheckSetupFragment : Fragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        firebaseAuth = FirebaseAuth.getInstance()
 
         departmentAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item)
         lineAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item)

@@ -1,14 +1,19 @@
-package info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.fragments.login.viewmodel
+package info.onesandzeros.qualitycontrol.ui.fragments.login.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException
-import com.google.firebase.auth.FirebaseAuthInvalidUserException
-import info.onesandzeros.qualitycontrol.ui.viewmodels.SharedViewModel
+import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
+import info.onesandzeros.qualitycontrol.ui.fragments.login.LoginRepository
+import info.onesandzeros.qualitycontrol.utils.Result.Failure
+import info.onesandzeros.qualitycontrol.utils.Result.Success
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class LoginViewModel(private val sharedViewModel: SharedViewModel) : ViewModel() {
+@HiltViewModel
+class LoginViewModel @Inject constructor(private val loginRepository: LoginRepository) :
+    ViewModel() {
 
     private val _state = MutableLiveData<LoginState>(LoginState.Idle)
     val state: LiveData<LoginState> = _state
@@ -16,32 +21,46 @@ class LoginViewModel(private val sharedViewModel: SharedViewModel) : ViewModel()
     private val _effect = MutableLiveData<LoginEffect?>()
     val effect: LiveData<LoginEffect?> = _effect
 
-    fun submitAction(action: LoginAction) {
-        when (action) {
-            is LoginAction.Login -> {
-                if (action.email.isEmpty() || action.password.isEmpty()) {
-                    _state.value = LoginState.Error.EmptyFields
-                    return
+    fun login(email: String, password: String) {
+        if (email.isEmpty() || password.isEmpty()) {
+            _state.value = LoginState.Error.EmptyFields
+            return
+        }
+
+        _state.value = LoginState.Loading
+
+        viewModelScope.launch {
+            when (val result = loginRepository.loginUser(email, password)) {
+                is Success -> {
+                    _state.value = LoginState.LoginSuccess(result.data)
+                    _effect.value = LoginEffect.NavigateToNextScreen
                 }
 
-                _state.value = LoginState.Loading
-
-                FirebaseAuth.getInstance().signInWithEmailAndPassword(action.email, action.password)
-                    .addOnCompleteListener { task ->
-                        if (task.isSuccessful) {
-                            sharedViewModel.usernameLiveData.value = action.email
-                            _state.value = LoginState.LoginSuccess
-                            _effect.value = LoginEffect.NavigateToNextScreen
-                        } else {
-                            val error = task.exception
-                            _state.value = when (error) {
-                                is FirebaseAuthInvalidUserException -> LoginState.Error.InvalidUser
-                                is FirebaseAuthInvalidCredentialsException -> LoginState.Error.InvalidCredentials
-                                else -> LoginState.Error.UnknownError
-                            }
-                        }
+                is Failure -> {
+                    val error = result.exception.message
+                    _state.value = when (error) {
+                        "Invalid User" -> LoginState.Error.InvalidUser
+                        "Invalid Credentials" -> LoginState.Error.InvalidCredentials
+                        else -> LoginState.Error.UnknownError
                     }
+                }
             }
         }
     }
+}
+
+sealed class LoginState {
+    object Idle : LoginState()
+    object Loading : LoginState()
+    data class LoginSuccess(val email: String) : LoginState()
+    sealed class Error : LoginState() {
+        object EmptyFields : Error()
+        object InvalidUser : Error()
+        object InvalidCredentials : Error()
+        object UnknownError : Error()
+    }
+}
+
+sealed class LoginEffect {
+    object NavigateToNextScreen : LoginEffect()
 }
