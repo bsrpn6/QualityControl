@@ -4,14 +4,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import info.onesandzeros.qualitycontrol.api.models.CheckType
+import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.api.models.Department
-import info.onesandzeros.qualitycontrol.api.models.IDHNumbers
-import info.onesandzeros.qualitycontrol.api.models.Line
-import info.onesandzeros.qualitycontrol.api.models.ProductSpecsResponse
 import info.onesandzeros.qualitycontrol.data.CheckSetupRepository
+import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.viewmodels.CheckSetupState
 import info.onesandzeros.qualitycontrol.utils.ErrorAction
 import info.onesandzeros.qualitycontrol.utils.ErrorEvent
+import info.onesandzeros.qualitycontrol.utils.Event
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -20,74 +19,119 @@ class CheckSetupViewModel @Inject constructor(
     private val repository: CheckSetupRepository
 ) : ViewModel() {
 
-    val departmentListLiveData = MutableLiveData<List<Department>?>()
-    val lineListLiveData = MutableLiveData<List<Line>?>()
-    val checkTypeLiveData = MutableLiveData<List<CheckType>?>()
-    val idhNumberLiveData = MutableLiveData<List<IDHNumbers>?>()
-    val productSpecsLiveData = MutableLiveData<ProductSpecsResponse?>()
-    val errorMessage: MutableLiveData<ErrorEvent> = MutableLiveData()
+    val uiState = MutableLiveData(CheckSetupState(isLoading = true))
+
+    val navigateTo: MutableLiveData<Event<Int>> = MutableLiveData()
+
+    private val errorEvent: MutableLiveData<Event<ErrorEvent>> = MutableLiveData()
+
+    fun selectDepartment(department: Department) {
+        // Here, you can update any internal state if needed and then fetch the lines
+        getLinesForDepartment(department.id)
+    }
+
 
     fun getDepartments(siteId: String) {
         viewModelScope.launch {
-            try {
-                val departments = repository.getDepartmentsForSite(siteId)
-                departmentListLiveData.value = departments
-            } catch (e: Exception) {
-                errorMessage.value = ErrorEvent(
-                    e.localizedMessage ?: "Failed to fetch departments.",
-                    ErrorAction.LOAD_IDH_FROM_DB
-                )
+            val departments = safeCall(
+                action = { repository.getDepartmentsForSite(siteId) },
+                errorMessage = "Failed to fetch departments.",
+                errorAction = ErrorAction.LOAD_IDH_FROM_DB
+            )
+            departments?.let {
+                uiState.value = uiState.value?.copy(departments = it, isLoading = false)
             }
         }
     }
 
-    fun getLinesForDepartment(departmentId: String) {
+    private fun getLinesForDepartment(departmentId: String) {
         viewModelScope.launch {
-            try {
-                val lines = repository.getLinesForDepartment(departmentId)
-                lineListLiveData.value = lines
-            } catch (e: Exception) {
-                errorMessage.value =
-                    ErrorEvent("Failed to fetch lines.", ErrorAction.LOAD_LINES_FROM_DATABASE)
+            val lines = safeCall(
+                action = { repository.getLinesForDepartment(departmentId) },
+                errorMessage = "Failed to fetch lines for department.",
+                errorAction = ErrorAction.LOAD_IDH_FROM_DB
+            )
+            lines?.let {
+                uiState.value = uiState.value?.copy(lines = it, isLoading = false)
             }
         }
     }
+
 
     fun getCheckTypesForLine(lineId: String) {
         viewModelScope.launch {
-            try {
-                val checkTypes = repository.getCheckTypesForLine(lineId)
-                checkTypeLiveData.value = checkTypes
-            } catch (e: Exception) {
-                errorMessage.value =
-                    ErrorEvent("Failed to fetch check types.", ErrorAction.LOAD_LINES_FROM_DATABASE)
+            val checkTypes = safeCall(
+                action = { repository.getCheckTypesForLine(lineId) },
+                errorMessage = "Failed to fetch check types for line.",
+                errorAction = ErrorAction.LOAD_IDH_FROM_DB
+            )
+            checkTypes?.let {
+                uiState.value = uiState.value?.copy(checkTypes = it, isLoading = false)
             }
         }
     }
 
     fun getProductsForLine(lineId: String) {
         viewModelScope.launch {
-            try {
-                val products = repository.getProductsForLine(lineId)
-                idhNumberLiveData.value = products
-            } catch (e: Exception) {
-                errorMessage.value =
-                    ErrorEvent("Failed to fetch IDH numbers.", ErrorAction.LOAD_LINES_FROM_DATABASE)
+            val products = safeCall(
+                action = { repository.getProductsForLine(lineId) },
+                errorMessage = "Failed to fetch products for line.",
+                errorAction = ErrorAction.LOAD_IDH_FROM_DB
+            )
+            products?.let {
+                uiState.value = uiState.value?.copy(idhNumbers = it, isLoading = false)
             }
         }
     }
 
     fun getSpecs(id: String) {
         viewModelScope.launch {
-            try {
-                val specs = repository.getSpecsForProduct(id)
-                productSpecsLiveData.value = specs
-            } catch (e: Exception) {
-                errorMessage.value = ErrorEvent(
-                    "Failed to fetch product specs.",
-                    ErrorAction.LOAD_LINES_FROM_DATABASE
-                )
+            val specs = safeCall(
+                action = { repository.getSpecsForProduct(id) },
+                errorMessage = "Failed to fetch departments.",
+                errorAction = ErrorAction.LOAD_IDH_FROM_DB
+            )
+            specs?.let {
+                uiState.value = uiState.value?.copy(productSpecs = Event(it), isLoading = false)
             }
         }
     }
+
+    private suspend inline fun <T> safeCall(
+        crossinline action: suspend () -> T, errorMessage: String, errorAction: ErrorAction
+    ): T? {
+        return try {
+            action.invoke()
+        } catch (e: Exception) {
+            uiState.value = uiState.value?.copy(
+                error = ErrorEvent(
+                    e.localizedMessage ?: errorMessage, errorAction
+                ), isLoading = false
+            )
+            null
+        }
+    }
+
+    // Function for starting checks
+    fun startChecks() {
+        val currentState = uiState.value
+        if (currentState != null && currentState.departments.isNotEmpty() && currentState.lines.isNotEmpty() && currentState.checkTypes.isNotEmpty() && currentState.idhNumbers.isNotEmpty()) {
+
+            navigateTo.value = Event(R.id.action_checkSetupFragment_to_checksFragment)
+        } else {
+            errorEvent.value = Event(
+                ErrorEvent(
+                    "Please select valid values for all fields.", ErrorAction.INVALID_SELECTION
+                )
+            )
+        }
+    }
+
+
+    // Function to handle logout
+    fun logoutUser() {
+        // This can be extended in the future if you have any logout logic in your repository
+        navigateTo.value = Event(R.id.action_checkSetupFragment_to_loginFragment)
+    }
+
 }

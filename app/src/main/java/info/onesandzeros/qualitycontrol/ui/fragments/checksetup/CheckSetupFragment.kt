@@ -21,11 +21,14 @@ import info.onesandzeros.qualitycontrol.api.models.CheckType
 import info.onesandzeros.qualitycontrol.api.models.Department
 import info.onesandzeros.qualitycontrol.api.models.IDHNumbers
 import info.onesandzeros.qualitycontrol.api.models.Line
+import info.onesandzeros.qualitycontrol.api.models.ProductSpecsResponse
 import info.onesandzeros.qualitycontrol.constants.Constants.SITE_ID
 import info.onesandzeros.qualitycontrol.databinding.FragmentCheckSetupBinding
 import info.onesandzeros.qualitycontrol.databinding.ScrollViewDialogLayoutBinding
 import info.onesandzeros.qualitycontrol.ui.viewmodels.CheckSetupViewModel
 import info.onesandzeros.qualitycontrol.ui.viewmodels.SharedViewModel
+import info.onesandzeros.qualitycontrol.utils.ErrorEvent
+import info.onesandzeros.qualitycontrol.utils.Event
 import info.onesandzeros.qualitycontrol.utils.SpecsDetailsDisplayer
 import javax.inject.Inject
 
@@ -34,11 +37,6 @@ class CheckSetupFragment : Fragment() {
 
     private var _binding: FragmentCheckSetupBinding? = null
     private val binding get() = _binding!!
-
-    private val departments = mutableListOf<Department>()
-    private val lines = mutableListOf<Line>()
-    private val checkTypes = mutableListOf<CheckType>()
-    private val idhNumbers = mutableListOf<IDHNumbers>()
 
     private lateinit var departmentAdapter: ArrayAdapter<String>
     private lateinit var lineAdapter: ArrayAdapter<String>
@@ -75,10 +73,7 @@ class CheckSetupFragment : Fragment() {
         binding.idhNumberAutoCompleteTextView.threshold =
             1 // Set minimum number of characters to trigger suggestions
 
-        bindDepartmentSpinner()
-        bindLineSpinner()
-        bindCheckTypeSpinner()
-        bindIdhAutoCompleteTextView()
+        bindViews()
 
         // Check if previous values exist
         if (sharedViewModel.departmentLiveData.value != null
@@ -87,7 +82,6 @@ class CheckSetupFragment : Fragment() {
             && sharedViewModel.idhNumberLiveData.value != null
         ) {
             // If previous values exist, populate the UI fields and disable user input
-            populateFields()
             disableInputFields()
         } else {
             // If no previous values, enable user input
@@ -97,124 +91,101 @@ class CheckSetupFragment : Fragment() {
 
         setupObservers()
 
+        // Update the start checks button click listener
         binding.startChecksButton.setOnClickListener {
-            // Check if all three fields have valid selections
-            if (sharedViewModel.departmentLiveData.value != null && sharedViewModel.lineLiveData.value != null && sharedViewModel.checkTypeLiveData.value != null && sharedViewModel.idhNumberLiveData.value != null) {
+            sharedViewModel.checkStartTimestamp.value = System.currentTimeMillis()
+            checkSetupViewModel.startChecks()
+        }
 
-                sharedViewModel.checkStartTimestamp.value = System.currentTimeMillis()
-                // Proceed to ChecksFragment when the button is clicked
-                findNavController().navigate(R.id.action_checkSetupFragment_to_checksFragment)
-            } else {
-                // Display a toast indicating invalid selections
-                Toast.makeText(
-                    requireContext(), "Please select valid values for all fields", Toast.LENGTH_LONG
-                ).show()
-            }
+        // Update the logout button click listener
+        binding.logoutButton.setOnClickListener {
+            checkSetupViewModel.logoutUser()
         }
 
         binding.viewResultsButton.setOnClickListener {
             findNavController().navigate(R.id.action_checkSetupFragment_to_ViewResultsFragment)
         }
 
-        binding.logoutButton.setOnClickListener {
-            logoutUser()
-        }
+    }
+
+    private fun bindViews() {
+        bindDepartmentSpinner()
+        bindLineSpinner()
+        bindCheckTypeSpinner()
+        bindIdhAutoCompleteTextView()
     }
 
     private fun setupObservers() {
-        checkSetupViewModel.departmentListLiveData.observe(viewLifecycleOwner) { departments ->
-            // Update UI with the fetched departments
-            departments?.let {
-                loadDepartmentAdapter(it)
+        checkSetupViewModel.uiState.observe(viewLifecycleOwner) { state ->
+            // Handle departments
+            loadDepartmentAdapter(state.departments)
 
+            // Handle lines
+            loadLinesAdapter(state.lines)
 
-                // Fetch lines for the first department if there are departments
-                if (it.isNotEmpty()) {
-                    val selectedDepartment = it[0]
-                    checkSetupViewModel.getLinesForDepartment(selectedDepartment.id)
-                }
+            // Handle check types
+            loadCheckTypesAdapter(state.checkTypes)
+
+            // Handle IDH numbers
+            loadIDHNumbersAdapter(state.idhNumbers)
+
+            state.productSpecs?.getContentIfNotHandled()?.let { specs ->
+                showProductSpecsDialog(specs)
+            }
+
+            handleLoadingState(state.isLoading)
+            handleStateError(state.error)
+        }
+
+        // Observer for navigation
+        checkSetupViewModel.navigateTo.observe(viewLifecycleOwner) { event ->
+            event.getContentIfNotHandled()?.let { destinationId ->
+                findNavController().navigate(destinationId)
+            }
+        }
+    }
+
+    private fun showProductSpecsDialog(productSpecs: ProductSpecsResponse?) {
+        // Create the dialog
+        val dialog = Dialog(requireContext())
+
+        // Inflate the layout using View Binding
+        val binding =
+            ScrollViewDialogLayoutBinding.inflate(LayoutInflater.from(requireContext()))
+
+        // Set up the dialog's content view
+        dialog.setContentView(binding.root)
+
+        // Adjust the dialog's width and height
+        val window = dialog.window
+        window?.setLayout(
+            (resources.displayMetrics.widthPixels * 0.9).toInt(),
+            WindowManager.LayoutParams.WRAP_CONTENT
+        )
+
+        // Create a SpecsDetailsDisplayer and display the details
+        val displayer = SpecsDetailsDisplayer(
+            requireContext(), binding.detailsLayout
+        )
+        if (productSpecs != null) {
+            displayer.displaySpecsDetails(productSpecs)
+        }
+
+        dialog.setOnDismissListener {
+            // Clear the productSpecs from uiState
+            val currentState = checkSetupViewModel.uiState.value
+            if (currentState != null) {
+                checkSetupViewModel.uiState.value = currentState.copy(productSpecs = Event(null))
             }
         }
 
-        checkSetupViewModel.lineListLiveData.observe(viewLifecycleOwner) { lines ->
-            // Update UI with the fetched lines
-            lines?.let {
-                loadLinesAdapter(it)
-            }
-
-            // Set the first line in the sharedViewModel and trigger ViewModel to fetch check types and IDH numbers for it
-            lines?.firstOrNull()?.let { selectedLine ->
-                sharedViewModel.lineLiveData.value = selectedLine
-                checkSetupViewModel.getCheckTypesForLine(selectedLine.id)  // Trigger ViewModel
-                checkSetupViewModel.getProductsForLine(selectedLine.id)  // Trigger ViewModel
-            }
+        // Set up the close button using View Binding
+        binding.closeButton.setOnClickListener {
+            dialog.dismiss()
         }
 
-        checkSetupViewModel.checkTypeLiveData.observe(viewLifecycleOwner) { checkTypes ->
-            // Update UI with the fetched check types
-            checkTypes?.let {
-                loadCheckTypesAdapter(it)
-            }
-        }
-
-        checkSetupViewModel.idhNumberLiveData.observe(viewLifecycleOwner) { idhNumbers ->
-            // Update UI with the fetched IDH numbers
-            idhNumbers?.let {
-                loadIDHNumbersAdapter(it)
-            }
-        }
-
-        checkSetupViewModel.errorMessage.observe(viewLifecycleOwner) { errorEvent ->
-            Toast.makeText(requireContext(), errorEvent.message, Toast.LENGTH_SHORT).show()
-        }
-
-
-        checkSetupViewModel.productSpecsLiveData.observe(viewLifecycleOwner) { specsResponses ->
-            specsResponses?.let { validSpecsResponses ->
-                sharedViewModel.idhNumberLiveData.value?.let { idhNumber ->
-
-                    // Create the dialog
-                    val dialog = Dialog(requireContext())
-
-                    // Inflate the layout using View Binding
-                    val binding =
-                        ScrollViewDialogLayoutBinding.inflate(LayoutInflater.from(requireContext()))
-
-                    // Set up the dialog's content view
-                    dialog.setContentView(binding.root)
-
-                    // Adjust the dialog's width and height
-                    val window = dialog.window
-                    window?.setLayout(
-                        (resources.displayMetrics.widthPixels * 0.9).toInt(),
-                        WindowManager.LayoutParams.WRAP_CONTENT
-                    )
-
-                    // Create a SpecsDetailsDisplayer and display the details
-                    val displayer = SpecsDetailsDisplayer(
-                        requireContext(), binding.detailsLayout
-                    )
-                    displayer.displaySpecsDetails(
-                        validSpecsResponses,
-                        idhNumber.productId,
-                        idhNumber.description
-                    )
-
-                    dialog.setOnDismissListener {
-                        checkSetupViewModel.productSpecsLiveData.value = null
-                    }
-
-                    // Set up the close button using View Binding
-                    binding.closeButton.setOnClickListener {
-                        dialog.dismiss()
-                    }
-
-                    // Show the dialog
-                    dialog.show()
-                }
-            }
-        }
-
+        // Show the dialog
+        dialog.show()
     }
 
     private fun bindCheckTypeSpinner() {
@@ -227,8 +198,9 @@ class CheckSetupFragment : Fragment() {
                 override fun onItemSelected(
                     parent: AdapterView<*>?, view: View?, position: Int, id: Long
                 ) {
-                    if (checkTypes.isNotEmpty()) {
-                        val selectedCheckType = checkTypes[position]
+                    if (checkSetupViewModel.uiState.value?.checkTypes?.isNotEmpty() == true) {
+                        val selectedCheckType =
+                            checkSetupViewModel.uiState.value?.checkTypes?.get(position)
                         sharedViewModel.checkTypeLiveData.value = selectedCheckType
                     }
                 }
@@ -243,20 +215,19 @@ class CheckSetupFragment : Fragment() {
             override fun onItemSelected(
                 parent: AdapterView<*>?, view: View?, position: Int, id: Long
             ) {
-                if (lines.isNotEmpty()) {
-                    val selectedLine = lines[position]
-                    if (sharedViewModel.lineLiveData.value != selectedLine) {
-                        sharedViewModel.lineLiveData.value = selectedLine
-                        sharedViewModel.idhNumberLiveData.value = null
-                        sharedViewModel.checkTypeLiveData.value = null
-                        binding.infoIconImageView.visibility = View.GONE
-                        binding.idhNumberAutoCompleteTextView.setText("", false)
-                        sharedViewModel.lineLiveData.value?.id?.let {
-                            checkSetupViewModel.getCheckTypesForLine(it)
-                            checkSetupViewModel.getProductsForLine(it)
-                        }
+                val selectedLine = checkSetupViewModel.uiState.value?.lines?.get(position)
+                if (sharedViewModel.lineLiveData.value != selectedLine) {
+                    sharedViewModel.lineLiveData.value = selectedLine
+                    sharedViewModel.idhNumberLiveData.value = null
+                    sharedViewModel.checkTypeLiveData.value = null
+                    binding.infoIconImageView.visibility = View.GONE
+                    binding.idhNumberAutoCompleteTextView.setText("", false)
+                    sharedViewModel.lineLiveData.value?.id?.let {
+                        checkSetupViewModel.getCheckTypesForLine(it)
+                        checkSetupViewModel.getProductsForLine(it)
                     }
                 }
+
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
@@ -268,14 +239,15 @@ class CheckSetupFragment : Fragment() {
         binding.idhNumberAutoCompleteTextView.onItemClickListener =
             AdapterView.OnItemClickListener { parent, _, position, _ ->
                 val selectedIdhNumberValue = parent.getItemAtPosition(position) as Int
-                val selectedIDHNumber = idhNumbers.find { it.productId == selectedIdhNumberValue }
+                val selectedIDHNumber =
+                    checkSetupViewModel.uiState.value?.idhNumbers?.find { it.productId == selectedIdhNumberValue }
                 if (sharedViewModel.idhNumberLiveData.value != selectedIDHNumber) {
                     sharedViewModel.idhNumberLiveData.value = selectedIDHNumber
                 }
 
                 binding.infoIconImageView.visibility = View.VISIBLE
                 binding.infoIconImageView.setOnClickListener {
-                    sharedViewModel.idhNumberLiveData.value?.let { it ->
+                    sharedViewModel.idhNumberLiveData.value?.let {
                         checkSetupViewModel.getSpecs(it.id)
                     }
                 }
@@ -287,19 +259,25 @@ class CheckSetupFragment : Fragment() {
         binding.departmentSpinner.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
-                    parent: AdapterView<*>?, view: View?, position: Int, id: Long
+                    parent: AdapterView<*>?,
+                    view: View?,
+                    position: Int,
+                    id: Long
                 ) {
                     val selectedDepartment =
-                        checkSetupViewModel.departmentListLiveData.value?.get(position)
+                        checkSetupViewModel.uiState.value?.departments?.get(position)
+
                     if (sharedViewModel.departmentLiveData.value != selectedDepartment) {
                         sharedViewModel.departmentLiveData.value = selectedDepartment
                         sharedViewModel.lineLiveData.value = null
                         sharedViewModel.checkTypeLiveData.value = null
                         sharedViewModel.idhNumberLiveData.value = null
+
                         binding.infoIconImageView.visibility = View.GONE
                         binding.idhNumberAutoCompleteTextView.setText("", false)
-                        sharedViewModel.departmentLiveData.value?.id?.let {
-                            checkSetupViewModel.getLinesForDepartment(it)
+
+                        selectedDepartment?.let {
+                            checkSetupViewModel.selectDepartment(it)
                         }
                     }
                 }
@@ -308,10 +286,9 @@ class CheckSetupFragment : Fragment() {
             }
     }
 
+
     private fun loadDepartmentAdapter(departmentList: List<Department>) {
-        departments.clear()
-        departments.addAll(departmentList)
-        val localDepartmentList = departments.map { it.name }
+        val localDepartmentList = departmentList.map { it.name }
         departmentAdapter.clear()
         departmentAdapter.addAll(localDepartmentList)
 
@@ -319,18 +296,19 @@ class CheckSetupFragment : Fragment() {
         val selectedDepartment = sharedViewModel.departmentLiveData.value
         if (selectedDepartment != null) {
             binding.departmentSpinner.onItemSelectedListener = null
-            val selectedIndex = departments.indexOfFirst { it.id == selectedDepartment.id }
+            val selectedIndex =
+                checkSetupViewModel.uiState.value?.departments?.indexOfFirst { it.id == selectedDepartment.id }
             if (selectedIndex != -1) {
-                binding.departmentSpinner.setSelection(selectedIndex)
+                if (selectedIndex != null) {
+                    binding.departmentSpinner.setSelection(selectedIndex)
+                }
             }
             bindDepartmentSpinner()
         }
     }
 
     private fun loadLinesAdapter(linesList: List<Line>) {
-        lines.clear()
-        lines.addAll(linesList)
-        val localLineList = lines.map { it.name }
+        val localLineList = linesList.map { it.name }
         lineAdapter.clear()
         lineAdapter.addAll(localLineList)
 
@@ -338,10 +316,12 @@ class CheckSetupFragment : Fragment() {
         val selectedLine = sharedViewModel.lineLiveData.value
         if (selectedLine != null) {
             binding.lineSpinner.onItemSelectedListener = null
-            val selectedIndex = lines.indexOfFirst { it.id == selectedLine.id }
+            val selectedIndex =
+                checkSetupViewModel.uiState.value?.lines?.indexOfFirst { it.id == selectedLine.id }
             if (selectedIndex != -1) {
-                sharedViewModel.lineLiveData.value = lines[selectedIndex]
-                binding.lineSpinner.setSelection(selectedIndex)
+                if (selectedIndex != null) {
+                    binding.lineSpinner.setSelection(selectedIndex)
+                }
             }
             bindLineSpinner()
         } else {
@@ -350,9 +330,7 @@ class CheckSetupFragment : Fragment() {
     }
 
     private fun loadCheckTypesAdapter(checkTypeList: List<CheckType>) {
-        checkTypes.clear()
-        checkTypes.addAll(checkTypeList)
-        val localCheckTypes = checkTypes.map { it.displayName }
+        val localCheckTypes = checkTypeList.map { it.displayName }
         checkTypeAdapter.clear()
         checkTypeAdapter.addAll(localCheckTypes)
 
@@ -360,17 +338,17 @@ class CheckSetupFragment : Fragment() {
         val selectedCheckType = sharedViewModel.checkTypeLiveData.value
         if (selectedCheckType != null) {
             val selectedIndex =
-                checkTypes.indexOfFirst { it.id == selectedCheckType.id }
+                checkSetupViewModel.uiState.value?.checkTypes?.indexOfFirst { it.id == selectedCheckType.id }
             if (selectedIndex != -1) {
-                binding.checkTypeSpinner.setSelection(selectedIndex)
+                if (selectedIndex != null) {
+                    binding.checkTypeSpinner.setSelection(selectedIndex)
+                }
             }
         }
     }
 
     private fun loadIDHNumbersAdapter(idhNumbersList: List<IDHNumbers>) {
-        idhNumbers.clear()
-        idhNumbers.addAll(idhNumbersList)
-        val localIdhNumbers = idhNumbers.map { it.productId }
+        val localIdhNumbers = idhNumbersList.map { it.productId }
         idhNumberAdapter.clear()
         idhNumberAdapter.addAll(localIdhNumbers)
 
@@ -378,28 +356,10 @@ class CheckSetupFragment : Fragment() {
         val selectedIDHNumber = sharedViewModel.idhNumberLiveData.value
         if (selectedIDHNumber != null) {
             val selectedIndex =
-                idhNumbers.indexOfFirst { it.id == selectedIDHNumber.id }
+                checkSetupViewModel.uiState.value?.idhNumbers?.indexOfFirst { it.id == selectedIDHNumber.id }
             if (selectedIndex != -1) {
                 binding.idhNumberAutoCompleteTextView.setText(selectedIDHNumber.productId.toString())
             }
-        }
-    }
-
-    private fun populateFields() {
-        checkSetupViewModel.departmentListLiveData.value?.let { departments ->
-            loadDepartmentAdapter(departments)
-        }
-
-        checkSetupViewModel.lineListLiveData.value?.let { lines ->
-            loadLinesAdapter(lines)
-        }
-
-        checkSetupViewModel.checkTypeLiveData.value?.let { checkTypes ->
-            loadCheckTypesAdapter(checkTypes)
-        }
-
-        checkSetupViewModel.idhNumberLiveData.value?.let { idhNumbers ->
-            loadIDHNumbersAdapter(idhNumbers)
         }
     }
 
@@ -413,7 +373,7 @@ class CheckSetupFragment : Fragment() {
         Log.d(TAG, "Setting onClickListener for infoIconImageView")
         binding.infoIconImageView.setOnClickListener {
             Log.d(TAG, "infoIconImageView clicked")
-            sharedViewModel.idhNumberLiveData.value?.let { it ->
+            sharedViewModel.idhNumberLiveData.value?.let {
                 checkSetupViewModel.getSpecs(
                     it.id
                 )
@@ -433,13 +393,20 @@ class CheckSetupFragment : Fragment() {
         binding.startNewCheckButton.visibility = View.GONE
     }
 
-    private fun logoutUser() {
-        firebaseAuth.signOut()
-        Toast.makeText(
-            requireContext(), "Logout Successful", Toast.LENGTH_LONG
-        ).show()
-        findNavController().navigate(R.id.action_checkSetupFragment_to_loginFragment)
+    private fun handleLoadingState(isLoading: Boolean) {
+        if (isLoading) {
+            binding.loadingProgressBar.visibility = View.VISIBLE
+        } else {
+            binding.loadingProgressBar.visibility = View.GONE
+        }
     }
+
+    private fun handleStateError(errorEvent: ErrorEvent?) {
+        errorEvent?.let {
+            Toast.makeText(requireContext(), it.message, Toast.LENGTH_SHORT).show()
+        }
+    }
+
 
     companion object {
         private const val TAG = "CheckSetupFragment"

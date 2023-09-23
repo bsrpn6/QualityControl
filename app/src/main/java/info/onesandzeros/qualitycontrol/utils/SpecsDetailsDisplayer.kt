@@ -13,13 +13,11 @@ import info.onesandzeros.qualitycontrol.api.models.ProductSpecsResponse
 class SpecsDetailsDisplayer(private val context: Context, private val layout: ViewGroup) {
 
     fun displaySpecsDetails(
-        specsResponse: ProductSpecsResponse,
-        idhNumber: Int,
-        description: String
+        specsResponse: ProductSpecsResponse
     ) {
         layout.removeAllViews()
 
-        addTitle("IDH Number: $idhNumber\nDescription: $description")
+        addTitle("IDH Number: ${specsResponse.product.productId}\nDescription: ${specsResponse.product.description}")
         addSpacing()
 
         addGroupTitle("Product")

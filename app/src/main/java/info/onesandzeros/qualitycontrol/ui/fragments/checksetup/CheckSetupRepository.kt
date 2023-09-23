@@ -14,6 +14,9 @@ import info.onesandzeros.qualitycontrol.data.models.CheckTypeEntity
 import info.onesandzeros.qualitycontrol.data.models.DepartmentEntity
 import info.onesandzeros.qualitycontrol.data.models.IDHNumbersEntity
 import info.onesandzeros.qualitycontrol.data.models.LineEntity
+import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.utils.CustomException
+import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.utils.DatabaseException
+import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.utils.NetworkException
 import info.onesandzeros.qualitycontrol.utils.toCheckTypeList
 import info.onesandzeros.qualitycontrol.utils.toDepartmentList
 import info.onesandzeros.qualitycontrol.utils.toIdhNumbersList
@@ -29,35 +32,27 @@ class CheckSetupRepository @Inject constructor(
 ) {
 
     suspend fun getDepartmentsForSite(siteId: String): List<Department> {
-        return fetchDataFromNetworkFirst(
-            networkCall = { myApi.getDepartmentsForSite(siteId) },
+        return fetchDataFromNetworkFirst(networkCall = { myApi.getDepartmentsForSite(siteId) },
             databaseCall = { getDepartmentsForSiteFromDatabase(siteId) },
-            saveToDatabase = { insertDepartments(it) }
-        )
+            saveToDatabase = { insertDepartments(it) })
     }
 
     suspend fun getLinesForDepartment(departmentId: String): List<Line> {
-        return fetchDataFromNetworkFirst(
-            networkCall = { myApi.getLinesForDepartment(departmentId) },
+        return fetchDataFromNetworkFirst(networkCall = { myApi.getLinesForDepartment(departmentId) },
             databaseCall = { getLinesForDepartmentFromDatabase(departmentId) },
-            saveToDatabase = { insertLines(it, departmentId) }
-        )
+            saveToDatabase = { insertLines(it, departmentId) })
     }
 
     suspend fun getCheckTypesForLine(lineId: String): List<CheckType> {
-        return fetchDataFromNetworkFirst(
-            networkCall = { myApi.getCheckTypesForLine(lineId) },
+        return fetchDataFromNetworkFirst(networkCall = { myApi.getCheckTypesForLine(lineId) },
             databaseCall = { getSpecsForProductFromDatabase(lineId) },
-            saveToDatabase = { insertCheckTypes(it, lineId) }
-        )
+            saveToDatabase = { insertCheckTypes(it, lineId) })
     }
 
     suspend fun getProductsForLine(lineId: String): List<IDHNumbers> {
-        return fetchDataFromNetworkFirst(
-            networkCall = { myApi.getProductsForLine(lineId) },
+        return fetchDataFromNetworkFirst(networkCall = { myApi.getProductsForLine(lineId) },
             databaseCall = { getProductsForLineFromDatabase(lineId) },
-            saveToDatabase = { insertProducts(it) }
-        )
+            saveToDatabase = { insertProducts(it) })
     }
 
     suspend fun getSpecsForProduct(id: String): ProductSpecsResponse {
@@ -70,9 +65,7 @@ class CheckSetupRepository @Inject constructor(
     }
 
     private inline fun <T> fetchDataFromNetworkFirst(
-        networkCall: () -> T,
-        databaseCall: () -> T,
-        saveToDatabase: (T) -> Unit
+        networkCall: () -> T, databaseCall: () -> T, saveToDatabase: (T) -> Unit
     ): T {
         return try {
             val data = networkCall.invoke()
@@ -84,22 +77,22 @@ class CheckSetupRepository @Inject constructor(
         }
     }
 
-    suspend fun getDepartmentsForSiteFromDatabase(siteId: String): List<Department> {
+    private suspend fun getDepartmentsForSiteFromDatabase(siteId: String): List<Department> {
         val departmentEntities = departmentDao.getAllDepartments()
         return departmentEntities.toDepartmentList()
     }
 
-    suspend fun getLinesForDepartmentFromDatabase(departmentId: String): List<Line> {
+    private suspend fun getLinesForDepartmentFromDatabase(departmentId: String): List<Line> {
         val lineEntities = lineDao.getLinesByDepartmentId(departmentId)
         return lineEntities.toLineList()
     }
 
-    suspend fun getSpecsForProductFromDatabase(lineId: String): List<CheckType> {
+    private suspend fun getSpecsForProductFromDatabase(lineId: String): List<CheckType> {
         val checkTypeEntities = checkTypeDao.getAllCheckTypes(lineId)
         return checkTypeEntities.toCheckTypeList()
     }
 
-    suspend fun getProductsForLineFromDatabase(lineId: String): List<IDHNumbers> {
+    private suspend fun getProductsForLineFromDatabase(lineId: String): List<IDHNumbers> {
         val productList = idhNumbersDao.getIDHNumbersByLineId(lineId)
         return productList.toIdhNumbersList()
     }
@@ -120,11 +113,7 @@ class CheckSetupRepository @Inject constructor(
     private suspend fun insertLines(lines: List<Line>, departmentId: String) {
         val lineEntities = lines.map { line ->
             LineEntity(
-                line.id,
-                line.abbreviation,
-                line.name,
-                departmentId,
-                line.checkTypes
+                line.id, line.abbreviation, line.name, departmentId, line.checkTypes
             )
         }
         lineDao.insertLines(lineEntities)
@@ -133,11 +122,7 @@ class CheckSetupRepository @Inject constructor(
     private suspend fun insertProducts(products: List<IDHNumbers>) {
         val productEntities = products.map { product ->
             IDHNumbersEntity(
-                product.id,
-                product.productId,
-                product.lineId,
-                product.name,
-                product.description
+                product.id, product.productId, product.lineId, product.name, product.description
             )
         }
         idhNumbersDao.insertIDHNumbers(productEntities)
@@ -146,20 +131,9 @@ class CheckSetupRepository @Inject constructor(
     private suspend fun insertCheckTypes(checkTypes: List<CheckType>, lineId: String) {
         val checkTypeEntities = checkTypes.map { checkType ->
             CheckTypeEntity(
-                checkType.id,
-                checkType.name,
-                lineId,
-                checkType.displayName,
-                checkType.checks
+                checkType.id, checkType.name, lineId, checkType.displayName, checkType.checks
             )
         }
         checkTypeDao.insertCheckTypes(checkTypeEntities)
     }
 }
-
-//TODO - Move these to their own file
-open class CustomException(message: String) : Throwable(message)
-class NetworkException(message: String) : CustomException(message)
-class ServerException(message: String) : CustomException(message)
-class DatabaseException(message: String) : CustomException(message)
-
