@@ -1,4 +1,4 @@
-package info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.data.models
+package info.onesandzeros.qualitycontrol.data.models
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

@@ -1,11 +1,11 @@
-package info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.data.dao
+package info.onesandzeros.qualitycontrol.data.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.Query
 import info.onesandzeros.qualitycontrol.api.models.Line
-import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.data.models.CheckSubmissionEntity
+import info.onesandzeros.qualitycontrol.data.models.CheckSubmissionEntity
 
 @Dao
 interface CheckSubmissionDao {

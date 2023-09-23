@@ -1,4 +1,4 @@
-package info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.fragments.login
+package info.onesandzeros.qualitycontrol.ui.fragments.login
 
 import android.os.Bundle
 import android.text.Editable

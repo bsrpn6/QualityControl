@@ -1,4 +1,4 @@
-package info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.data.dao
+package info.onesandzeros.qualitycontrol.data.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
@@ -13,5 +13,5 @@ interface CheckTypeDao {
     suspend fun getAllCheckTypes(lineId: String): List<CheckTypeEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertCheckTypes(checkTypeEntities: List<CheckTypeEntity>)
+    suspend fun insertCheckTypes(checkTypeEntities: List<CheckTypeEntity?>)
 }

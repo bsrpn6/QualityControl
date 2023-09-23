@@ -1,4 +1,4 @@
-package info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.di.modules
+package info.onesandzeros.qualitycontrol.di.modules
 
 import dagger.Module
 import dagger.Provides

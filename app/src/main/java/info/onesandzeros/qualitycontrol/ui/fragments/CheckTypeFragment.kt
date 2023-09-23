@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.api.models.CheckItem
 import info.onesandzeros.qualitycontrol.databinding.FragmentCheckTypeBinding
-import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.adapters.ChecksAdapter
+import info.onesandzeros.qualitycontrol.ui.adapters.ChecksAdapter
 import info.onesandzeros.qualitycontrol.utils.BarcodeScannerUtil
 import info.onesandzeros.qualitycontrol.utils.DateCodeScannerUtil
 import info.onesandzeros.qualitycontrol.utils.WeightCaptureUtil

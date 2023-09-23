@@ -20,8 +20,8 @@ import info.onesandzeros.qualitycontrol.api.models.CheckItem
 import info.onesandzeros.qualitycontrol.api.models.ChecksSubmissionRequest
 import info.onesandzeros.qualitycontrol.api.models.SubmissionResult
 import info.onesandzeros.qualitycontrol.data.AppDatabase
+import info.onesandzeros.qualitycontrol.data.models.CheckSubmissionEntity
 import info.onesandzeros.qualitycontrol.databinding.FragmentChecksBinding
-import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.data.models.CheckSubmissionEntity
 import info.onesandzeros.qualitycontrol.ui.viewmodels.SharedViewModel
 import info.onesandzeros.qualitycontrol.utils.StringUtils
 import kotlinx.coroutines.CoroutineScope

@@ -1,4 +1,4 @@
-package info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.api
+package info.onesandzeros.qualitycontrol.api
 
 import okhttp3.Interceptor
 import okhttp3.Response

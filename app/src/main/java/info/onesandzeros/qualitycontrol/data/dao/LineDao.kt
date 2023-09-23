@@ -10,7 +10,7 @@ import info.onesandzeros.qualitycontrol.data.models.LineEntity
 interface LineDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertLines(lineEntities: List<LineEntity>)
+    suspend fun insertLines(lineEntities: List<LineEntity?>)
 
     @Query("SELECT * FROM lines")
     suspend fun getAllLines(): List<LineEntity>

@@ -1,12 +1,12 @@
-package info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.adapters
+package info.onesandzeros.qualitycontrol.ui.adapters
 
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import info.onesandzeros.qualitycontrol.api.models.CheckItem
+import info.onesandzeros.qualitycontrol.data.models.CheckSubmissionEntity
 import info.onesandzeros.qualitycontrol.databinding.ViewItemResultBinding
-import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.data.models.CheckSubmissionEntity
 import info.onesandzeros.qualitycontrol.utils.StringUtils
 import java.text.SimpleDateFormat
 import java.util.Date

@@ -4,7 +4,7 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.api.AuthInterceptor
+import info.onesandzeros.qualitycontrol.api.AuthInterceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import javax.inject.Singleton

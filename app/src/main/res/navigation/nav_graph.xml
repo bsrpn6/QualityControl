@@ -7,7 +7,7 @@
 
     <fragment
         android:id="@+id/loginFragment"
-        android:name="info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.fragments.login.LoginFragment"
+        android:name="info.onesandzeros.qualitycontrol.ui.fragments.login.LoginFragment"
         android:label="Login Fragment"
         tools:layout="@layout/fragment_login">
         <action
@@ -17,7 +17,7 @@
 
     <fragment
         android:id="@+id/checkSetupFragment"
-        android:name="info.onesandzeros.qualitycontrol.ui.fragments.CheckSetupFragment"
+        android:name="info.onesandzeros.qualitycontrol.ui.fragments.checksetup.CheckSetupFragment"
         android:label="Check Setup Fragment"
         tools:layout="@layout/fragment_check_setup">
 

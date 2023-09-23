@@ -1,4 +1,4 @@
-package info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.utils
+package info.onesandzeros.qualitycontrol.utils
 
 import android.graphics.Color
 import android.graphics.Color.parseColor

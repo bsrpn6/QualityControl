@@ -9,6 +9,7 @@ import info.onesandzeros.qualitycontrol.api.models.Line
 import info.onesandzeros.qualitycontrol.api.models.ProductSpecsResponse
 import info.onesandzeros.qualitycontrol.api.models.SubmissionResult
 import retrofit2.Call
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
@@ -18,19 +19,19 @@ import javax.inject.Singleton
 @Singleton
 interface MyApi {
     @GET("GetDepartments")
-    fun getDepartments(@Query("siteId") siteId: String): Call<List<Department>>
+    suspend fun getDepartmentsForSite(@Query("siteId") siteId: String): List<Department>
 
     @GET("GetLines")
-    fun getLinesForDepartment(@Query("departmentId") departmentId: String): Call<List<Line>>
+    suspend fun getLinesForDepartment(@Query("departmentId") departmentId: String): List<Line>
 
     @GET("GetCheckTypes")
-    fun getCheckTypesForLine(@Query("lineId") lineId: String): Call<List<CheckType>>
+    suspend fun getCheckTypesForLine(@Query("lineId") lineId: String): List<CheckType>
 
     @GET("GetProducts")
-    fun getIDHNumbersForLine(@Query("lineId") lineId: String): Call<List<IDHNumbers>>
+    suspend fun getProductsForLine(@Query("lineId") lineId: String): List<IDHNumbers>
 
     @GET("GetProductSpecs")
-    fun getSpecs(@Query("productId") productId: String?): Call<ProductSpecsResponse>
+    suspend fun getSpecsForProduct(@Query("productId") productId: String?): Response<ProductSpecsResponse>
 
     @GET("GetChecks")
     fun getChecks(

@@ -20,9 +20,9 @@ import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.api.models.CheckItem
 import info.onesandzeros.qualitycontrol.api.models.Line
 import info.onesandzeros.qualitycontrol.databinding.FragmentViewResultsBinding
-import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.adapters.ResultsAdapter
-import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.viewmodels.ViewResultsViewModel
-import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.utils.FailedCheckDetailsDisplayer
+import info.onesandzeros.qualitycontrol.ui.adapters.ResultsAdapter
+import info.onesandzeros.qualitycontrol.ui.viewmodels.ViewResultsViewModel
+import info.onesandzeros.qualitycontrol.utils.FailedCheckDetailsDisplayer
 
 @AndroidEntryPoint
 class ViewResultsFragment : Fragment() {

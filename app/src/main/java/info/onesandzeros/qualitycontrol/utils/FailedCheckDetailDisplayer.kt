@@ -1,4 +1,4 @@
-package info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.utils
+package info.onesandzeros.qualitycontrol.utils
 
 import android.content.Context
 import android.graphics.Typeface
@@ -9,7 +9,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.api.models.CheckItem
-import info.onesandzeros.qualitycontrol.utils.StringUtils
 
 
 class FailedCheckDetailsDisplayer(private val context: Context, private val layout: ViewGroup) {

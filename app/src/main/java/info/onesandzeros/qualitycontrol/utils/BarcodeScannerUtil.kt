@@ -23,13 +23,13 @@ class BarcodeScannerUtil(
                     val intent = result.data
                     val barcodeValue = intent?.getStringExtra("barcode_data")
                     Log.d(
-                        "info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.utils.BarcodeScannerUtil",
+                        "info.onesandzeros.qualitycontrol.utils.BarcodeScannerUtil",
                         "Barcode data: $barcodeValue"
                     )
                     callback(barcodeValue)
                 } else {
                     Log.d(
-                        "info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.utils.BarcodeScannerUtil",
+                        "info.onesandzeros.qualitycontrol.utils.BarcodeScannerUtil",
                         "No barcode detected."
                     )
                     callback(null)

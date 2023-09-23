@@ -1,4 +1,4 @@
-package info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.adapters
+package info.onesandzeros.qualitycontrol.ui.adapters
 
 import android.app.Dialog
 import android.graphics.Color

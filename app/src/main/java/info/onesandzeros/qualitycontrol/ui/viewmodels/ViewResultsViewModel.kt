@@ -1,4 +1,4 @@
-package info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.viewmodels
+package info.onesandzeros.qualitycontrol.ui.viewmodels
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -7,8 +7,9 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import info.onesandzeros.qualitycontrol.api.models.Line
 import info.onesandzeros.qualitycontrol.data.AppDatabase
-import info.onesandzeros.qualitycontrol.data.models.LineEntity
-import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.data.models.CheckSubmissionEntity
+import info.onesandzeros.qualitycontrol.data.models.CheckSubmissionEntity
+import info.onesandzeros.qualitycontrol.utils.toLineList
+import info.onesandzeros.qualitycontrol.utils.toLineNameList
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -38,18 +39,6 @@ class ViewResultsViewModel @Inject constructor(private val appDatabase: AppDatab
         checkSubmissionsLiveData.observeForever {
             _checkSubmissions.value = it
             checkSubmissionsLiveData.removeObserver {} // Remove the observer after updating the value
-        }
-    }
-
-    private fun List<LineEntity>.toLineList(): List<Line> {
-        return map { lineEntity ->
-            Line(lineEntity.lineId, lineEntity.abbreviation, lineEntity.name, lineEntity.checkTypes)
-        }
-    }
-
-    private fun List<Line>.toLineNameList(): List<String> {
-        return map { line ->
-            line.name
         }
     }
 }
