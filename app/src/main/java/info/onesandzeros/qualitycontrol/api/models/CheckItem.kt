@@ -4,13 +4,13 @@ import android.os.Parcel
 import android.os.Parcelable
 
 class CheckItem(
-    val id: String,
+    val _id: String,
     val section: String,
     val type: String,
     val title: String,
     val description: String,
     val expectedValue: Any?,
-    val images: List<Image>,
+    val images: List<Image>?,
     var result: Any? = null
 ) : Parcelable {
     constructor(parcel: Parcel) : this(
@@ -26,7 +26,7 @@ class CheckItem(
     )
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(id)
+        parcel.writeString(_id)
         parcel.writeString(section)
         parcel.writeString(type)
         parcel.writeString(title)

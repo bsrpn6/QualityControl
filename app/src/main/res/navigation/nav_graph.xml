@@ -40,7 +40,7 @@
 
     <fragment
         android:id="@+id/checksFragment"
-        android:name="info.onesandzeros.qualitycontrol.ui.fragments.ChecksFragment"
+        android:name="info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.fragments.checks.ChecksFragment"
         android:label="ChecksFragment">
         <action
             android:id="@+id/action_checksFragment_to_submissionResultFragment"

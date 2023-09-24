@@ -8,6 +8,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import info.onesandzeros.qualitycontrol.data.AppDatabase
+import info.onesandzeros.qualitycontrol.data.dao.CheckItemDao
 import info.onesandzeros.qualitycontrol.data.dao.CheckSubmissionDao
 import info.onesandzeros.qualitycontrol.data.dao.CheckTypeDao
 import info.onesandzeros.qualitycontrol.data.dao.DepartmentDao
@@ -46,6 +47,11 @@ object DatabaseModule {
     @Provides
     fun provideIDHNumbersDao(database: AppDatabase): IDHNumbersDao {
         return database.idhNumbersDao()
+    }
+
+    @Provides
+    fun provideCheckItemDao(database: AppDatabase): CheckItemDao {
+        return database.checkItemDao()
     }
 
     @Provides

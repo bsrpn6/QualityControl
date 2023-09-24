@@ -14,7 +14,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navGraphViewModels
-import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.api.models.CheckType
@@ -30,7 +29,6 @@ import info.onesandzeros.qualitycontrol.ui.viewmodels.SharedViewModel
 import info.onesandzeros.qualitycontrol.utils.ErrorEvent
 import info.onesandzeros.qualitycontrol.utils.Event
 import info.onesandzeros.qualitycontrol.utils.SpecsDetailsDisplayer
-import javax.inject.Inject
 
 @AndroidEntryPoint
 class CheckSetupFragment : Fragment() {
@@ -47,9 +45,6 @@ class CheckSetupFragment : Fragment() {
     private val checkSetupViewModel: CheckSetupViewModel by navGraphViewModels(R.id.nav_graph) {
         defaultViewModelProviderFactory
     }
-
-    @Inject
-    lateinit var firebaseAuth: FirebaseAuth
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?

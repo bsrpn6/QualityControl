@@ -1,9 +1,11 @@
 package info.onesandzeros.qualitycontrol.utils
 
+import info.onesandzeros.qualitycontrol.api.models.CheckItem
 import info.onesandzeros.qualitycontrol.api.models.CheckType
 import info.onesandzeros.qualitycontrol.api.models.Department
 import info.onesandzeros.qualitycontrol.api.models.IDHNumbers
 import info.onesandzeros.qualitycontrol.api.models.Line
+import info.onesandzeros.qualitycontrol.data.models.CheckItemEntity
 import info.onesandzeros.qualitycontrol.data.models.CheckTypeEntity
 import info.onesandzeros.qualitycontrol.data.models.DepartmentEntity
 import info.onesandzeros.qualitycontrol.data.models.IDHNumbersEntity
@@ -48,6 +50,20 @@ fun List<CheckTypeEntity>.toCheckTypeList(): List<CheckType> {
             checkTypeEntity.lineId,
             checkTypeEntity.displayName,
             checkTypeEntity.checks
+        )
+    }
+}
+
+fun List<CheckItemEntity>.toCheckItemList(): List<CheckItem> {
+    return map { checkItemEntity ->
+        CheckItem(
+            checkItemEntity.id,
+            checkItemEntity.section,
+            checkItemEntity.type,
+            checkItemEntity.title,
+            checkItemEntity.description,
+            checkItemEntity.expectedValue,
+            checkItemEntity.images
         )
     }
 }

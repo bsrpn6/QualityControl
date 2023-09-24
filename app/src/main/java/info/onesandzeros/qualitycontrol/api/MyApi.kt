@@ -34,11 +34,11 @@ interface MyApi {
     suspend fun getSpecsForProduct(@Query("productId") productId: String?): Response<ProductSpecsResponse>
 
     @GET("GetChecks")
-    fun getChecks(
+    suspend fun getChecks(
         @Query("lineId") lineId: String,
         @Query("checkTypeId") checkTypeId: String,
         @Query("productId") productId: String
-    ): Call<List<CheckItem>>
+    ): List<CheckItem>
 
     @POST("results")
     fun submitChecks(@Body submissionData: ChecksSubmissionRequest): Call<SubmissionResult>

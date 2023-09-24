@@ -57,7 +57,6 @@ class CheckSetupViewModel @Inject constructor(
         }
     }
 
-
     fun getCheckTypesForLine(lineId: String) {
         viewModelScope.launch {
             val checkTypes = safeCall(
@@ -116,7 +115,6 @@ class CheckSetupViewModel @Inject constructor(
     fun startChecks() {
         val currentState = uiState.value
         if (currentState != null && currentState.departments.isNotEmpty() && currentState.lines.isNotEmpty() && currentState.checkTypes.isNotEmpty() && currentState.idhNumbers.isNotEmpty()) {
-
             navigateTo.value = Event(R.id.action_checkSetupFragment_to_checksFragment)
         } else {
             errorEvent.value = Event(
@@ -126,7 +124,6 @@ class CheckSetupViewModel @Inject constructor(
             )
         }
     }
-
 
     // Function to handle logout
     fun logoutUser() {
