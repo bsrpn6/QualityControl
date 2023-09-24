@@ -1,4 +1,4 @@
-package info.onesandzeros.qualitycontrol.ui.viewmodels
+package info.onesandzeros.qualitycontrol.ui.fragments.checksetup
 
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -7,7 +7,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.api.models.Department
 import info.onesandzeros.qualitycontrol.data.CheckSetupRepository
-import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.viewmodels.CheckSetupState
 import info.onesandzeros.qualitycontrol.utils.ErrorAction
 import info.onesandzeros.qualitycontrol.utils.ErrorEvent
 import info.onesandzeros.qualitycontrol.utils.Event

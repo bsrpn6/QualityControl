@@ -1,4 +1,4 @@
-package info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.utils
+package info.onesandzeros.qualitycontrol.utils
 
 open class CustomException(message: String) : Throwable(message)
 class NetworkException(message: String) : CustomException(message)

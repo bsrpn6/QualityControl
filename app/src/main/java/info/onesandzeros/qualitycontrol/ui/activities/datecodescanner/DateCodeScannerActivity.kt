@@ -1,9 +1,9 @@
-package info.onesandzeros.qualitycontrol.ui.activities
+package info.onesandzeros.qualitycontrol.ui.activities.datecodescanner
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.viewModels
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
@@ -17,10 +17,14 @@ import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
 import com.google.firebase.ml.vision.text.FirebaseVisionTextRecognizer
 import info.onesandzeros.qualitycontrol.databinding.ActivityDateCodeScannerBinding
+import info.onesandzeros.qualitycontrol.ui.activities.baseactivity.BaseActivity
 
 class DateCodeScannerActivity : BaseActivity() {
     private lateinit var binding: ActivityDateCodeScannerBinding
     private lateinit var textRecognizer: FirebaseVisionTextRecognizer
+
+    private val viewModel: DateCodeScannerViewModel by viewModels()
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +33,15 @@ class DateCodeScannerActivity : BaseActivity() {
 
         // Initialize the text recognizer
         textRecognizer = FirebaseVision.getInstance().onDeviceTextRecognizer
+
+        viewModel.dateCodeData.observe(this) { dateCode ->
+            if (dateCode != null) {
+                val resultIntent = Intent()
+                resultIntent.putExtra("date_code_data", dateCode)
+                setResult(RESULT_OK, resultIntent)
+                finish()
+            }
+        }
 
         // Initialize the camera preview
         startCamera()
@@ -84,13 +97,7 @@ class DateCodeScannerActivity : BaseActivity() {
 
                 textRecognizer.processImage(firebaseVisionImage)
                     .addOnSuccessListener { result ->
-                        val dateCode = extractDateCode(result.text)
-                        if (dateCode != null) {
-                            val resultIntent = Intent()
-                            resultIntent.putExtra("date_code_data", dateCode)
-                            setResult(Activity.RESULT_OK, resultIntent)
-                            finish()
-                        }
+                        viewModel.extractDateCode(result.text)
                     }
                     .addOnFailureListener { e ->
                         Log.e(TAG, "Date code detection failed", e)
@@ -98,6 +105,7 @@ class DateCodeScannerActivity : BaseActivity() {
                     .addOnCompleteListener {
                         imageProxy.close()
                     }
+
             }
         }
 

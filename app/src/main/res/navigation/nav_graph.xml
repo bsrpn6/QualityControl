@@ -34,13 +34,13 @@
 
     <fragment
         android:id="@+id/viewResultsFragment"
-        android:name="info.onesandzeros.qualitycontrol.ui.fragments.ViewResultsFragment"
+        android:name="info.onesandzeros.qualitycontrol.ui.fragments.viewresults.ViewResultsFragment"
         android:label="View Results Fragment"
         tools:layout="@layout/fragment_view_results" />
 
     <fragment
         android:id="@+id/checksFragment"
-        android:name="info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.fragments.checks.ChecksFragment"
+        android:name="info.onesandzeros.qualitycontrol.ui.fragments.checks.ChecksFragment"
         android:label="ChecksFragment">
         <action
             android:id="@+id/action_checksFragment_to_submissionResultFragment"
@@ -53,7 +53,7 @@
 
     <fragment
         android:id="@+id/submissionResultFragment"
-        android:name="info.onesandzeros.qualitycontrol.ui.fragments.SubmissionResultFragment"
+        android:name="info.onesandzeros.qualitycontrol.ui.fragments.submissionresult.SubmissionResultFragment"
         android:label="SubmissionResultFragment">
         <!-- Define any arguments needed by the SubmissionResultFragment -->
         <argument

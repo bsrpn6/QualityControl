@@ -1,9 +1,9 @@
-package info.onesandzeros.qualitycontrol.ui.activities
+package info.onesandzeros.qualitycontrol.ui.activities.barcodescanner
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import androidx.activity.viewModels
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ExperimentalGetImage
 import androidx.camera.core.ImageAnalysis
@@ -20,14 +20,27 @@ import com.google.firebase.ml.vision.barcode.FirebaseVisionBarcodeDetectorOption
 import com.google.firebase.ml.vision.common.FirebaseVisionImage
 import com.google.firebase.ml.vision.common.FirebaseVisionImageMetadata
 import info.onesandzeros.qualitycontrol.R
+import info.onesandzeros.qualitycontrol.ui.activities.baseactivity.BaseActivity
 
 class BarcodeScannerActivity : BaseActivity() {
     private lateinit var previewView: PreviewView
     private lateinit var barcodeDetector: FirebaseVisionBarcodeDetector
 
+    private val viewModel: BarcodeScannerViewModel by viewModels()
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_barcode_scanner)
+
+        viewModel.barcodeData.observe(this) { barcodeValue ->
+            if (barcodeValue != null) {
+                val resultIntent = Intent()
+                resultIntent.putExtra("barcode_data", barcodeValue)
+                setResult(RESULT_OK, resultIntent)
+                finish()
+            }
+        }
 
         // Initialize the barcode detector
         val options = FirebaseVisionBarcodeDetectorOptions.Builder()
@@ -90,17 +103,7 @@ class BarcodeScannerActivity : BaseActivity() {
 
                 barcodeDetector.detectInImage(firebaseVisionImage)
                     .addOnSuccessListener { barcodes ->
-                        if (barcodes.isNotEmpty()) {
-                            val barcodeValue = barcodes[0].rawValue
-
-                            // Return the barcode data to the calling activity (BarcodeCheckViewHolder)
-                            val resultIntent = Intent()
-                            resultIntent.putExtra("barcode_data", barcodeValue)
-                            setResult(Activity.RESULT_OK, resultIntent)
-
-                            // Finish the activity to exit the camera preview and return to BarcodeCheckViewHolder
-                            finish()
-                        }
+                        viewModel.processBarcode(barcodes)
                     }
                     .addOnFailureListener { e ->
                         Log.e(TAG, "Barcode detection failed", e)
@@ -108,6 +111,7 @@ class BarcodeScannerActivity : BaseActivity() {
                     .addOnCompleteListener {
                         imageProxy.close()
                     }
+
             }
         }
 

@@ -1,11 +1,10 @@
-package info.onesandzeros.qualitycontrol.ui.fragments.login.viewmodel
+package info.onesandzeros.qualitycontrol.ui.fragments.login
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
-import info.onesandzeros.qualitycontrol.ui.fragments.login.LoginRepository
 import info.onesandzeros.qualitycontrol.utils.Result.Failure
 import info.onesandzeros.qualitycontrol.utils.Result.Success
 import kotlinx.coroutines.launch

@@ -1,4 +1,4 @@
-package info.onesandzeros.qualitycontrol.ui.viewmodels
+package info.onesandzeros.qualitycontrol.ui.fragments.viewresults
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

@@ -1,4 +1,4 @@
-package info.onesandzeros.qualitycontrol.ui.viewmodels
+package info.onesandzeros.qualitycontrol.ui.fragments.checks
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -7,39 +7,36 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import info.onesandzeros.qualitycontrol.api.models.CheckItem
 import info.onesandzeros.qualitycontrol.api.models.ChecksSubmissionRequest
-import info.onesandzeros.qualitycontrol.data.AppDatabase
-import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.viewmodels.CheckState
-import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.utils.DataFetchHelpers
-import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.utils.DatabaseException
-import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.utils.NetworkException
-import info.onesandzeros.qualitycontrol.ui.fragments.checks.ChecksRepository
-import info.onesandzeros.qualitycontrol.utils.Event
+import info.onesandzeros.qualitycontrol.utils.DataFetchHelpers
+import info.onesandzeros.qualitycontrol.utils.DatabaseException
+import info.onesandzeros.qualitycontrol.utils.NetworkException
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ChecksViewModel @Inject constructor(
-    private val repository: ChecksRepository,
-    private val appDatabase: AppDatabase
+    private val repository: ChecksRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableLiveData<CheckState>()
-    val uiState: LiveData<CheckState> get() = _uiState
-
-    val navigateTo: MutableLiveData<Event<Int>> = MutableLiveData()
+    private val _uiState = MutableLiveData<ChecksState>()
+    val uiState: LiveData<ChecksState> get() = _uiState
 
     init {
-        _uiState.value = CheckState()
+        _uiState.value = ChecksState()
     }
 
     fun getChecks(lineId: String, checkTypeId: String, idhNumberId: String) {
+        _uiState.value = _uiState.value?.copy(isLoading = true)
+
+
         viewModelScope.launch {
             when (val result = repository.getChecks(lineId, checkTypeId, idhNumberId)) {
                 is DataFetchHelpers.DataResult.Success -> {
                     // Handle success
                     _uiState.value = _uiState.value?.copy(
                         checksMap = categorizeChecksByType(result.data),
-                        isLoading = false
+                        isLoading = false,
+                        initialLoadComplete = true
                     )
                 }
 

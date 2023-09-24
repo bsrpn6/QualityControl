@@ -1,4 +1,4 @@
-package info.onesandzeros.qualitycontrol.ui.fragments
+package info.onesandzeros.qualitycontrol.ui.fragments.submissionresult
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,13 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import info.onesandzeros.qualitycontrol.R
-import info.onesandzeros.qualitycontrol.api.models.CheckItem
 import info.onesandzeros.qualitycontrol.databinding.FragmentSubmissionResultBinding
+import info.onesandzeros.qualitycontrol.ui.displayers.FailedCheckDetailsDisplayer
 import info.onesandzeros.qualitycontrol.ui.viewmodels.SharedViewModel
-import info.onesandzeros.qualitycontrol.utils.FailedCheckDetailsDisplayer
 
 class SubmissionResultFragment : Fragment(R.layout.fragment_submission_result) {
     private lateinit var binding: FragmentSubmissionResultBinding
@@ -26,34 +26,40 @@ class SubmissionResultFragment : Fragment(R.layout.fragment_submission_result) {
         return binding.root
     }
 
+    private val viewModel: SubmissionResultViewModel by viewModels()
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
         val completeChecksButton = binding.completeChecksButton
-
         val args: SubmissionResultFragmentArgs by navArgs()
-        val totalFailedChecks: Array<CheckItem> = args.totalFailedChecks
 
-        // Display the total number of failed checks and success message
-        if (totalFailedChecks.isNotEmpty()) {
-            binding.logoImageView.setImageResource(R.drawable.ic_failure)
-            binding.resultMessageTextView.text = "Total Failed Checks: ${totalFailedChecks.size}"
+        viewModel.resultState.observe(viewLifecycleOwner) { state ->
+            when (state) {
+                is SubmissionResultViewModel.ResultState.Failure -> {
+                    binding.logoImageView.setImageResource(R.drawable.ic_failure)
+                    binding.resultMessageTextView.text =
+                        "Total Failed Checks: ${state.numberOfFailedChecks}"
+                    val failedCheckDetailsDisplayer =
+                        FailedCheckDetailsDisplayer(requireContext(), binding.failedChecksLayout)
+                    failedCheckDetailsDisplayer.displayFailedCheckDetails(args.totalFailedChecks)
+                }
 
-            val failedCheckDetailsDisplayer =
-                FailedCheckDetailsDisplayer(requireContext(), binding.failedChecksLayout)
-            failedCheckDetailsDisplayer.displayFailedCheckDetails(totalFailedChecks)
-        } else {
-            binding.logoImageView.setImageResource(R.drawable.ic_complete)
-            binding.resultMessageTextView.text = "SUCCCESS!! No checks failed."
+                SubmissionResultViewModel.ResultState.Success -> {
+                    binding.logoImageView.setImageResource(R.drawable.ic_complete)
+                    binding.resultMessageTextView.text = "SUCCESS!! No checks failed."
+                }
+            }
+            binding.successMessageTextView.text = "Checks have been pushed to the database."
         }
-        binding.successMessageTextView.text = "Checks have been pushed to the database."
 
+        viewModel.processCheckResults(args.totalFailedChecks)
 
         completeChecksButton.setOnClickListener {
-            // Handle exit checks action (e.g., navigate back to previous fragment)
             findNavController().navigate(R.id.action_submissionResultFragment_to_checkSetupFragment)
         }
     }
+
 
     override fun onDestroyView() {
         super.onDestroyView()

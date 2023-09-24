@@ -1,4 +1,4 @@
-package info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.fragments.checks
+package info.onesandzeros.qualitycontrol.ui.fragments.checks
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.result.ActivityResultRegistry
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -18,9 +19,7 @@ import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.api.models.CheckItem
 import info.onesandzeros.qualitycontrol.api.models.ChecksSubmissionRequest
 import info.onesandzeros.qualitycontrol.databinding.FragmentChecksBinding
-import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.viewmodels.CheckState
 import info.onesandzeros.qualitycontrol.ui.fragments.CheckTypeFragment
-import info.onesandzeros.qualitycontrol.ui.viewmodels.ChecksViewModel
 import info.onesandzeros.qualitycontrol.ui.viewmodels.SharedViewModel
 import info.onesandzeros.qualitycontrol.utils.StringUtils
 import javax.inject.Inject
@@ -52,7 +51,10 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
             handleState(state)
         }
 
-        loadChecksData()
+        // Check if initial load has been completed, if not then fetch
+        if (checksViewModel.uiState.value?.initialLoadComplete == false) {
+            loadChecksData()
+        }
 
         // Find the buttons by their IDs
         val exitButton = binding.exitButton
@@ -91,13 +93,15 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
         }
     }
 
-    private fun handleState(state: CheckState) {
+    private fun handleState(state: ChecksState) {
         // Update the UI based on the state
         if (state.isLoading) {
-            // Show loading indicator
+            binding.loadingProgressBar.visibility = View.VISIBLE
         } else if (state.error != null) {
-            // Show error message
+            binding.loadingProgressBar.visibility = View.GONE
+            Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
         } else {
+            binding.loadingProgressBar.visibility = View.GONE
             setupViewPagerAndTabs()
         }
     }

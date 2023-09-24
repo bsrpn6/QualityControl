@@ -24,11 +24,10 @@ import info.onesandzeros.qualitycontrol.api.models.ProductSpecsResponse
 import info.onesandzeros.qualitycontrol.constants.Constants.SITE_ID
 import info.onesandzeros.qualitycontrol.databinding.FragmentCheckSetupBinding
 import info.onesandzeros.qualitycontrol.databinding.ScrollViewDialogLayoutBinding
-import info.onesandzeros.qualitycontrol.ui.viewmodels.CheckSetupViewModel
+import info.onesandzeros.qualitycontrol.ui.displayers.SpecsDetailsDisplayer
 import info.onesandzeros.qualitycontrol.ui.viewmodels.SharedViewModel
 import info.onesandzeros.qualitycontrol.utils.ErrorEvent
 import info.onesandzeros.qualitycontrol.utils.Event
-import info.onesandzeros.qualitycontrol.utils.SpecsDetailsDisplayer
 
 @AndroidEntryPoint
 class CheckSetupFragment : Fragment() {

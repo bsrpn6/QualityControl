@@ -14,9 +14,9 @@ import info.onesandzeros.qualitycontrol.data.models.CheckTypeEntity
 import info.onesandzeros.qualitycontrol.data.models.DepartmentEntity
 import info.onesandzeros.qualitycontrol.data.models.IDHNumbersEntity
 import info.onesandzeros.qualitycontrol.data.models.LineEntity
-import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.utils.CustomException
-import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.utils.DatabaseException
-import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.utils.NetworkException
+import info.onesandzeros.qualitycontrol.utils.CustomException
+import info.onesandzeros.qualitycontrol.utils.DatabaseException
+import info.onesandzeros.qualitycontrol.utils.NetworkException
 import info.onesandzeros.qualitycontrol.utils.toCheckTypeList
 import info.onesandzeros.qualitycontrol.utils.toDepartmentList
 import info.onesandzeros.qualitycontrol.utils.toIdhNumbersList

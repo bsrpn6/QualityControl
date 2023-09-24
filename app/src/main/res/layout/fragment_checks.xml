@@ -1,8 +1,17 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- res/layout/fragment_checks.xml -->
+<?xml version="1.0" encoding="utf-8"?><!-- res/layout/fragment_checks.xml -->
 
-<layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ProgressBar
+        android:id="@+id/loadingProgressBar"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:visibility="gone" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -13,8 +22,8 @@
             android:id="@+id/tabLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:tabMode="fixed"
-            app:tabGravity="fill" />
+            app:tabGravity="fill"
+            app:tabMode="fixed" />
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/viewPager"
@@ -33,17 +42,18 @@
                 android:id="@+id/exitButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Exit Checks"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:text="Exit Checks" />
 
             <Button
                 android:id="@+id/submitButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Submit Checks"
-                android:layout_weight="1" />
+                android:layout_weight="1"
+                android:text="Submit Checks" />
 
         </LinearLayout>
 
     </LinearLayout>
-</layout>
+</FrameLayout>
+

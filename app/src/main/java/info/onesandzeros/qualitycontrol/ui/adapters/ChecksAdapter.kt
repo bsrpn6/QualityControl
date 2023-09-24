@@ -25,9 +25,9 @@ import info.onesandzeros.qualitycontrol.databinding.ItemIntegerCheckBinding
 import info.onesandzeros.qualitycontrol.databinding.ItemStringCheckBinding
 import info.onesandzeros.qualitycontrol.databinding.ItemUnknownCheckBinding
 import info.onesandzeros.qualitycontrol.databinding.ItemWeightCheckBinding
+import info.onesandzeros.qualitycontrol.ui.displayers.ImageDetailsDisplayer
 import info.onesandzeros.qualitycontrol.utils.BarcodeScannerUtil
 import info.onesandzeros.qualitycontrol.utils.DateCodeScannerUtil
-import info.onesandzeros.qualitycontrol.utils.ImageDetailsDisplayer
 import info.onesandzeros.qualitycontrol.utils.WeightCaptureUtil
 
 class ChecksAdapter(

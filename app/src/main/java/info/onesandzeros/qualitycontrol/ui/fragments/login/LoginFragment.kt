@@ -14,9 +14,6 @@ import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.databinding.FragmentLoginBinding
-import info.onesandzeros.qualitycontrol.ui.fragments.login.viewmodel.LoginEffect
-import info.onesandzeros.qualitycontrol.ui.fragments.login.viewmodel.LoginState
-import info.onesandzeros.qualitycontrol.ui.fragments.login.viewmodel.LoginViewModel
 import info.onesandzeros.qualitycontrol.ui.viewmodels.SharedViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 

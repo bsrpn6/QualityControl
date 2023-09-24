@@ -1,4 +1,4 @@
-package info.onesandzeros.qualitycontrol.utils
+package info.onesandzeros.qualitycontrol.ui.displayers
 
 import android.content.Context
 import android.graphics.Typeface

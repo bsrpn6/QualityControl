@@ -1,4 +1,4 @@
-package info.onesandzeros.qualitycontrol.ui.activities
+package info.onesandzeros.qualitycontrol.ui.activities.baseactivity
 
 import android.content.Context
 import android.os.Bundle
@@ -11,7 +11,6 @@ import androidx.navigation.fragment.findNavController
 import dagger.hilt.android.AndroidEntryPoint
 import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.constants.Constants.TIMEOUT_INTERVAL
-import info.onesandzeros.qualitycontrol.ui.viewmodels.BaseActivityViewModel
 
 @AndroidEntryPoint
 abstract class BaseActivity : AppCompatActivity() {
@@ -42,6 +41,10 @@ abstract class BaseActivity : AppCompatActivity() {
                 resetLogoutTimer()
             }
         }
+
+        viewModel.logoutEvent.observe(this) {
+            performNavigationToLogin()
+        }
     }
 
     override fun onUserInteraction() {
@@ -56,11 +59,7 @@ abstract class BaseActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
         val lastInteractionTime = sharedPreferences.getLong(LAST_INTERACTION_TIME_KEY, 0)
-        if (System.currentTimeMillis() - lastInteractionTime > TIMEOUT_INTERVAL) {
-            viewModel.logout()
-        } else {
-            resetLogoutTimer()
-        }
+        viewModel.checkInactivity(lastInteractionTime)
     }
 
     override fun onPause() {

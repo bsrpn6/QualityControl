@@ -7,7 +7,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.FragmentActivity
-import info.onesandzeros.qualitycontrol.ui.activities.BarcodeScannerActivity
+import info.onesandzeros.qualitycontrol.ui.activities.barcodescanner.BarcodeScannerActivity
 
 class BarcodeScannerUtil(
     private val activity: FragmentActivity,

@@ -6,7 +6,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.ActivityResultRegistry
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.fragment.app.FragmentActivity
-import info.onesandzeros.qualitycontrol.ui.activities.DateCodeScannerActivity
+import info.onesandzeros.qualitycontrol.ui.activities.datecodescanner.DateCodeScannerActivity
 
 class DateCodeScannerUtil(
     private val activity: FragmentActivity,

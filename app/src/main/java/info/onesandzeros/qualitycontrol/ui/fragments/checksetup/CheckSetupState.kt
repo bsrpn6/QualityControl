@@ -1,4 +1,4 @@
-package info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.viewmodels
+package info.onesandzeros.qualitycontrol.ui.fragments.checksetup
 
 import info.onesandzeros.qualitycontrol.api.models.CheckType
 import info.onesandzeros.qualitycontrol.api.models.Department

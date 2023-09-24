@@ -7,7 +7,7 @@ import info.onesandzeros.qualitycontrol.data.AppDatabase
 import info.onesandzeros.qualitycontrol.data.dao.CheckItemDao
 import info.onesandzeros.qualitycontrol.data.models.CheckItemEntity
 import info.onesandzeros.qualitycontrol.data.models.CheckSubmissionEntity
-import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.utils.DataFetchHelpers
+import info.onesandzeros.qualitycontrol.utils.DataFetchHelpers
 import info.onesandzeros.qualitycontrol.utils.toCheckItemList
 import javax.inject.Inject
 

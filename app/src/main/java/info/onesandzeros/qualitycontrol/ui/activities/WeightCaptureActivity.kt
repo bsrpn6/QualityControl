@@ -17,6 +17,7 @@ import info.onesandzeros.qualitycontrol.api.models.FillHeadItem
 import info.onesandzeros.qualitycontrol.api.models.WeightCheckItem
 import info.onesandzeros.qualitycontrol.databinding.ActivityWeightCaptureBinding
 import info.onesandzeros.qualitycontrol.mock.MockBluetoothService
+import info.onesandzeros.qualitycontrol.ui.activities.baseactivity.BaseActivity
 import info.onesandzeros.qualitycontrol.ui.adapters.FillHeadsAdapter
 
 class WeightCaptureActivity : BaseActivity() {
