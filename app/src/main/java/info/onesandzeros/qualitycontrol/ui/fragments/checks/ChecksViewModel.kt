@@ -1,6 +1,5 @@
 package info.onesandzeros.qualitycontrol.ui.fragments.checks
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,6 +10,7 @@ import info.onesandzeros.qualitycontrol.utils.DataFetchHelpers
 import info.onesandzeros.qualitycontrol.utils.DatabaseException
 import info.onesandzeros.qualitycontrol.utils.NetworkException
 import kotlinx.coroutines.launch
+import java.util.UUID
 import javax.inject.Inject
 
 @HiltViewModel
@@ -19,7 +19,7 @@ class ChecksViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val _uiState = MutableLiveData<ChecksState>()
-    val uiState: LiveData<ChecksState> get() = _uiState
+    val uiState: MutableLiveData<ChecksState> get() = _uiState
 
     init {
         _uiState.value = ChecksState()
@@ -51,6 +51,34 @@ class ChecksViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun addComment(section: String) {
+
+        val currentChecksMap = _uiState.value?.checksMap ?: emptyMap()
+        val updatedChecksMap = currentChecksMap.toMutableMap()
+
+        val currentSectionChecks = updatedChecksMap[section]?.toMutableList() ?: mutableListOf()
+        val commentCheck = CheckItem(
+            _id = UUID.randomUUID().toString(), // Generating a random UUID for the comment ID
+            section = section, // You can replace this with the appropriate section name
+            type = "comment",
+            title = "Additional Comments",
+            description = "Provide any additional comments about this section.",
+            expectedValue = null,
+            images = emptyList(),
+            result = null
+        )
+        currentSectionChecks.add(commentCheck)
+
+        updatedChecksMap[section] = currentSectionChecks
+
+        val updatedState = _uiState.value?.copy(checksMap = updatedChecksMap)
+        _uiState.postValue(updatedState)
+    }
+
+    fun isCommentAddedInSection(section: String): Boolean {
+        return _uiState.value?.checksMap?.get(section)?.any { it.type == "comment" } == true
     }
 
     private fun categorizeChecksByType(checks: List<CheckItem>?): Map<String, List<CheckItem>> {

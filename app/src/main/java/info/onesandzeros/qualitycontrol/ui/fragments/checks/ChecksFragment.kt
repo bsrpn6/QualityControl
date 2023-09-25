@@ -1,11 +1,12 @@
 package info.onesandzeros.qualitycontrol.ui.fragments.checks
 
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.LinearLayout
+import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.activity.result.ActivityResultRegistry
 import androidx.fragment.app.Fragment
@@ -18,7 +19,9 @@ import dagger.hilt.android.AndroidEntryPoint
 import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.api.models.CheckItem
 import info.onesandzeros.qualitycontrol.api.models.ChecksSubmissionRequest
+import info.onesandzeros.qualitycontrol.databinding.CustomTabLayoutBinding
 import info.onesandzeros.qualitycontrol.databinding.FragmentChecksBinding
+import info.onesandzeros.qualitycontrol.databinding.PopupMenuBinding
 import info.onesandzeros.qualitycontrol.ui.fragments.CheckTypeFragment
 import info.onesandzeros.qualitycontrol.ui.viewmodels.SharedViewModel
 import info.onesandzeros.qualitycontrol.utils.StringUtils
@@ -56,17 +59,23 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
             loadChecksData()
         }
 
-        // Find the buttons by their IDs
-        val exitButton = binding.exitButton
-        val submitButton = binding.submitButton
-
         // Set click listeners for the buttons
-        exitButton.setOnClickListener {
+        binding.exitButton.setOnClickListener {
             // Handle exit checks action (e.g., navigate back to previous fragment)
             findNavController().popBackStack()
         }
 
-        submitButton.setOnClickListener {
+        binding.fabAdd.setOnClickListener {
+            val currentPosition = binding.viewPager.currentItem
+            val sectionsList = checksViewModel.uiState.value?.checksMap?.keys?.toList()
+            val currentSection = sectionsList?.get(currentPosition)
+            if (currentSection != null) {
+                showPopupMenu(binding.fabAdd, currentSection)
+
+            }
+        }
+
+        binding.submitButton.setOnClickListener {
             sharedViewModel.checksLiveData.value = checksViewModel.uiState.value?.checksMap
 
             val submissionData = checksViewModel.uiState.value?.checksMap?.let { it ->
@@ -138,6 +147,8 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
         val tabLayout = binding.tabLayout
         val viewPager = binding.viewPager
 
+        val currentTabPosition = viewPager.currentItem
+
         val fragmentList = mutableListOf<Fragment>()
         val tabTitleList = mutableListOf<String>()
 
@@ -145,14 +156,9 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
 
         if (localChecksMap != null) {
             for ((checkType, checkItems) in localChecksMap) {
-                // Create a new fragment for each check type
                 val checkTypeFragment =
                     CheckTypeFragment.newInstance(checkItems, activityResultRegistry)
-
-                // Add the fragment to the list
                 fragmentList.add(checkTypeFragment)
-
-                // Add the tab title to the list
                 tabTitleList.add(checkType)
             }
         }
@@ -160,19 +166,18 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
         val pagerAdapter = ChecksPagerAdapter(fragmentList, this)
         viewPager.adapter = pagerAdapter
 
-        // Connect the tab layout with the view pager
         TabLayoutMediator(tabLayout, viewPager) { tab, position ->
-            // Set the custom tab view with image and text for each tab
-            val customTabView = LayoutInflater.from(tabLayout.context)
-                .inflate(R.layout.custom_tab_layout, null, false)
-            val tabIcon = customTabView.findViewById<ImageView>(R.id.tabIcon)
-            val tabText = customTabView.findViewById<TextView>(R.id.tabText)
+            val customTabBinding =
+                CustomTabLayoutBinding.inflate(LayoutInflater.from(tabLayout.context))
             val checkType = tabTitleList[position]
-            tabIcon.setImageResource(getTabIconResourceId(checkType)) // Set the image for each tab
-            tabText.text = StringUtils.formatTabText(checkType) // Set the text for each tab
-            tab.customView = customTabView
+            customTabBinding.tabIcon.setImageResource(getTabIconResourceId(checkType))
+            customTabBinding.tabText.text = StringUtils.formatTabText(checkType)
+            tab.customView = customTabBinding.root
         }.attach()
+
+        viewPager.setCurrentItem(currentTabPosition, false)
     }
+
 
     // Helper method to get the tab icon resource based on the check type
     private fun getTabIconResourceId(checkType: String): Int {
@@ -184,6 +189,50 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
         )
     }
 
+    private fun showPopupMenu(anchorView: View, currentSection: String) {
+        val popupBinding = PopupMenuBinding.inflate(LayoutInflater.from(context))
+
+        val popupWindow = PopupWindow(
+            popupBinding.root,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            LinearLayout.LayoutParams.WRAP_CONTENT,
+            true // This makes the popup window focusable
+        )
+
+        val isCommentAlreadyAdded = checksViewModel.isCommentAddedInSection(currentSection)
+        popupBinding.btnAddComment.visibility =
+            if (isCommentAlreadyAdded) View.GONE else View.VISIBLE
+
+        popupBinding.btnAddComment.setOnClickListener {
+            checksViewModel.addComment(currentSection)
+            popupWindow.dismiss()
+        }
+
+        popupBinding.btnAttachPhoto.setOnClickListener {
+            // Handle attach photo click
+            popupWindow.dismiss()
+        }
+
+        // Measure the popup to get the correct width and height
+        val widthMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        val heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        popupWindow.contentView.measure(widthMeasureSpec, heightMeasureSpec)
+
+        // Calculate the coordinates to make the popup appear above the FAB and centered
+        val location = IntArray(2)
+        anchorView.getLocationOnScreen(location)
+
+        val measuredWidth = popupWindow.contentView.measuredWidth
+        val measuredHeight = popupWindow.contentView.measuredHeight
+
+        val xPos = location[0] + anchorView.width / 2 - measuredWidth / 2
+        val yPos = location[1] - measuredHeight
+
+        // Show the popup window
+        popupWindow.showAtLocation(anchorView, Gravity.NO_GRAVITY, xPos, yPos)
+    }
+
+
     private inner class ChecksPagerAdapter(
         private val fragmentList: List<Fragment>,
         fragment: Fragment
@@ -194,4 +243,10 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
             return fragmentList[position]
         }
     }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
 }

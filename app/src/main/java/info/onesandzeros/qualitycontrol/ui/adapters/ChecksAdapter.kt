@@ -35,8 +35,7 @@ class ChecksAdapter(
     private val barcodeScannerUtil: BarcodeScannerUtil,
     private val datecodeScannerUtil: DateCodeScannerUtil,
     private val weightCaptureUtil: WeightCaptureUtil
-) :
-    RecyclerView.Adapter<ChecksAdapter.CheckViewHolder>() {
+) : RecyclerView.Adapter<ChecksAdapter.CheckViewHolder>() {
 
     // ViewHolder to hold the views in each item using ViewBinding
     abstract class CheckViewHolder(binding: ViewBinding) : RecyclerView.ViewHolder(binding.root) {
@@ -87,10 +86,8 @@ class ChecksAdapter(
             descriptionTextView.maxLines = Integer.MAX_VALUE
             descriptionTextView.measure(
                 View.MeasureSpec.makeMeasureSpec(
-                    descriptionTextView.width,
-                    View.MeasureSpec.EXACTLY
-                ),
-                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+                    descriptionTextView.width, View.MeasureSpec.EXACTLY
+                ), View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
             )
             return descriptionTextView.lineCount > 2
         }
@@ -98,8 +95,7 @@ class ChecksAdapter(
 
     // ViewHolders with ViewBinding for each check type
     class BarcodeCheckViewHolder(
-        private val binding: ItemBarcodeCheckBinding,
-        private val scannerUtil: BarcodeScannerUtil
+        private val binding: ItemBarcodeCheckBinding, private val scannerUtil: BarcodeScannerUtil
     ) : CheckViewHolder(binding) {
 
         override val descriptionTextView = binding.descriptionTextView
@@ -133,8 +129,7 @@ class ChecksAdapter(
     }
 
     class DatecodeCheckViewHolder(
-        private val binding: ItemDatecodeCheckBinding,
-        private val scannerUtil: DateCodeScannerUtil
+        private val binding: ItemDatecodeCheckBinding, private val scannerUtil: DateCodeScannerUtil
     ) : CheckViewHolder(binding) {
 
         override val descriptionTextView = binding.descriptionTextView
@@ -236,10 +231,9 @@ class ChecksAdapter(
                     displayer.displayImageDetails(check.images)
 
                     // Set up the close button
-                    detailsLayout.findViewById<Button>(R.id.closeButton)
-                        .setOnClickListener {
-                            dialog.dismiss()
-                        }
+                    detailsLayout.findViewById<Button>(R.id.closeButton).setOnClickListener {
+                        dialog.dismiss()
+                    }
 
                     // Show the dialog
                     dialog.show()
@@ -287,10 +281,7 @@ class ChecksAdapter(
             // Add an OnValueChangeListener to the EditText
             binding.integerInputEditText.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
+                    s: CharSequence?, start: Int, count: Int, after: Int
                 ) {
                 }
 
@@ -333,10 +324,7 @@ class ChecksAdapter(
             // Add an OnValueChangeListener to the EditText
             binding.doubleInputEditText.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
+                    s: CharSequence?, start: Int, count: Int, after: Int
                 ) {
                 }
 
@@ -368,6 +356,7 @@ class ChecksAdapter(
         override fun bind(check: CheckItem) {
             super.bind(check)
 
+
             // Bind the views for string check type using ViewBinding
             binding.titleTextView.text = check.title
 
@@ -379,10 +368,7 @@ class ChecksAdapter(
             // Add an OnValueChangeListener to the EditText
             binding.stringInputEditText.addTextChangedListener(object : TextWatcher {
                 override fun beforeTextChanged(
-                    s: CharSequence?,
-                    start: Int,
-                    count: Int,
-                    after: Int
+                    s: CharSequence?, start: Int, count: Int, after: Int
                 ) {
                 }
 
@@ -404,6 +390,38 @@ class ChecksAdapter(
         }
     }
 
+    class CommentCheckViewHolder(private val binding: ItemStringCheckBinding) :
+        CheckViewHolder(binding) {
+        override val descriptionTextView = binding.descriptionTextView
+
+        override fun bind(check: CheckItem) {
+            super.bind(check)
+
+            // Bind the views for comment check type using ViewBinding
+            binding.titleTextView.text = check.title
+
+            val comment = check.result as? String ?: ""
+
+            // Set the text of the EditText based on the user input value
+            binding.stringInputEditText.setText(comment)
+
+
+            // Add an OnValueChangeListener to the EditText
+            binding.stringInputEditText.addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(
+                    s: CharSequence?, start: Int, count: Int, after: Int
+                ) {
+                }
+
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+                override fun afterTextChanged(s: Editable?) {
+                    // Update the result property of the CheckItem with the new comment value
+                    check.result = s.toString()
+                }
+            })
+        }
+    }
 
     class UnknownCheckViewHolder(private val binding: ItemUnknownCheckBinding) :
         CheckViewHolder(binding) {
@@ -456,6 +474,11 @@ class ChecksAdapter(
                 val binding = ItemStringCheckBinding.inflate(inflater, parent, false)
                 StringCheckViewHolder(binding)
             }
+
+            TYPE_COMMENT -> {
+                val binding = ItemStringCheckBinding.inflate(inflater, parent, false)
+                CommentCheckViewHolder(binding)
+            }
             // Add other cases for different check types using ViewBinding
             else -> {
                 val binding = ItemUnknownCheckBinding.inflate(inflater, parent, false)
@@ -484,6 +507,7 @@ class ChecksAdapter(
             "datecode" -> TYPE_DATE_CODE
             "weight" -> TYPE_WEIGHT
             "double" -> TYPE_DOUBLE
+            "comment" -> TYPE_COMMENT
             // Add other types as needed
             else -> TYPE_UNKNOWN // Unknown type
         }
@@ -498,6 +522,7 @@ class ChecksAdapter(
         private const val TYPE_DATE_CODE = 4
         private const val TYPE_WEIGHT = 5
         private const val TYPE_DOUBLE = 6
+        private const val TYPE_COMMENT = 7
 
         // Add other types as needed
         private const val TYPE_UNKNOWN = -1 // Unknown type

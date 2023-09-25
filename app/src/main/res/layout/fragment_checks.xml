@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?><!-- res/layout/fragment_checks.xml -->
-
-
+<?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -55,5 +53,15 @@
         </LinearLayout>
 
     </LinearLayout>
-</FrameLayout>
 
+    <!-- Floating Add Button -->
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="80dp"
+        android:src="@drawable/ic_add"
+        app:tint="@android:color/white" />
+
+</FrameLayout>
