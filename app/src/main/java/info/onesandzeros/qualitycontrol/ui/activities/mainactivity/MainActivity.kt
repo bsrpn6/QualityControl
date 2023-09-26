@@ -1,6 +1,8 @@
 package info.onesandzeros.qualitycontrol.ui.activities.mainactivity
 
 import android.os.Bundle
+import android.view.View
+import androidx.activity.viewModels
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.NavigationUI.setupActionBarWithNavController
 import dagger.hilt.android.AndroidEntryPoint
@@ -12,6 +14,8 @@ import info.onesandzeros.qualitycontrol.ui.activities.baseactivity.BaseActivity
 class MainActivity : BaseActivity() {
 
     private lateinit var binding: ActivityMainBinding
+
+    private val viewModel: MainViewModel by viewModels() // Use Hilt's viewModels delegate
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -29,6 +33,12 @@ class MainActivity : BaseActivity() {
 
         // Set the navigation controller as the action bar's support action bar
         setupActionBarWithNavController(this, navController)
+
+        viewModel.isAppBlocked.observe(this) { isAppBlocked ->
+            if (isAppBlocked) {
+                binding.updateRequiredLayout.visibility = View.VISIBLE
+            }
+        }
     }
 
     companion object {

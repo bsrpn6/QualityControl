@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">QualityControl</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="update_required_msg">Sorry! A new version of the app is available, and this one will not work with existing services. \n\n Please update to continue.</string>
+    <string name="update_now">Update Now</string>
 
     <!-- Define department options -->
     <string-array name="department_options">
