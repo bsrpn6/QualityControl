@@ -10,6 +10,8 @@ import info.onesandzeros.qualitycontrol.data.models.CheckTypeEntity
 import info.onesandzeros.qualitycontrol.data.models.DepartmentEntity
 import info.onesandzeros.qualitycontrol.data.models.IDHNumbersEntity
 import info.onesandzeros.qualitycontrol.data.models.LineEntity
+import java.io.File
+import java.util.Base64
 
 
 fun List<DepartmentEntity>.toDepartmentList(): List<Department> {
@@ -72,4 +74,18 @@ fun List<Line>.toLineNameList(): List<String> {
     return map { line ->
         line.name
     }
+}
+
+//fun uriToBase64(context: Context, uri: Uri): String {
+//    val inputStream = context.contentResolver.openInputStream(uri)
+//    val byteArrayOutputStream = ByteArrayOutputStream()
+//    inputStream?.copyTo(byteArrayOutputStream)
+//    val byteArray = byteArrayOutputStream.toByteArray()
+//    return Base64.encodeToString(byteArray, Base64.DEFAULT)
+//}
+
+fun fileToBase64(filePath: String): String {
+    val file = File(filePath)
+    val fileBytes = file.readBytes()
+    return Base64.getEncoder().encodeToString(fileBytes)
 }

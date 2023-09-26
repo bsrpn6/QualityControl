@@ -1,11 +1,13 @@
 package info.onesandzeros.qualitycontrol.ui.fragments.checks
 
+import android.content.ContentResolver
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import info.onesandzeros.qualitycontrol.api.models.CheckItem
 import info.onesandzeros.qualitycontrol.api.models.ChecksSubmissionRequest
+import info.onesandzeros.qualitycontrol.api.models.SubmissionResult
 import info.onesandzeros.qualitycontrol.utils.DataFetchHelpers
 import info.onesandzeros.qualitycontrol.utils.DatabaseException
 import info.onesandzeros.qualitycontrol.utils.NetworkException
@@ -18,8 +20,8 @@ class ChecksViewModel @Inject constructor(
     private val repository: ChecksRepository
 ) : ViewModel() {
 
-    private val _uiState = MutableLiveData<ChecksState>()
-    val uiState: MutableLiveData<ChecksState> get() = _uiState
+    private val _uiState = MutableLiveData<ChecksState?>()
+    val uiState: MutableLiveData<ChecksState?> get() = _uiState
 
     init {
         _uiState.value = ChecksState()
@@ -90,9 +92,53 @@ class ChecksViewModel @Inject constructor(
         return checksMap
     }
 
-    fun saveSubmissionToLocalDatabase(submissionData: ChecksSubmissionRequest) {
+    fun submitChecks(submissionData: ChecksSubmissionRequest, contentResolver: ContentResolver) {
         viewModelScope.launch {
-            repository.saveSubmissionToLocalDatabase(submissionData)
+            val result = DataFetchHelpers.fetchDataFromNetworkFirst(
+                networkCall = { repository.submitChecksToApi(submissionData) },
+                databaseCall = { /* Fetch from local database if needed */ },
+                saveToDatabase = { repository.saveSubmissionToLocalDatabase(submissionData) }
+            )
+
+            when (result) {
+                is DataFetchHelpers.DataResult.Success -> {
+                    if (result.data is SubmissionResult) {
+                        val submissionResult = result.data
+                        val uuid = submissionResult.uuid
+
+                        submissionData.photos?.forEach { (sectionName, uris) ->
+                            uris.forEachIndexed { index, uri ->
+                                val fileName = "${uuid}_${sectionName}_${index + 1}.jpg"
+                                try {
+                                    // Attempt to upload the image
+                                    repository.uploadImagesToBlobStorage(
+                                        uri,
+                                        fileName,
+                                        contentResolver
+                                    )
+                                } catch (e: NetworkException) {
+                                    // Handle the network error here
+                                    //TODO this won't show because by this point we have already moved to the next fragment.
+                                    val updatedState =
+                                        _uiState.value?.copy(error = "Failed to upload result photos to API")
+                                    _uiState.postValue(updatedState) // Use postValue here
+                                    return@launch   // Exit the coroutine early since there's an error
+                                }
+                            }
+                        }
+
+                    }
+                }
+
+                is DataFetchHelpers.DataResult.Error -> {
+                    val errorMessage = when (result.exception) {
+                        is NetworkException -> "Network error occurred!"
+                        is DatabaseException -> "Database error occurred!"
+                        else -> result.exception.localizedMessage
+                    }
+                    _uiState.value = _uiState.value?.copy(error = errorMessage)
+                }
+            }
         }
     }
 }

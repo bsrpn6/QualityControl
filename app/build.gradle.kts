@@ -29,7 +29,14 @@ android {
         // Required when setting minSdkVersion to 20 or lower
         multiDexEnabled = true
     }
-
+    packaging {
+        resources {
+            excludes += "META-INF/INDEX.LIST"
+            excludes += "META-INF/LICENSE.md"
+            excludes += "META-INF/NOTICE.md"
+            excludes += "META-INF/io.netty.versions.properties"
+        }
+    }
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -143,7 +150,9 @@ dependencies {
 
     implementation("com.github.bumptech.glide:glide:4.14.2")
 
-//    implementation("me.aflak.libraries:bluetooth:1.3.9")
-
+    // cameraX
+    implementation("androidx.camera:camera-core:1.2.3")
+    implementation("androidx.camera:camera-camera2:1.2.3")
+    implementation("androidx.camera:camera-lifecycle:1.2.3")
 
 }

@@ -29,6 +29,18 @@
             android:layout_height="0dp"
             android:layout_weight="1" />
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/reelRecyclerView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:reverseLayout="true" />
+
+
         <!-- Buttons to exit and submit checks -->
         <LinearLayout
             android:layout_width="match_parent"
@@ -61,6 +73,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|center_horizontal"
         android:layout_marginBottom="80dp"
+        android:contentDescription="AddExtras"
         android:src="@drawable/ic_add"
         app:tint="@android:color/white" />
 

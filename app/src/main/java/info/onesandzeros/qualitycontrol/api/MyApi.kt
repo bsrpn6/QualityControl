@@ -5,10 +5,11 @@ import info.onesandzeros.qualitycontrol.api.models.CheckType
 import info.onesandzeros.qualitycontrol.api.models.ChecksSubmissionRequest
 import info.onesandzeros.qualitycontrol.api.models.Department
 import info.onesandzeros.qualitycontrol.api.models.IDHNumbers
+import info.onesandzeros.qualitycontrol.api.models.ImageUploadRequest
 import info.onesandzeros.qualitycontrol.api.models.Line
 import info.onesandzeros.qualitycontrol.api.models.ProductSpecsResponse
 import info.onesandzeros.qualitycontrol.api.models.SubmissionResult
-import retrofit2.Call
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
@@ -41,5 +42,9 @@ interface MyApi {
     ): List<CheckItem>
 
     @POST("results")
-    fun submitChecks(@Body submissionData: ChecksSubmissionRequest): Call<SubmissionResult>
+    suspend fun submitChecks(@Body submissionData: ChecksSubmissionRequest): Response<SubmissionResult>
+
+    @POST("SubmitResultPhotos")
+    suspend fun submitResultPhotos(@Body request: ImageUploadRequest): Response<ResponseBody>
+
 }

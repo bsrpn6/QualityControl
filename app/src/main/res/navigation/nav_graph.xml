@@ -49,19 +49,35 @@
                 android:name="totalFailedChecks"
                 app:argType="info.onesandzeros.qualitycontrol.api.models.CheckItem[]" />
         </action>
+        <action
+            android:id="@+id/action_checksFragment_to_cameraPreviewFragment"
+            app:destination="@id/cameraPreviewFragment">
+            <argument
+                android:name="sectionName"
+                app:argType="string" />
+        </action>
     </fragment>
 
     <fragment
         android:id="@+id/submissionResultFragment"
         android:name="info.onesandzeros.qualitycontrol.ui.fragments.submissionresult.SubmissionResultFragment"
         android:label="SubmissionResultFragment">
-        <!-- Define any arguments needed by the SubmissionResultFragment -->
         <argument
             android:name="totalFailedChecks"
             app:argType="info.onesandzeros.qualitycontrol.api.models.CheckItem[]" />
         <action
             android:id="@+id/action_submissionResultFragment_to_checkSetupFragment"
             app:destination="@id/checkSetupFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/cameraPreviewFragment"
+        android:name="info.onesandzeros.qualitycontrol.ui.fragments.CameraPreviewFragment"
+        android:label="Camera Preview"
+        tools:layout="@layout/fragment_camera_preview">
+        <argument
+            android:name="sectionName"
+            app:argType="string" />
     </fragment>
 
 

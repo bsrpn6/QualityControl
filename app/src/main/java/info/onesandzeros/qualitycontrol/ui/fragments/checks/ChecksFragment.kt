@@ -14,6 +14,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
 import info.onesandzeros.qualitycontrol.R
@@ -22,6 +23,7 @@ import info.onesandzeros.qualitycontrol.api.models.ChecksSubmissionRequest
 import info.onesandzeros.qualitycontrol.databinding.CustomTabLayoutBinding
 import info.onesandzeros.qualitycontrol.databinding.FragmentChecksBinding
 import info.onesandzeros.qualitycontrol.databinding.PopupMenuBinding
+import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.adapters.ImageReelAdapter
 import info.onesandzeros.qualitycontrol.ui.fragments.CheckTypeFragment
 import info.onesandzeros.qualitycontrol.ui.viewmodels.SharedViewModel
 import info.onesandzeros.qualitycontrol.utils.StringUtils
@@ -34,6 +36,10 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
 
     @Inject
     lateinit var activityResultRegistry: ActivityResultRegistry
+
+    private val reelAdapter = ImageReelAdapter { uriToRemove ->
+        getCurrentSection().let { sharedViewModel.removeImageUri(it, uriToRemove) }
+    }
 
     private val sharedViewModel: SharedViewModel by activityViewModels()
     private val checksViewModel: ChecksViewModel by viewModels()
@@ -49,9 +55,34 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val reelRecyclerView = binding.reelRecyclerView
+        reelRecyclerView.adapter = reelAdapter
+
+        binding.tabLayout.addOnTabSelectedListener(object : TabLayout.OnTabSelectedListener {
+            override fun onTabSelected(tab: TabLayout.Tab?) {
+                val currentSection = getCurrentSection()
+                updateReelForSection(currentSection)
+            }
+
+            override fun onTabUnselected(tab: TabLayout.Tab?) {}
+            override fun onTabReselected(tab: TabLayout.Tab?) {}
+        })
+
+        // Initial update for the first section when fragment is created
+        updateReelForSection(getCurrentSection())
+
+        sharedViewModel.photosLiveData.observe(viewLifecycleOwner) { photosMap ->
+            val currentSection = getCurrentSection()
+            val currentPhotos = photosMap?.get(currentSection) ?: emptyList()
+            reelAdapter.setImages(currentPhotos)
+        }
+
+
         // Observe changes in the ViewModel's LiveData
         checksViewModel.uiState.observe(viewLifecycleOwner) { state ->
-            handleState(state)
+            if (state != null) {
+                handleState(state)
+            }
         }
 
         // Check if initial load has been completed, if not then fetch
@@ -62,23 +93,18 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
         // Set click listeners for the buttons
         binding.exitButton.setOnClickListener {
             // Handle exit checks action (e.g., navigate back to previous fragment)
+            //TODO - use checksViewModel for nav and to clear sharedViewModel
             findNavController().popBackStack()
         }
 
         binding.fabAdd.setOnClickListener {
-            val currentPosition = binding.viewPager.currentItem
-            val sectionsList = checksViewModel.uiState.value?.checksMap?.keys?.toList()
-            val currentSection = sectionsList?.get(currentPosition)
-            if (currentSection != null) {
-                showPopupMenu(binding.fabAdd, currentSection)
-
-            }
+            getCurrentSection().let { it1 -> showPopupMenu(binding.fabAdd, it1) }
         }
 
         binding.submitButton.setOnClickListener {
             sharedViewModel.checksLiveData.value = checksViewModel.uiState.value?.checksMap
 
-            val submissionData = checksViewModel.uiState.value?.checksMap?.let { it ->
+            val submissionData = checksViewModel.uiState.value?.checksMap?.let {
                 ChecksSubmissionRequest(
                     sharedViewModel.checkStartTimestamp.value,
                     sharedViewModel.usernameLiveData.value ?: "",
@@ -86,12 +112,14 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
                     sharedViewModel.lineLiveData.value,
                     sharedViewModel.idhNumberLiveData.value,
                     sharedViewModel.checkTypeLiveData.value,
-                    it
+                    it,
+                    sharedViewModel.photosLiveData.value
                 )
             }
 
             if (submissionData != null) {
-                checksViewModel.saveSubmissionToLocalDatabase(submissionData)
+                val contentResolver = requireContext().contentResolver
+                checksViewModel.submitChecks(submissionData, contentResolver)
             }
 
             val totalFailedChecks = retrieveTotalFailedChecks()
@@ -209,7 +237,9 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
         }
 
         popupBinding.btnAttachPhoto.setOnClickListener {
-            // Handle attach photo click
+            val action =
+                ChecksFragmentDirections.actionChecksFragmentToCameraPreviewFragment(currentSection)
+            findNavController().navigate(action)
             popupWindow.dismiss()
         }
 
@@ -242,6 +272,20 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
         override fun createFragment(position: Int): Fragment {
             return fragmentList[position]
         }
+    }
+
+    private fun getCurrentSection(): String {
+        val currentPosition = binding.viewPager.currentItem
+        val sectionsList = checksViewModel.uiState.value?.checksMap?.keys?.toList() ?: emptyList()
+        if (sectionsList.isNotEmpty() && currentPosition in sectionsList.indices) {
+            return sectionsList[currentPosition]
+        }
+        return ""
+    }
+
+    private fun updateReelForSection(section: String) {
+        val photosForSection = sharedViewModel.getPhotosForSection(section)
+        reelAdapter.setImages(photosForSection)
     }
 
     override fun onDestroyView() {
