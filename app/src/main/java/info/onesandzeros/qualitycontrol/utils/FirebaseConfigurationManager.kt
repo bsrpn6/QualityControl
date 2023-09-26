@@ -12,7 +12,7 @@ class FirebaseConfigManager @Inject constructor() {
 
     init {
         val configSettings = FirebaseRemoteConfigSettings.Builder()
-            .setMinimumFetchIntervalInSeconds(0) // fetch every hour
+            .setMinimumFetchIntervalInSeconds(3600) // fetch every hour
             .build()
         remoteConfig.setConfigSettingsAsync(configSettings)
     }
