@@ -44,6 +44,17 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
     private val sharedViewModel: SharedViewModel by activityViewModels()
     private val checksViewModel: ChecksViewModel by viewModels()
 
+    override fun onResume() {
+        super.onResume()
+
+        checksViewModel.uiState.value?.let {
+            binding.viewPager.setCurrentItem(
+                it.currentTabPosition,
+                false
+            )
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -237,6 +248,7 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
         }
 
         popupBinding.btnAttachPhoto.setOnClickListener {
+            checksViewModel.uiState.value?.currentTabPosition = binding.viewPager.currentItem
             val action =
                 ChecksFragmentDirections.actionChecksFragmentToCameraPreviewFragment(currentSection)
             findNavController().navigate(action)
