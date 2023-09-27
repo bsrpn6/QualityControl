@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.graphics.Paint
 import android.util.AttributeSet
 import android.view.View
+import androidx.core.content.ContextCompat
 import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.api.models.FillHeadItem
 
@@ -18,6 +19,10 @@ class TinyLineGraphView @JvmOverloads constructor(
     var usl: Double = 0.0
     private var weights: List<Double> = emptyList()
 
+    // Define padding values
+    private val horizontalPadding = 10f  // Change this as required
+    private val verticalPadding = 10f    // Change this as required
+
     // List of fill head values, for this example, let's say values range between 0 and 100
     var fillHeadValues: List<FillHeadItem> = emptyList()
         set(value) {
@@ -28,12 +33,12 @@ class TinyLineGraphView @JvmOverloads constructor(
 
     // Define paints for different colors
     private val redPaint = Paint().apply {
-        color = resources.getColor(R.color.warning_red)
+        color = ContextCompat.getColor(context, R.color.warning_red)
         style = Paint.Style.FILL
     }
 
     private val yellowPaint = Paint().apply {
-        color = resources.getColor(R.color.warning_yellow)
+        color = ContextCompat.getColor(context, R.color.warning_yellow)
         style = Paint.Style.FILL
     }
 
@@ -50,12 +55,12 @@ class TinyLineGraphView @JvmOverloads constructor(
         val actualMaxValue = weights.maxOrNull() ?: 1.0
         val actualMinValue = weights.minOrNull() ?: 0.0
 
-        val widthPerValue = width / (weights.size - 1).toFloat()
+        val widthPerValue = (width - 2 * horizontalPadding) / (weights.size - 1).toFloat()
 
         for (i in weights.indices) {
-            val x = i * widthPerValue
+            val x = i * widthPerValue + horizontalPadding
             val y =
-                height - ((weights[i] - actualMinValue) / (actualMaxValue - actualMinValue) * height).toFloat()
+                height - verticalPadding - ((weights[i] - actualMinValue) / (actualMaxValue - actualMinValue) * (height - 2 * verticalPadding)).toFloat()
 
             val paint = when {
                 weights[i] < mav -> redPaint
@@ -67,9 +72,9 @@ class TinyLineGraphView @JvmOverloads constructor(
 
             // Draw line to next dot if not the last dot
             if (i != weights.size - 1) {
-                val nextX = (i + 1) * widthPerValue
+                val nextX = (i + 1) * widthPerValue + horizontalPadding
                 val nextY =
-                    height - ((weights[i + 1] - actualMinValue) / (actualMaxValue - actualMinValue) * height).toFloat()
+                    height - verticalPadding - ((weights[i + 1] - actualMinValue) / (actualMaxValue - actualMinValue) * (height - 2 * verticalPadding)).toFloat()
                 canvas.drawLine(x, y, nextX, nextY, defaultPaint)
             }
         }

@@ -1,34 +1,20 @@
-package info.onesandzeros.qualitycontrol.mock
+package info.onesandzeros.qualitycontrol.bluetooth
 
-import android.os.Bundle
-import android.os.Handler
-import android.os.Message
 import java.util.Random
 import kotlin.math.round
 
-
-class MockBluetoothService(handler: Handler) {
-    private val handler: Handler
+class MockBluetoothService(private val onWeightReceived: (Double) -> Unit) {
     private val random = Random()
-
-    init {
-        this.handler = handler
-    }
 
     fun connect(input: Double?) {
         // Simulating a connection to a Bluetooth device...
         // ... and then we read a weight value
 
-        val standardDeviation = 5.0
+        val standardDeviation = 10.0
         val weight = input?.plus(standardDeviation * random.nextGaussian())
         val roundedWeight = round(weight!! * 10) / 10
 
-        // send this weight value using the handler
-        val message = Message.obtain()
-        val bundle = Bundle()
-        bundle.putDouble("weight", roundedWeight)
-        message.data = bundle
-
-        handler.sendMessage(message)
+        // invoke the callback with the weight
+        onWeightReceived(roundedWeight)
     }
 }

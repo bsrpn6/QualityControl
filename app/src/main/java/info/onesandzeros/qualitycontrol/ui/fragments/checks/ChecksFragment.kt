@@ -23,7 +23,7 @@ import info.onesandzeros.qualitycontrol.api.models.ChecksSubmissionRequest
 import info.onesandzeros.qualitycontrol.databinding.CustomTabLayoutBinding
 import info.onesandzeros.qualitycontrol.databinding.FragmentChecksBinding
 import info.onesandzeros.qualitycontrol.databinding.PopupMenuBinding
-import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.adapters.ImageReelAdapter
+import info.onesandzeros.qualitycontrol.ui.adapters.ImageReelAdapter
 import info.onesandzeros.qualitycontrol.ui.fragments.CheckTypeFragment
 import info.onesandzeros.qualitycontrol.ui.viewmodels.SharedViewModel
 import info.onesandzeros.qualitycontrol.utils.StringUtils

@@ -3,6 +3,13 @@
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="update_required_msg">Sorry! A new version of the app is available, and this one will not work with existing services. \n\n Please update to continue.</string>
     <string name="update_now">Update Now</string>
+    <string name="weight_grams">%1$.1f g</string>
+    <string name="fill_head_weight">%1$d: %2$s</string>
+    <string name="mav_xx_xg">MAV:&#10;XX.Xg</string>
+    <string name="lsl_xx_xg">LSL:&#10;XX.Xg</string>
+    <string name="tar_xx_xg">TAR:&#10;XX.Xg</string>
+    <string name="usl_xx_xg">USL:&#10;XX.Xg</string>
+    <string name="complete">Complete</string>
 
     <!-- Define department options -->
     <string-array name="department_options">

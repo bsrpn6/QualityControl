@@ -21,7 +21,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.databinding.FragmentCameraPreviewBinding
-import info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.adapters.ImageReelAdapter
+import info.onesandzeros.qualitycontrol.ui.adapters.ImageReelAdapter
 import info.onesandzeros.qualitycontrol.ui.viewmodels.SharedViewModel
 import java.io.File
 import java.text.SimpleDateFormat

@@ -1,4 +1,4 @@
-package info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.fragments.camerapreview
+package info.onesandzeros.qualitycontrol.ui.fragments.camerapreview
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
@@ -8,7 +8,6 @@ import java.text.SimpleDateFormat
 import java.util.Locale
 
 class CameraViewModel : ViewModel() {
-
 
     fun getPhotoFile(context: Context): File {
         val outputDirectory = getOutputDirectory(context)

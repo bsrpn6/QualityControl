@@ -1,4 +1,4 @@
-package info.onesandzeros.qualitycontrol.info.onesandzeros.qualitycontrol.ui.adapters
+package info.onesandzeros.qualitycontrol.ui.adapters
 
 import android.net.Uri
 import android.view.LayoutInflater

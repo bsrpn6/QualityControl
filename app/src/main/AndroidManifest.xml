@@ -27,7 +27,6 @@
         <activity
             android:name="info.onesandzeros.qualitycontrol.ui.activities.mainactivity.MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
             android:theme="@style/Theme.QualityControl">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -39,7 +38,7 @@
             android:name="info.onesandzeros.qualitycontrol.ui.activities.barcodescanner.BarcodeScannerActivity"
             android:label="Barcode Scanner" />
         <activity
-            android:name=".ui.activities.WeightCaptureActivity"
+            android:name="info.onesandzeros.qualitycontrol.ui.activities.weightcapture.WeightCaptureActivity"
             android:label="Weight Capture" />
         <activity
             android:name="info.onesandzeros.qualitycontrol.ui.activities.datecodescanner.DateCodeScannerActivity"

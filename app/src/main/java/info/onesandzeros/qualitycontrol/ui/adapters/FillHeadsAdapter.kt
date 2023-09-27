@@ -1,5 +1,6 @@
 package info.onesandzeros.qualitycontrol.ui.adapters
 
+import android.graphics.Color
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,7 +11,13 @@ import androidx.recyclerview.widget.RecyclerView
 import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.api.models.FillHeadItem
 
-class FillHeadsAdapter :
+class FillHeadsAdapter(
+    private val mav: Double,
+    private val lsl: Double,
+    private val usl: Double,
+    private val warningColor: Int,
+    private val errorColor: Int
+) :
     ListAdapter<FillHeadItem, FillHeadsAdapter.FillHeadViewHolder>(FillHeadItemDiffCallback()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): FillHeadViewHolder {
@@ -28,10 +35,21 @@ class FillHeadsAdapter :
 
         fun bind(item: FillHeadItem) {
             val weightText = item.weight?.let { "${it}g" } ?: "[TBD]"
-            fillHeadWeight.text = "${item.fillHead}: $weightText"
+            fillHeadWeight.text =
+                itemView.context.getString(R.string.fill_head_weight, item.fillHead, weightText)
+
+            // Set color based on weight and spec values
+            item.weight?.let { weight ->
+                when {
+                    weight < mav -> fillHeadWeight.setTextColor(errorColor)
+                    weight in mav..lsl || weight > usl -> fillHeadWeight.setTextColor(warningColor)
+                    else -> fillHeadWeight.setTextColor(Color.BLACK)
+                }
+            } ?: run {
+                fillHeadWeight.setTextColor(Color.GRAY) // Default color when weight is null
+            }
         }
     }
-
 }
 
 class FillHeadItemDiffCallback : DiffUtil.ItemCallback<FillHeadItem>() {
