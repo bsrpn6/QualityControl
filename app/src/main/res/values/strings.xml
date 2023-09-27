@@ -5,29 +5,9 @@
     <string name="update_now">Update Now</string>
     <string name="weight_grams">%1$.1f g</string>
     <string name="fill_head_weight">%1$d: %2$s</string>
-    <string name="mav_xx_xg">MAV:&#10;XX.Xg</string>
-    <string name="lsl_xx_xg">LSL:&#10;XX.Xg</string>
-    <string name="tar_xx_xg">TAR:&#10;XX.Xg</string>
-    <string name="usl_xx_xg">USL:&#10;XX.Xg</string>
+    <string name="mav_xx_xg">MAV:\nXX.Xg</string>
+    <string name="lsl_xx_xg">LSL:\nXX.Xg</string>
+    <string name="tar_xx_xg">TAR:\nXX.Xg</string>
+    <string name="usl_xx_xg">USL:\nXX.Xg</string>
     <string name="complete">Complete</string>
-
-    <!-- Define department options -->
-    <string-array name="department_options">
-        <item>Liquids</item>
-        <item>Renuzit</item>
-        <item>Single Dose</item>
-        <!-- Add more department options as needed -->
-    </string-array>
-
-    <!-- Define line options -->
-    <string-array name="line_options">
-        <item>L5-A</item>
-        <item>L5-B</item>
-        <item>L1-A</item>
-        <item>L1-B</item>
-        <item>R5</item>
-        <item>R6</item>
-        <item>R6-A</item>
-        <!-- Add more line options as needed -->
-    </string-array>
 </resources>
