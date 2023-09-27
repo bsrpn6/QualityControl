@@ -18,6 +18,7 @@ import androidx.viewbinding.ViewBinding
 import com.google.gson.Gson
 import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.api.models.CheckItem
+import info.onesandzeros.qualitycontrol.api.models.FillHeadItem
 import info.onesandzeros.qualitycontrol.api.models.WeightCheckItem
 import info.onesandzeros.qualitycontrol.databinding.ItemBarcodeCheckBinding
 import info.onesandzeros.qualitycontrol.databinding.ItemBooleanCheckBinding
@@ -97,10 +98,13 @@ class ChecksAdapter(
         }
 
         fun updateBackgroundColor(check: CheckItem) {
-            if (check.result != null && check.expectedValue != check.result) {
-                itemView.setBackgroundColor(Color.parseColor("#FFC0C0"))
-            } else {
-                itemView.setBackgroundColor(Color.WHITE)
+            //TODO - This is temporary until another function is created for comparing weight values
+            if (check.type != "weight") {
+                if (check.result != null && check.expectedValue != check.result) {
+                    itemView.setBackgroundColor(Color.parseColor("#FFC0C0"))
+                } else {
+                    itemView.setBackgroundColor(Color.WHITE)
+                }
             }
         }
     }
@@ -173,7 +177,12 @@ class ChecksAdapter(
         override fun bind(check: CheckItem) {
             super.bind(check)
 
-            // Bind the views for barcode check type using ViewBinding
+            val fillHeadItems = check.result as? List<*>
+            if (fillHeadItems?.all { it is FillHeadItem } == true) {
+                binding.tinyGraphView.fillHeadValues = fillHeadItems as List<FillHeadItem>
+            }
+
+            // Bind the views for weight check type using ViewBinding
             binding.titleTextView.text = check.title
 
             val gson = Gson()
