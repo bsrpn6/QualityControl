@@ -17,7 +17,6 @@ class WeightCaptureUtil(
     private val activity: FragmentActivity,
     private val activityResultRegistry: ActivityResultRegistry
 ) {
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     fun startWeightCapture(
         weightCheckItem: WeightCheckItem,
         callback: (List<FillHeadItem>?) -> Unit
@@ -30,10 +29,7 @@ class WeightCaptureUtil(
                 if (result.resultCode == Activity.RESULT_OK) {
                     val intent = result.data
                     val weightCaptureValue =
-                        intent?.getParcelableArrayListExtra(
-                            "weight_capture_data",
-                            FillHeadItem::class.java
-                        )
+                        intent?.getParcelableArrayListExtra<FillHeadItem>("weight_capture_data")
 
                     Log.d(
                         TAG,

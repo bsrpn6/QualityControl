@@ -2,6 +2,7 @@ package info.onesandzeros.qualitycontrol.ui.adapters
 
 import android.app.Dialog
 import android.graphics.Color
+import android.os.Build
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.LayoutInflater
@@ -11,6 +12,7 @@ import android.view.ViewTreeObserver
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.TextView
+import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewbinding.ViewBinding
 import com.google.gson.Gson
@@ -43,6 +45,8 @@ class ChecksAdapter(
         private var isDescriptionExpanded = false
 
         open fun bind(check: CheckItem) {
+            updateBackgroundColor(check)
+
             // Reset maxLines to ensure that the entire text is displayed for calculating line count
             descriptionTextView.maxLines = Integer.MAX_VALUE
             descriptionTextView.text = check.description
@@ -91,6 +95,14 @@ class ChecksAdapter(
             )
             return descriptionTextView.lineCount > 2
         }
+
+        fun updateBackgroundColor(check: CheckItem) {
+            if (check.result != null && check.expectedValue != check.result) {
+                itemView.setBackgroundColor(Color.parseColor("#FFC0C0"))
+            } else {
+                itemView.setBackgroundColor(Color.WHITE)
+            }
+        }
     }
 
     // ViewHolders with ViewBinding for each check type
@@ -114,15 +126,9 @@ class ChecksAdapter(
             binding.barcodeIconImageView.setOnClickListener {
                 scannerUtil.startBarcodeScanning { barcodeValue ->
                     binding.barcodeValueTextView.text = barcodeValue ?: "Scanning failed"
-                    check.result = barcodeValue
+                    check.result = barcodeValue ?: "Scanning failed"
 
-                    // Re-evaluate the comparison and update the background color
-                    val updatedUserInputMatchesExpected = check.expectedValue == check.result
-                    if (updatedUserInputMatchesExpected) {
-                        binding.root.setBackgroundColor(Color.WHITE)
-                    } else {
-                        binding.root.setBackgroundColor(Color.parseColor("#FFC0C0"))
-                    }
+                    updateBackgroundColor(check)
                 }
             }
         }
@@ -150,13 +156,7 @@ class ChecksAdapter(
                     binding.datecodeValueTextView.text = DatecodeValue ?: "Scanning failed"
                     check.result = DatecodeValue
 
-                    // Re-evaluate the comparison and update the background color
-                    val updatedUserInputMatchesExpected = check.expectedValue == check.result
-                    if (updatedUserInputMatchesExpected) {
-                        binding.root.setBackgroundColor(Color.WHITE)
-                    } else {
-                        binding.root.setBackgroundColor(Color.parseColor("#FFC0C0"))
-                    }
+                    updateBackgroundColor(check)
                 }
             }
         }
@@ -169,6 +169,7 @@ class ChecksAdapter(
 
         override val descriptionTextView = binding.descriptionTextView
 
+        @RequiresApi(Build.VERSION_CODES.TIRAMISU)
         override fun bind(check: CheckItem) {
             super.bind(check)
 
@@ -250,13 +251,7 @@ class ChecksAdapter(
                 // Update the userInputValue property of the CheckItem with the new switch state
                 check.result = isChecked
 
-                // Re-evaluate the comparison and update the background color
-                val updatedUserInputMatchesExpected = check.expectedValue == check.result
-                if (updatedUserInputMatchesExpected) {
-                    binding.root.setBackgroundColor(Color.WHITE)
-                } else {
-                    binding.root.setBackgroundColor(Color.parseColor("#FFC0C0"))
-                }
+                updateBackgroundColor(check)
             }
         }
     }
@@ -292,13 +287,7 @@ class ChecksAdapter(
                     val inputValue = s.toString()
                     check.result = inputValue.toIntOrNull()
 
-                    // Re-evaluate the comparison and update the background color
-                    val updatedUserInputMatchesExpected = check.expectedValue == check.result
-                    if (updatedUserInputMatchesExpected) {
-                        binding.root.setBackgroundColor(Color.WHITE)
-                    } else {
-                        binding.root.setBackgroundColor(Color.parseColor("#FFC0C0"))
-                    }
+                    updateBackgroundColor(check)
                 }
             })
         }
@@ -335,13 +324,7 @@ class ChecksAdapter(
                     val inputValue = s.toString().toDoubleOrNull()
                     check.result = inputValue
 
-                    // Re-evaluate the comparison and update the background color
-                    val updatedUserInputMatchesExpected = check.expectedValue == check.result
-                    if (updatedUserInputMatchesExpected) {
-                        binding.root.setBackgroundColor(Color.WHITE)
-                    } else {
-                        binding.root.setBackgroundColor(Color.parseColor("#FFC0C0"))
-                    }
+                    updateBackgroundColor(check)
                 }
             })
         }
@@ -378,13 +361,7 @@ class ChecksAdapter(
                     // Update the userInputValue property of the CheckItem with the new string value
                     check.result = s.toString()
 
-                    // Re-evaluate the comparison and update the background color
-                    val updatedUserInputMatchesExpected = check.expectedValue == check.result
-                    if (updatedUserInputMatchesExpected) {
-                        binding.root.setBackgroundColor(Color.WHITE)
-                    } else {
-                        binding.root.setBackgroundColor(Color.parseColor("#FFC0C0"))
-                    }
+                    updateBackgroundColor(check)
                 }
             })
         }

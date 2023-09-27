@@ -16,7 +16,6 @@ import androidx.annotation.RequiresApi
 import androidx.recyclerview.widget.GridLayoutManager
 import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.api.models.FillHeadItem
-import info.onesandzeros.qualitycontrol.api.models.WeightCheckItem
 import info.onesandzeros.qualitycontrol.bluetooth.MockBluetoothService
 import info.onesandzeros.qualitycontrol.databinding.ActivityWeightCaptureBinding
 import info.onesandzeros.qualitycontrol.ui.activities.baseactivity.BaseActivity
@@ -31,17 +30,13 @@ class WeightCaptureActivity : BaseActivity() {
 
     private val viewModel: WeightCaptureViewModel by viewModels()
 
-    @RequiresApi(Build.VERSION_CODES.TIRAMISU)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         binding = ActivityWeightCaptureBinding.inflate(layoutInflater)
         setContentView(binding.root)
         viewModel.updateWeightCheckItem(
-            intent.getParcelableExtra(
-                "weight_check_item_data",
-                WeightCheckItem::class.java
-            )!!
+            intent.getParcelableExtra("weight_check_item_data")!!
         )
 
         // Initialize the fillHeadsAdapter here with the necessary values from viewModel
