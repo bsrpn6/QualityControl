@@ -44,20 +44,26 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
     private val sharedViewModel: SharedViewModel by activityViewModels()
     private val checksViewModel: ChecksViewModel by viewModels()
 
+    private val iconResourceMap = mapOf(
+        "product_bottle" to R.drawable.product_bottle,
+        "product_case" to R.drawable.product_case,
+        "product_multi_pack" to R.drawable.product_multi_pack,
+        "product_pallet" to R.drawable.product_pallet
+        // add more mappings as needed
+    )
+
     override fun onResume() {
         super.onResume()
 
         checksViewModel.uiState.value?.let {
             binding.viewPager.setCurrentItem(
-                it.currentTabPosition,
-                false
+                it.currentTabPosition, false
             )
         }
     }
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
-        savedInstanceState: Bundle?
+        inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         _binding = FragmentChecksBinding.inflate(inflater, container, false)
         return _binding!!.root
@@ -109,7 +115,7 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
         }
 
         binding.fabAdd.setOnClickListener {
-            getCurrentSection().let { it1 -> showPopupMenu(binding.fabAdd, it1) }
+            showPopupMenu(binding.fabAdd, getCurrentSection())
         }
 
         binding.submitButton.setOnClickListener {
@@ -221,11 +227,7 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
     // Helper method to get the tab icon resource based on the check type
     private fun getTabIconResourceId(checkType: String): Int {
         val fileNameWithoutExtension = checkType.substringBeforeLast(".")
-        return resources.getIdentifier(
-            fileNameWithoutExtension,
-            "drawable",
-            requireActivity().packageName
-        )
+        return iconResourceMap[fileNameWithoutExtension] ?: R.drawable.product_default
     }
 
     private fun showPopupMenu(anchorView: View, currentSection: String) {
@@ -276,8 +278,7 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
 
 
     private inner class ChecksPagerAdapter(
-        private val fragmentList: List<Fragment>,
-        fragment: Fragment
+        private val fragmentList: List<Fragment>, fragment: Fragment
     ) : FragmentStateAdapter(fragment.childFragmentManager, fragment.viewLifecycleOwner.lifecycle) {
         override fun getItemCount(): Int = fragmentList.size
 

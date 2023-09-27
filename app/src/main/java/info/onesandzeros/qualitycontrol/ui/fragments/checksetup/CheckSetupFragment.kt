@@ -87,9 +87,18 @@ class CheckSetupFragment : Fragment() {
 
         // Update the start checks button click listener
         binding.startChecksButton.setOnClickListener {
-            sharedViewModel.checkStartTimestamp.value = System.currentTimeMillis()
-            checkSetupViewModel.startChecks()
+            sharedViewModel.departmentLiveData.value?.let {
+                sharedViewModel.lineLiveData.value?.let {
+                    sharedViewModel.checkTypeLiveData.value?.let {
+                        sharedViewModel.idhNumberLiveData.value?.let {
+                            sharedViewModel.checkStartTimestamp.value = System.currentTimeMillis()
+                            checkSetupViewModel.startChecks()
+                        }
+                    }
+                }
+            }
         }
+
 
         // Update the logout button click listener
         binding.logoutButton.setOnClickListener {
@@ -111,32 +120,40 @@ class CheckSetupFragment : Fragment() {
 
     private fun setupObservers() {
         checkSetupViewModel.uiState.observe(viewLifecycleOwner) { state ->
-            // Handle departments
-            loadDepartmentAdapter(state.departments)
-
-            // Handle lines
-            loadLinesAdapter(state.lines)
-
-            // Handle check types
-            loadCheckTypesAdapter(state.checkTypes)
-
-            // Handle IDH numbers
-            loadIDHNumbersAdapter(state.idhNumbers)
-
-            state.productSpecs?.getContentIfNotHandled()?.let { specs ->
-                showProductSpecsDialog(specs)
-            }
-
-            handleLoadingState(state.isLoading)
-            handleStateError(state.error)
+            handleUIState(state)
         }
 
-        // Observer for navigation
+        sharedViewModel.idhNumberLiveData.observe(viewLifecycleOwner) {
+            updateStartChecksButtonState()
+        }
+
         checkSetupViewModel.navigateTo.observe(viewLifecycleOwner) { event ->
             event.getContentIfNotHandled()?.let { destinationId ->
                 findNavController().navigate(destinationId)
             }
         }
+    }
+
+    private fun handleUIState(state: CheckSetupState) {  // Assuming UIState is the data type
+        loadDepartmentAdapter(state.departments)
+        loadLinesAdapter(state.lines)
+        loadCheckTypesAdapter(state.checkTypes)
+        loadIDHNumbersAdapter(state.idhNumbers)
+
+        state.productSpecs?.getContentIfNotHandled()?.let { specs ->
+            showProductSpecsDialog(specs)
+        }
+
+        handleLoadingState(state.isLoading)
+        handleStateError(state.error)
+    }
+
+    private fun updateStartChecksButtonState() {
+        binding.startChecksButton.isEnabled =
+            sharedViewModel.departmentLiveData.value != null &&
+                    sharedViewModel.lineLiveData.value != null &&
+                    sharedViewModel.checkTypeLiveData.value != null &&
+                    sharedViewModel.idhNumberLiveData.value != null
     }
 
     private fun showProductSpecsDialog(productSpecs: ProductSpecsResponse?) {
