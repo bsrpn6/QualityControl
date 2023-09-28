@@ -7,13 +7,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.LinearLayout
 import android.widget.PopupWindow
-import android.widget.Toast
 import androidx.activity.result.ActivityResultRegistry
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import dagger.hilt.android.AndroidEntryPoint
@@ -153,7 +153,8 @@ class ChecksFragment : Fragment(R.layout.fragment_checks) {
             binding.loadingProgressBar.visibility = View.VISIBLE
         } else if (state.error != null) {
             binding.loadingProgressBar.visibility = View.GONE
-            Toast.makeText(requireContext(), state.error, Toast.LENGTH_LONG).show()
+            val contextView = binding.root
+            Snackbar.make(contextView, state.error, Snackbar.LENGTH_LONG).show()
         } else {
             binding.loadingProgressBar.visibility = View.GONE
             setupViewPagerAndTabs()

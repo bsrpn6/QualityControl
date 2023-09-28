@@ -9,12 +9,12 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navGraphViewModels
+import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
 import info.onesandzeros.qualitycontrol.R
 import info.onesandzeros.qualitycontrol.api.models.IDHNumbers
@@ -401,7 +401,8 @@ class CheckSetupFragment : Fragment() {
 
     private fun handleStateError(errorEvent: ErrorEvent?) {
         errorEvent?.let {
-            Toast.makeText(requireContext(), it.message, Toast.LENGTH_SHORT).show()
+            val contextView = binding.root
+            Snackbar.make(contextView, it.message, Snackbar.LENGTH_LONG).show()
         }
     }
 
