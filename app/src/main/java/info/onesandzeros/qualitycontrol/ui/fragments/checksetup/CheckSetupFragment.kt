@@ -12,14 +12,12 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.MutableLiveData
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.navGraphViewModels
 import dagger.hilt.android.AndroidEntryPoint
 import info.onesandzeros.qualitycontrol.R
-import info.onesandzeros.qualitycontrol.api.models.CheckType
-import info.onesandzeros.qualitycontrol.api.models.Department
 import info.onesandzeros.qualitycontrol.api.models.IDHNumbers
-import info.onesandzeros.qualitycontrol.api.models.Line
 import info.onesandzeros.qualitycontrol.api.models.ProductSpecsResponse
 import info.onesandzeros.qualitycontrol.constants.Constants.SITE_ID
 import info.onesandzeros.qualitycontrol.databinding.FragmentCheckSetupBinding
@@ -70,17 +68,13 @@ class CheckSetupFragment : Fragment() {
         bindViews()
 
         // Check if previous values exist
-        if (sharedViewModel.departmentLiveData.value != null
-            && sharedViewModel.lineLiveData.value != null
-            && sharedViewModel.checkTypeLiveData.value != null
-            && sharedViewModel.idhNumberLiveData.value != null
-        ) {
+        if (sharedViewModel.departmentLiveData.value != null && sharedViewModel.lineLiveData.value != null && sharedViewModel.checkTypeLiveData.value != null && sharedViewModel.idhNumberLiveData.value != null) {
             // If previous values exist, populate the UI fields and disable user input
-            disableInputFields()
+            setInputFieldsEnabled(false)
         } else {
             // If no previous values, enable user input
             checkSetupViewModel.getDepartments(SITE_ID)
-            enableInputFields()
+            setInputFieldsEnabled(true)
         }
 
         setupObservers()
@@ -134,10 +128,8 @@ class CheckSetupFragment : Fragment() {
         }
     }
 
-    private fun handleUIState(state: CheckSetupState) {  // Assuming UIState is the data type
-        loadDepartmentAdapter(state.departments)
-        loadLinesAdapter(state.lines)
-        loadCheckTypesAdapter(state.checkTypes)
+    private fun handleUIState(state: CheckSetupState) {
+        loadAdapters(state)
         loadIDHNumbersAdapter(state.idhNumbers)
 
         state.productSpecs?.getContentIfNotHandled()?.let { specs ->
@@ -150,10 +142,7 @@ class CheckSetupFragment : Fragment() {
 
     private fun updateStartChecksButtonState() {
         binding.startChecksButton.isEnabled =
-            sharedViewModel.departmentLiveData.value != null &&
-                    sharedViewModel.lineLiveData.value != null &&
-                    sharedViewModel.checkTypeLiveData.value != null &&
-                    sharedViewModel.idhNumberLiveData.value != null
+            sharedViewModel.departmentLiveData.value != null && sharedViewModel.lineLiveData.value != null && sharedViewModel.checkTypeLiveData.value != null && sharedViewModel.idhNumberLiveData.value != null
     }
 
     private fun showProductSpecsDialog(productSpecs: ProductSpecsResponse?) {
@@ -161,8 +150,7 @@ class CheckSetupFragment : Fragment() {
         val dialog = Dialog(requireContext())
 
         // Inflate the layout using View Binding
-        val binding =
-            ScrollViewDialogLayoutBinding.inflate(LayoutInflater.from(requireContext()))
+        val binding = ScrollViewDialogLayoutBinding.inflate(LayoutInflater.from(requireContext()))
 
         // Set up the dialog's content view
         dialog.setContentView(binding.root)
@@ -226,19 +214,7 @@ class CheckSetupFragment : Fragment() {
             override fun onItemSelected(
                 parent: AdapterView<*>?, view: View?, position: Int, id: Long
             ) {
-                val selectedLine = checkSetupViewModel.uiState.value?.lines?.get(position)
-                if (sharedViewModel.lineLiveData.value != selectedLine) {
-                    sharedViewModel.lineLiveData.value = selectedLine
-                    sharedViewModel.idhNumberLiveData.value = null
-                    sharedViewModel.checkTypeLiveData.value = null
-                    binding.infoIconImageView.visibility = View.GONE
-                    binding.idhNumberAutoCompleteTextView.setText("", false)
-                    sharedViewModel.lineLiveData.value?.id?.let {
-                        checkSetupViewModel.getCheckTypesForLine(it)
-                        checkSetupViewModel.getProductsForLine(it)
-                    }
-                }
-
+                processNewLine(position)
             }
 
             override fun onNothingSelected(parent: AdapterView<*>?) {}
@@ -270,93 +246,108 @@ class CheckSetupFragment : Fragment() {
         binding.departmentSpinner.onItemSelectedListener =
             object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(
-                    parent: AdapterView<*>?,
-                    view: View?,
-                    position: Int,
-                    id: Long
+                    parent: AdapterView<*>?, view: View?, position: Int, id: Long
                 ) {
-                    val selectedDepartment =
-                        checkSetupViewModel.uiState.value?.departments?.get(position)
-
-                    if (sharedViewModel.departmentLiveData.value != selectedDepartment) {
-                        sharedViewModel.departmentLiveData.value = selectedDepartment
-                        sharedViewModel.lineLiveData.value = null
-                        sharedViewModel.checkTypeLiveData.value = null
-                        sharedViewModel.idhNumberLiveData.value = null
-
-                        binding.infoIconImageView.visibility = View.GONE
-                        binding.idhNumberAutoCompleteTextView.setText("", false)
-
-                        selectedDepartment?.let {
-                            checkSetupViewModel.selectDepartment(it)
-                        }
-                    }
+                    processNewDepartment(position)
                 }
 
                 override fun onNothingSelected(parent: AdapterView<*>?) {}
             }
     }
 
-
-    private fun loadDepartmentAdapter(departmentList: List<Department>) {
-        val localDepartmentList = departmentList.map { it.name }
-        departmentAdapter.clear()
-        departmentAdapter.addAll(localDepartmentList)
-
-        // Set the spinner selection based on the value from the SharedViewModel
-        val selectedDepartment = sharedViewModel.departmentLiveData.value
-        if (selectedDepartment != null) {
-            binding.departmentSpinner.onItemSelectedListener = null
-            val selectedIndex =
-                checkSetupViewModel.uiState.value?.departments?.indexOfFirst { it.id == selectedDepartment.id }
-            if (selectedIndex != -1) {
-                if (selectedIndex != null) {
-                    binding.departmentSpinner.setSelection(selectedIndex)
-                }
-            }
-            bindDepartmentSpinner()
-        }
-    }
-
-    private fun loadLinesAdapter(linesList: List<Line>) {
-        val localLineList = linesList.map { it.name }
-        lineAdapter.clear()
-        lineAdapter.addAll(localLineList)
-
-        // Set the spinner selection based on the value from the SharedViewModel
-        val selectedLine = sharedViewModel.lineLiveData.value
-        if (selectedLine != null) {
-            binding.lineSpinner.onItemSelectedListener = null
-            val selectedIndex =
-                checkSetupViewModel.uiState.value?.lines?.indexOfFirst { it.id == selectedLine.id }
-            if (selectedIndex != -1) {
-                if (selectedIndex != null) {
-                    binding.lineSpinner.setSelection(selectedIndex)
-                }
-            }
-            bindLineSpinner()
-        } else {
-            binding.lineSpinner.setSelection(0)
-        }
-    }
-
-    private fun loadCheckTypesAdapter(checkTypeList: List<CheckType>) {
-        val localCheckTypes = checkTypeList.map { it.displayName }
-        checkTypeAdapter.clear()
-        checkTypeAdapter.addAll(localCheckTypes)
-
-        // Set the spinner selection based on the value from the SharedViewModel
-        val selectedCheckType = sharedViewModel.checkTypeLiveData.value
-        if (selectedCheckType != null) {
-            val selectedIndex =
-                checkSetupViewModel.uiState.value?.checkTypes?.indexOfFirst { it.id == selectedCheckType.id }
-            if (selectedIndex != -1) {
-                if (selectedIndex != null) {
-                    binding.checkTypeSpinner.setSelection(selectedIndex)
-                }
+    private fun <T> processNewItem(
+        position: Int,
+        getSelectedItem: (Int) -> T?,
+        liveData: MutableLiveData<T?>,
+        additionalProcessing: (T) -> Unit
+    ) {
+        val selectedItem = checkSetupViewModel.uiState.value?.let { getSelectedItem(position) }
+        if (liveData.value != selectedItem) {
+            liveData.value = selectedItem
+            sharedViewModel.idhNumberLiveData.value = null
+            sharedViewModel.checkTypeLiveData.value = null
+            binding.infoIconImageView.visibility = View.GONE
+            binding.idhNumberAutoCompleteTextView.setText("", false)
+            selectedItem?.let {
+                additionalProcessing(it)
             }
         }
     }
+
+    private fun processNewDepartment(position: Int) {
+        processNewItem(
+            position,
+            { checkSetupViewModel.uiState.value?.departments?.get(it) },
+            sharedViewModel.departmentLiveData
+        ) { selectedDepartment ->
+            checkSetupViewModel.selectDepartment(selectedDepartment)
+            sharedViewModel.lineLiveData.value = null
+        }
+    }
+
+    private fun processNewLine(position: Int) {
+        processNewItem(
+            position,
+            { checkSetupViewModel.uiState.value?.lines?.get(it) },
+            sharedViewModel.lineLiveData
+        ) {
+            sharedViewModel.lineLiveData.value?.id?.let {
+                checkSetupViewModel.getCheckTypesForLine(it)
+                checkSetupViewModel.getProductsForLine(it)
+            }
+        }
+    }
+
+
+    private fun <T> loadAdapter(
+        adapter: ArrayAdapter<T>,
+        items: List<T>,
+        getSelectedItem: () -> T?,
+        setSelection: (Int) -> Unit,
+        onEmptySelection: (() -> Unit)? = null
+    ) {
+        adapter.clear()
+        adapter.addAll(items)
+
+        val selectedItem = getSelectedItem()
+        if (selectedItem != null) {
+            val selectedIndex = items.indexOfFirst { it == selectedItem }
+            if (selectedIndex != -1) {
+                setSelection(selectedIndex)
+            }
+        } else if (onEmptySelection != null) {
+            onEmptySelection()
+        }
+    }
+
+    private fun loadAdapters(state: CheckSetupState) {
+        loadAdapter(departmentAdapter,
+            state.departments.map { it.name },
+            { sharedViewModel.departmentLiveData.value?.name },
+            { binding.departmentSpinner.setSelection(it) })
+
+        loadAdapter(lineAdapter,
+            state.lines.map { it.name },
+            { sharedViewModel.lineLiveData.value?.name },
+            { binding.lineSpinner.setSelection(it) },
+            {
+                if (state.lines.isNotEmpty()) {
+                    processNewLine(0)
+                    binding.lineSpinner.setSelection(0)
+                }
+            })
+
+        loadAdapter(checkTypeAdapter,
+            state.checkTypes.map { it.displayName },
+            { sharedViewModel.checkTypeLiveData.value?.displayName },
+            { binding.checkTypeSpinner.setSelection(it) })
+
+        loadAdapter(idhNumberAdapter,
+            state.idhNumbers.map { it.productId },
+            { sharedViewModel.idhNumberLiveData.value?.productId },
+            { binding.idhNumberAutoCompleteTextView.setText(it.toString()) })
+    }
+
 
     private fun loadIDHNumbersAdapter(idhNumbersList: List<IDHNumbers>) {
         val localIdhNumbers = idhNumbersList.map { it.productId }
@@ -374,35 +365,31 @@ class CheckSetupFragment : Fragment() {
         }
     }
 
-    private fun disableInputFields() {
-        Log.d(TAG, "disableInputFields() called")
-        binding.departmentSpinner.isEnabled = false
-        binding.lineSpinner.isEnabled = false
-        binding.checkTypeSpinner.isEnabled = false
-        binding.idhNumberAutoCompleteTextView.isEnabled = false
-        binding.infoIconImageView.visibility = View.VISIBLE
-        Log.d(TAG, "Setting onClickListener for infoIconImageView")
-        binding.infoIconImageView.setOnClickListener {
-            Log.d(TAG, "infoIconImageView clicked")
-            sharedViewModel.idhNumberLiveData.value?.let {
-                checkSetupViewModel.getSpecs(
-                    it.id
-                )
+    private fun setInputFieldsEnabled(enabled: Boolean) {
+        Log.d(TAG, if (enabled) "enableInputFields() called" else "disableInputFields() called")
+        binding.departmentSpinner.isEnabled = enabled
+        binding.lineSpinner.isEnabled = enabled
+        binding.checkTypeSpinner.isEnabled = enabled
+        binding.idhNumberAutoCompleteTextView.isEnabled = enabled
+
+        if (enabled) {
+            binding.startNewCheckButton.visibility = View.GONE
+        } else {
+            binding.infoIconImageView.visibility = View.VISIBLE
+            Log.d(TAG, "Setting onClickListener for infoIconImageView")
+            binding.infoIconImageView.setOnClickListener {
+                Log.d(TAG, "infoIconImageView clicked")
+                sharedViewModel.idhNumberLiveData.value?.let {
+                    checkSetupViewModel.getSpecs(it.id)
+                }
             }
-        }
-        binding.startNewCheckButton.visibility = View.VISIBLE
-        binding.startNewCheckButton.setOnClickListener {
-            enableInputFields()
+            binding.startNewCheckButton.visibility = View.VISIBLE
+            binding.startNewCheckButton.setOnClickListener {
+                setInputFieldsEnabled(true)
+            }
         }
     }
 
-    private fun enableInputFields() {
-        binding.departmentSpinner.isEnabled = true
-        binding.lineSpinner.isEnabled = true
-        binding.checkTypeSpinner.isEnabled = true
-        binding.idhNumberAutoCompleteTextView.isEnabled = true
-        binding.startNewCheckButton.visibility = View.GONE
-    }
 
     private fun handleLoadingState(isLoading: Boolean) {
         if (isLoading) {
