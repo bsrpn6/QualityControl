@@ -3,7 +3,7 @@ plugins {
     id("org.jetbrains.kotlin.android")
     id("kotlin-android")
     id("androidx.navigation.safeargs.kotlin")
-    kotlin("kapt")
+    id("com.google.devtools.ksp")
     id("com.google.dagger.hilt.android")
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
@@ -13,12 +13,12 @@ plugins {
 android {
 
     namespace = "info.onesandzeros.qualitycontrol"
-    compileSdk = 33
+    compileSdk = 34
 
     defaultConfig {
         applicationId = "info.onesandzeros.qualitycontrol"
         minSdk = 29
-        targetSdk = 33
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0.0"
 
@@ -65,9 +65,6 @@ android {
         viewBinding = true
         buildConfig = true
     }
-    kapt {
-        correctErrorTypes = true
-    }
     tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
         kotlinOptions.jvmTarget = "17"
     }
@@ -75,10 +72,10 @@ android {
 
 dependencies {
 
-    implementation("androidx.core:core-ktx:1.10.1")
-    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.1")
-    implementation("androidx.activity:activity-compose:1.7.2")
-    implementation(platform("androidx.compose:compose-bom:2023.03.00"))
+    implementation("androidx.core:core-ktx:1.12.0")
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+    implementation("androidx.activity:activity-compose:1.8.2")
+    implementation(platform("androidx.compose:compose-bom:2024.02.02"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
     implementation("androidx.compose.ui:ui-tooling-preview")
@@ -88,22 +85,22 @@ dependencies {
     testImplementation("junit:junit:4.13.2")
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
-    androidTestImplementation(platform("androidx.compose:compose-bom:2023.03.00"))
+    androidTestImplementation(platform("androidx.compose:compose-bom:2024.02.02"))
     androidTestImplementation("androidx.compose.ui:ui-test-junit4")
     debugImplementation("androidx.compose.ui:ui-tooling")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.3.1")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
     coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.0.4")
 
     implementation("com.github.bumptech.glide:glide:4.14.2")
 
     // Hilt Dependency Injection
     implementation("com.google.dagger:hilt-android:2.44")
-    kapt("com.google.dagger:hilt-android-compiler:2.44")
+    ksp("com.google.dagger:hilt-android-compiler:2.44")
 
     // Navigation Component dependencies
-    val androidxNavigationVersion = "2.6.0"
+    val androidxNavigationVersion = "2.7.7"
     implementation("androidx.navigation:navigation-fragment-ktx:$androidxNavigationVersion")
     implementation("androidx.navigation:navigation-ui-ktx:$androidxNavigationVersion")
     implementation("androidx.navigation:navigation-fragment-ktx:$androidxNavigationVersion")
@@ -113,30 +110,30 @@ dependencies {
     implementation("androidx.room:room-runtime:$roomVersion")
     annotationProcessor("androidx.room:room-compiler:$roomVersion")
     implementation("androidx.room:room-ktx:$roomVersion")
-    kapt("androidx.room:room-compiler:$roomVersion")
+    ksp("androidx.room:room-compiler:$roomVersion")
 
     // Firebase
-    implementation(platform("com.google.firebase:firebase-bom:32.2.0"))
+    implementation(platform("com.google.firebase:firebase-bom:32.7.3"))
     implementation("com.google.firebase:firebase-analytics-ktx")
     implementation("com.google.firebase:firebase-core:21.1.1")
     implementation("com.google.firebase:firebase-perf-ktx")
 
     // Firebase Auth
-    implementation("com.google.firebase:firebase-auth:20.0.2")
+    implementation("com.google.firebase:firebase-auth:22.3.1")
 
     // Firebase ML Kit dependencies
-    implementation("com.google.firebase:firebase-ml-vision:24.0.3")
-    implementation("com.google.firebase:firebase-ml-vision-barcode-model:16.1.1")
+    implementation("com.google.firebase:firebase-ml-vision:24.1.0")
+    implementation("com.google.firebase:firebase-ml-vision-barcode-model:16.1.2")
 
     // Firebase Crashlytics
     implementation("com.google.firebase:firebase-crashlytics-ktx")
     implementation("com.google.firebase:firebase-analytics-ktx")
 
     // Google Play
-    implementation("com.google.android.gms:play-services-vision:20.0.0")
+    implementation("com.google.android.gms:play-services-vision:20.1.3")
 
     // Camera PreviewView
-    val cameraVersion = "1.1.0"
+    val cameraVersion = "1.3.2"
     implementation("androidx.camera:camera-camera2:$cameraVersion")
     implementation("androidx.camera:camera-lifecycle:$cameraVersion")
     implementation("androidx.camera:camera-view:$cameraVersion")
@@ -147,7 +144,7 @@ dependencies {
     implementation("com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.2")
 
     // cameraX
-    val xVersion = "1.2.3"
+    val xVersion = "1.3.2"
     implementation("androidx.camera:camera-core:$xVersion")
     implementation("androidx.camera:camera-camera2:$xVersion")
     implementation("androidx.camera:camera-lifecycle:$xVersion")
